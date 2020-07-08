@@ -1,0 +1,22 @@
+[
+  {
+    "mode": "NULLABLE",
+    "name": "incident_id",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "time_created",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "time_resolved",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "REPEATED",
+    "name": "changes",
+    "type": "STRING"
+  }
+]

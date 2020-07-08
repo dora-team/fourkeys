@@ -1,0 +1,17 @@
+[
+  {
+    "mode": "NULLABLE",
+    "name": "change_id",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "time_created",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "event_type",
+    "type": "STRING"
+  }
+]

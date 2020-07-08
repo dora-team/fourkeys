@@ -1,0 +1,17 @@
+[
+  {
+    "mode": "NULLABLE",
+    "name": "deploy_id",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "time_created",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "REPEATED",
+    "name": "changes",
+    "type": "STRING"
+  }
+]
