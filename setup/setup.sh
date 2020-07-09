@@ -184,7 +184,7 @@ fourkeys_project_setup () {
   # Create and save secret
   SECRET="$(python3 -c 'import secrets 
 print(secrets.token_hex(20))' | tr -d '\n')"
-  echo $SECRET | tr -d '\n' | gcloud beta secrets create github-secret \
+  echo $SECRET | tr -d '\n' | gcloud beta secrets create event-handler \
     --replication-policy=automatic \
     --data-file=-
   set +x; echo
