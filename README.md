@@ -35,6 +35,9 @@ Through six years of research, the [DevOps Research and Assessment (DORA)](https
   * Contains a python script for generating mock github data
 * event_handler/
   * Contains the code for the event_handler. This is the public service that accepts incoming webhooks.  
+* queries/
+  * Contains the SQL queries for creating the derived tables
+  * Contains a python script for schedulig the queries
 * setup/
   * Contains the code for setting up and tearing down the fourkeys pipeline. Also contains a script for extending the data sources.
 * shared/
@@ -98,7 +101,7 @@ SELECT * FROM four_keys.events_raw WHERE source = 'githubmock';
 ```
 
 
-## How to reclassify events
+## How to reclassify events / update your queries
 
 Currently the scripts consider some events to be “changes”, “deploys”, and “incidents.”   If you want to reclassify one of the events in the table (eg, you use a different label for your incidents other than “incident”), no changes are required on the architecture or code of the project.  Simply update the nightly scripts in BigQuery for the following tables:
 
@@ -107,6 +110,14 @@ Currently the scripts consider some events to be “changes”, “deploys”, a
 *   four\_keys.changes
 *   four\_keys.deployments
 *   four\_keys.incidents
+
+To update the scripts, it is recommended that you update the queries in the `queries` folder, rather than in the BigQuery UI.  Once you've update the query, you can update the scheduled query that populates the table by the `schedule.py` script. For example, if you wanted to update the `four_keys.changes` table, you'd run:
+
+```sh 
+python3 schedule.py --query_file=changes.sql --table=changes
+```
+
+Note: the query_file flag should contain the absolute path of the file.  
 
 
 ## How to extend to other event sources
