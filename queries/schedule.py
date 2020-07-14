@@ -42,11 +42,11 @@ def create_or_update_scheduled_query(argv):
     transfer_config = google.protobuf.json_format.ParseDict(
         {
             "destination_dataset_id": "four_keys",
-            "display_name": f"{table}_test",
+            "display_name": table,
             "data_source_id": "scheduled_query",
             "params": {
                 "query": query,
-                "destination_table_name_template": f"{table}_test",
+                "destination_table_name_template": table,
                 "write_disposition": "WRITE_TRUNCATE",
             },
             "schedule": "every 24 hours",
@@ -56,17 +56,16 @@ def create_or_update_scheduled_query(argv):
 
     # Update transfer_config if it already exists
     for scheduled_query in client.list_transfer_configs(parent):
-        if scheduled_query.display_name == f"{table}_test":
+        if scheduled_query.display_name == table:
 
-            # Update transfer_config map to current scheduled_query
+            # Update transfer_config to map to current scheduled_query
             transfer_config.name = scheduled_query.name
 
-            # Set update mask.  We only want to update params.
+            # Set update mask. We only want to update params.
             update_mask = {"paths": ["params"]}
 
             response = client.update_transfer_config(transfer_config, update_mask)
             return f"Updated scheduled query '{response.name}'"
-
 
     # Create the transfer config if it doesn't exist
     response = client.create_transfer_config(parent, transfer_config)
