@@ -114,7 +114,7 @@ Currently the scripts consider some events to be “changes”, “deploys”, a
 To update the scripts, we recommend that you update the sql files in the `queries` folder, rather than in the BigQuery UI.  Once you've edited the SQL, run the `schedule.py` script to update the scheduled query that populates the table.  For example, if you wanted to update the `four_keys.changes` table, you'd run:
 
 ```sh 
-python3 schedule.py --query_file=changes.sql
+python3 schedule.py --query_file=changes.sql --table=changes
 ```
 
 Notes: 
