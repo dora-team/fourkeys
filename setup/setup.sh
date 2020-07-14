@@ -236,37 +236,16 @@ generate_data(){
 }
 
 schedule_bq_queries(){
+  cd ${DIR}/../queries/
+  pip3 install -r requirements.txt -q
   echo "Creating BigQuery scheduled queries for derived tables.."; set -x
-  bq mk \
-    --transfer_config \
-    --project_id=${FOURKEYS_PROJECT} \
-    --target_dataset=four_keys \
-    --display_name='Changes Table' \
-    --data_source=scheduled_query \
-    --params='{"destination_table_name_template":"changes",
-               "write_disposition":"WRITE_TRUNCATE",
-               "query":"SELECT id as change_id, time_created, event_type FROM four_keys.events_raw WHERE event_type in (\"pull_request\", \"push\") GROUP BY 1,2,3;"}'
 
-  bq mk \
-    --transfer_config \
-    --project_id=${FOURKEYS_PROJECT} \
-    --target_dataset=four_keys \
-    --display_name='Deployments Table' \
-    --data_source=scheduled_query \
-    --params='{"destination_table_name_template":"deployments",
-               "write_disposition":"WRITE_TRUNCATE",
-               "query":"CREATE TEMP FUNCTION json2array(json STRING) RETURNS ARRAY<STRING> LANGUAGE js AS \"\"\" return JSON.parse(json).map(x=>JSON.stringify(x)); \"\"\"; SELECT deploy_id, time_created, ARRAY_AGG(DISTINCT JSON_EXTRACT_SCALAR(changes, \"$.id\")) changes FROM( SELECT deploy_id, deploys.time_created time_created, change_metadata, json2array(JSON_EXTRACT(change_metadata, \"$.commits\")) array_commits FROM (SELECT id as deploy_id, time_created, IF(source = \"cloud_build\", JSON_EXTRACT_SCALAR(metadata, \"$.substitutions.COMMIT_SHA\"), JSON_EXTRACT_SCALAR(metadata, \"$.deployment.sha\")) as main_commit FROM four_keys.events_raw WHERE (source = \"cloud_build\" AND JSON_EXTRACT_SCALAR(metadata, \"$.status\") = \"SUCCESS\") OR (source LIKE \"github%\" and event_type = \"deployment\") ) deploys JOIN (SELECT id, metadata as change_metadata FROM four_keys.events_raw) changes on deploys.main_commit = changes.id) d, d.array_commits changes GROUP BY 1,2 ;"}'
+  python3 schedule.py --query_file=changes.sql --table=changes
+  python3 schedule.py --query_file=deployments.sql --table=deployments
+  python3 schedule.py --query_file=incidents.sql --table=incidents
 
-  bq mk \
-    --transfer_config \
-    --project_id=${FOURKEYS_PROJECT} \
-    --target_dataset=four_keys \
-    --display_name='Incidents Table' \
-    --data_source=scheduled_query \
-    --params='{"destination_table_name_template":"incidents",
-               "write_disposition":"WRITE_TRUNCATE",
-               "query":"SELECT incident_id, TIMESTAMP(time_created) time_created, TIMESTAMP(MAX(time_resolved)) as time_resolved, ARRAY_AGG(root_cause IGNORE NULLS) changes, FROM ( SELECT JSON_EXTRACT_SCALAR(metadata, \"$.issue.number\") as incident_id, JSON_EXTRACT_SCALAR(metadata, \"$.issue.created_at\") as time_created, JSON_EXTRACT_SCALAR(metadata, \"$.issue.closed_at\") as time_resolved, REGEXP_EXTRACT(metadata, r\"root cause: ([[:alnum:]]*)\") as root_cause, REGEXP_CONTAINS(JSON_EXTRACT(metadata, \"$.issue.labels\"), \"\\\"name\\\":\\\"Incident\\\"\") as bug FROM four_keys.events_raw WHERE event_type LIKE \"issue%\") GROUP BY 1,2 HAVING max(bug) is True;"}'
   set +x; echo
+  cd ${DIR}
 }
 
 project_prompt(){
@@ -289,7 +268,7 @@ project_prompt(){
   done
 }
 
-#Main
+Main
 read -p "Would you like to create a new Google Cloud Project for the four key metrics? (y/n):" new_yesno
 if [[ ${new_yesno} == "y" ]]
 then echo "Setting up the environment..."
