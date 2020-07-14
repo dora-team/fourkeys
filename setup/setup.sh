@@ -268,7 +268,7 @@ project_prompt(){
   done
 }
 
-Main
+#Main
 read -p "Would you like to create a new Google Cloud Project for the four key metrics? (y/n):" new_yesno
 if [[ ${new_yesno} == "y" ]]
 then echo "Setting up the environment..."
