@@ -67,10 +67,10 @@ def create_or_update_scheduled_query(argv):
             response = client.update_transfer_config(transfer_config, update_mask)
             return f"Updated scheduled query '{response.name}'"
 
-    else:
-        # Create the transfer config if it doesn't exist
-        response = client.create_transfer_config(parent, transfer_config)
-        return f"Created scheduled query '{response.name}'"
+
+    # Create the transfer config if it doesn't exist
+    response = client.create_transfer_config(parent, transfer_config)
+    return f"Created scheduled query '{response.name}'"
 
 
 if __name__ == '__main__':
