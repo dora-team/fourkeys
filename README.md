@@ -111,13 +111,16 @@ Currently the scripts consider some events to be “changes”, “deploys”, a
 *   four\_keys.deployments
 *   four\_keys.incidents
 
-To update the scripts, it is recommended that you update the queries in the `queries` folder, rather than in the BigQuery UI.  Once you've update the query, you can update the scheduled query that populates the table by the `schedule.py` script. For example, if you wanted to update the `four_keys.changes` table, you'd run:
+To update the scripts, we recommend that you update the sql files in the `queries` folder, rather than in the BigQuery UI.  Once you've edited the SQL, run the `schedule.py` script to update the scheduled query that populates the table.  For example, if you wanted to update the `four_keys.changes` table, you'd run:
 
 ```sh 
-python3 schedule.py --query_file=changes.sql --table=changes
+python3 schedule.py --query_file=changes.sql
 ```
 
-Note: the query_file flag should contain the absolute path of the file.  
+Notes: 
+
+- The query_file flag should contain the absolute path of the file.  
+- To feed into the dashboard, the table name should be one of `changes`, `deployments`, `incidents`. 
 
 
 ## How to extend to other event sources
