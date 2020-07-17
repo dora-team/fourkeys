@@ -51,7 +51,7 @@ _The project currently uses python3 and supports data extraction for Cloud Build
 
 
 1.  Fork this project
-1.  Run the automation scripts, which will do the following (See the [install.md](setup/INSTALL.md) for more details):
+1.  Run the automation scripts, which will do the following (See the [INSTALL.md](setup/INSTALL.md) for more details):
     1.  Set up a new Google Cloud Project
     1.  Create and deploy the Cloud Run webhook target and ETL workers
     1.  Create the Pub/Sub topics and subscriptions
