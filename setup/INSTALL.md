@@ -8,9 +8,10 @@ Getting started using FourKeys is relatively simple.  You will need a few tools 
 
 You will also need to be owner on a GCP project that has billing enabled.  This project will NOT be altered during set up, but the billing information from this parent project will be applied to the 2 projects we created.
 
-Once you have your parent project just do the following:
+Once you have your parent project just do the following from the top-level directory of this repository:
 ```bash
 gcloud config set project $PARENT_PROJECT_ID
+cd setup
 ./setup.sh 2>&1 | tee setup.log
 ```
 

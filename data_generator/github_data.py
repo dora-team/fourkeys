@@ -118,8 +118,9 @@ def generate_data():
 
     return num_success
 
+
 num_success = 0
 for x in range(10):
     num_success += generate_data()
-    
+
 print(f"{num_success} changes successfully sent to event-handler")
