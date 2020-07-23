@@ -297,6 +297,6 @@ schedule_bq_queries
 
 DATASTUDIO_URL=https://datastudio.google.com/datasources/create?connectorId=AKfycbxCOPCqhVOJQlRpOPgJ47dPZNdDu44MXbjsgKw_2-s
 python -m webbrowser ${DATASTUDIO_URL}
-echo $DATASTUDIO_URL
+echo "Please visit $DATASTUDIO_URL to connect your data to the dashboard template."
 
-echo "Setup complete.  To integrate with your own repo or other services, please see the README.md"
+echo "\nSetup complete.  To integrate with your own repo or other services, please see the README.md"
