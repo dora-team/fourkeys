@@ -25,11 +25,12 @@ FLAGS = flags.FLAGS
 flags.DEFINE_string('table', '', 'Table name for scheduled query output')
 flags.DEFINE_string('query_file', '', 'Query to schedule')
 
+PROJECT_ID = os.environ.get("FOURKEYS_PROJECT")
 
 def create_or_update_scheduled_query(argv):
     # Set up the client 
     client = bigquery_datatransfer_v1.DataTransferServiceClient()
-    parent = client.project_path(os.environ.get("FOURKEYS_PROJECT"))
+    parent = client.project_path(PROJECT_ID)
 
     # Flags from command line
     table = FLAGS.table
