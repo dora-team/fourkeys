@@ -35,6 +35,9 @@ Through six years of research, the [DevOps Research and Assessment (DORA)](https
   * Contains a python script for generating mock github data
 * event_handler/
   * Contains the code for the event_handler. This is the public service that accepts incoming webhooks.  
+* queries/
+  * Contains the SQL queries for creating the derived tables
+  * Contains a python script for schedulig the queries
 * setup/
   * Contains the code for setting up and tearing down the fourkeys pipeline. Also contains a script for extending the data sources.
 * shared/
@@ -83,7 +86,7 @@ export GITHUB_SECRET={your github signing secret}
 Then run the following command:
 
 ```sh
-python data_generator/data.py
+python3 data_generator/data.py
 ```
 
 You will see events being run through the pipeline:
@@ -98,7 +101,7 @@ SELECT * FROM four_keys.events_raw WHERE source = 'githubmock';
 ```
 
 
-## How to reclassify events
+## How to reclassify events / update your queries
 
 Currently the scripts consider some events to be “changes”, “deploys”, and “incidents.”   If you want to reclassify one of the events in the table (eg, you use a different label for your incidents other than “incident”), no changes are required on the architecture or code of the project.  Simply update the nightly scripts in BigQuery for the following tables:
 
@@ -107,6 +110,17 @@ Currently the scripts consider some events to be “changes”, “deploys”, a
 *   four\_keys.changes
 *   four\_keys.deployments
 *   four\_keys.incidents
+
+To update the scripts, we recommend that you update the sql files in the `queries` folder, rather than in the BigQuery UI.  Once you've edited the SQL, run the `schedule.py` script to update the scheduled query that populates the table.  For example, if you wanted to update the `four_keys.changes` table, you'd run:
+
+```sh 
+python3 schedule.py --query_file=changes.sql --table=changes
+```
+
+Notes: 
+
+- The query_file flag should contain the relative path of the file.  
+- To feed into the dashboard, the table name should be one of `changes`, `deployments`, `incidents`. 
 
 
 ## How to extend to other event sources
@@ -132,7 +146,7 @@ pip install nox
 The noxfile defines what tests will run on the project.  Currently, it’s set up to run all the pytest files in all the directories, as well as run a linter on all directories.   To run nox:
 
 ```sh
-python -m nox
+python3 -m nox
 ```
 
 ### To list tests
@@ -140,7 +154,7 @@ python -m nox
 To list all the test sesssions in the noxfile:
 
 ```sh
-python -m nox -l
+python3 -m nox -l
 ```
 
 ### To run a specific test
@@ -148,7 +162,7 @@ python -m nox -l
 Once you have the list of test sessions, you can run a specific session with:
 
 ```sh
-python -m nox -s "{name_of_session}" 
+python3 -m nox -s "{name_of_session}" 
 ```
 
 The "name_of_session" will be something like "py-3.6(folder='.....').  
