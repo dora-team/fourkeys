@@ -5,6 +5,7 @@ LANGUAGE js AS """
   return JSON.parse(json).map(x=>JSON.stringify(x));
 """; 
 
+
 SELECT
 source,
 deploy_id,
@@ -40,3 +41,4 @@ FROM(
     changes on deploys.main_commit = changes.id) d, d.array_commits changes
 GROUP BY 1,2,3
 ;
+
