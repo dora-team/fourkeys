@@ -79,6 +79,11 @@ fourkeys_project_setup () {
   gcloud services enable secretmanager.googleapis.com
   set +x; echo
 
+  echo "Setting Cloud Run options"; set -x
+  gcloud config set run/platform managed
+  gcloud config set run/region ${FOURKEYS_REGION}
+  set +x; echo
+
   echo "Setting up service accounts and permissions.."; set -x
   gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} \
     --member serviceAccount:${FOURKEYS_PROJECTNUM}@cloudbuild.gserviceaccount.com \
