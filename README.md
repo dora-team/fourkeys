@@ -86,7 +86,7 @@ export GITHUB_SECRET={your github signing secret}
 Then run the following command:
 
 ```sh
-python data_generator/data.py
+python3 data_generator/data.py
 ```
 
 You will see events being run through the pipeline:
@@ -119,7 +119,7 @@ python3 schedule.py --query_file=changes.sql --table=changes
 
 Notes: 
 
-- The query_file flag should contain the absolute path of the file.  
+- The query_file flag should contain the relative path of the file.  
 - To feed into the dashboard, the table name should be one of `changes`, `deployments`, `incidents`. 
 
 
@@ -146,7 +146,7 @@ pip install nox
 The noxfile defines what tests will run on the project.  Currently, it’s set up to run all the pytest files in all the directories, as well as run a linter on all directories.   To run nox:
 
 ```sh
-python -m nox
+python3 -m nox
 ```
 
 ### To list tests
@@ -154,7 +154,7 @@ python -m nox
 To list all the test sesssions in the noxfile:
 
 ```sh
-python -m nox -l
+python3 -m nox -l
 ```
 
 ### To run a specific test
@@ -162,7 +162,7 @@ python -m nox -l
 Once you have the list of test sessions, you can run a specific session with:
 
 ```sh
-python -m nox -s "{name_of_session}" 
+python3 -m nox -s "{name_of_session}" 
 ```
 
 The "name_of_session" will be something like "py-3.6(folder='.....').  
