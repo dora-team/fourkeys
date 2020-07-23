@@ -275,7 +275,7 @@ check_bq_status(){
   do
 
   # Wait for BQ jobs to run
-  jobStatus=$(bq ls -j -a -n 10 four-keys-experimental)
+  jobStatus=$(bq ls -j -a -n 10 ${FOURKEYS_PROJECT})
   if [[ "${jobStatus}" != *"PENDING"* ]]
   then continue=0
   echo "BigQuery jobs done!"
