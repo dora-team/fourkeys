@@ -51,7 +51,7 @@ def index():
         if "headers" in attr:
             headers = json.loads(attr["headers"])
 
-            # Process Github Events
+            # Process Gitlab Events
             if "X-Gitlab-Event" in headers:
                 event = process_gitlab_event(headers, msg)
 
