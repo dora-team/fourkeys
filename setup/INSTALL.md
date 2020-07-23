@@ -47,6 +47,9 @@ The steps are:
   - Deploy HS to staging
   - Deploy HS to prod
   - Add dummy data to FourKeys BigQuery
+- Connect to the DataStudio Dashboard template
+  - Select organization and project
+  - Click "Create Report" on the next screen with the list of fields
 
 
 ## How To Configure A Live Repo
@@ -96,3 +99,5 @@ And now, whenever a pull request is merged into master of your fork, Cloud Build
 ## How To Configure For Your Own Repo
 
 To use this project with your own repo, it is a relatively simple matter of repeating the steps above, but instead of configuring the Hipster Store demo repo to send data, configure it against your own repo.
+
+## How to 
