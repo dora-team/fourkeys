@@ -60,7 +60,6 @@ fourkeys_project_setup () {
   fi
 
   export FOURKEYS_REGION=us-central1
-  export SSH_PRIVATE_KEY=$(cat ~/.ssh/id_rsa)
 
   echo "Setting up project for Four Keys Dashboard..."; set -x
   get_project_number
@@ -87,65 +86,31 @@ fourkeys_project_setup () {
     --member serviceAccount:${FOURKEYS_PROJECTNUM}@cloudbuild.gserviceaccount.com \
     --role roles/iam.serviceAccountUser
 
-  echo "Creating Github event handler Pub/Sub topic..."; set -x
-  gcloud pubsub topics create GitHub-Hookshot
-  set +x; echo
-
-  echo "Creating Gitlab event handler Pub/Sub topic..."; set -x
-  gcloud pubsub topics create Gitlab
-  set +x; echo
-
-  echo "Creating cloud-builds topic..."; set -x
-  gcloud pubsub topics create cloud-builds
-  set +x; echo
-
-  echo "Deploying event handler..."; set -x
+  echo "Deploying event-handler..."; set -x
   cd $DIR/../event_handler
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
   set +x; echo
 
-  echo "Deploying BQ github worker..."; set -x
-  cd $DIR/../bq_workers/github_parser
-  gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
-  set +x; echo
-
-  echo "Deploying BQ cloud build worker..."; set -x
-  cd $DIR/../bq_workers/cloud_build_parser
-  gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} . 
-  set +x; echo
-
-  echo "Creating BQ worker Pub/Sub subscription..."; set -x
-  # grant Cloud Pub/Sub the permission to create tokens
+  echo "Grant Cloud Pub/Sub the permission to create tokens..."; set -x
   export PUBSUB_SERVICE_ACCOUNT="service-${FOURKEYS_PROJECTNUM}@gcp-sa-pubsub.iam.gserviceaccount.com"
   gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} \
     --member="serviceAccount:${PUBSUB_SERVICE_ACCOUNT}"\
     --role='roles/iam.serviceAccountTokenCreator'
+
   gcloud iam service-accounts create cloud-run-pubsub-invoker \
      --display-name "Cloud Run Pub/Sub Invoker"
-  gcloud run  --platform managed services add-iam-policy-binding github-worker \
-   --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
-   --role=roles/run.invoker
-  gcloud run  --platform managed services add-iam-policy-binding cloud-build-worker \
-   --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
-   --role=roles/run.invoker
-
-  # Get push endpoint for github-worker
-  export PUSH_ENDPOINT_URL=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe github-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
-  # configure the subscription push identity
-  gcloud pubsub subscriptions create GithubSubscription \
-    --topic=GitHub-Hookshot \
-    --push-endpoint=${PUSH_ENDPOINT_URL} \
-    --push-auth-service-account=cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com
   set +x; echo
 
-  # Get push endpoint for cloud-build-worker
-  export PUSH_ENDPOINT_URL=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe cloud-build-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
-  # configure the subscription push identity
-  gcloud pubsub subscriptions create CloudBuildSubscription \
-    --topic=cloud-builds \
-    --push-endpoint=${PUSH_ENDPOINT_URL} \
-    --push-auth-service-account=cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com
-  set +x; echo
+  echo "Creating source pipelines"
+  if [[ ${gitlab_yesno} == "y" ]]
+  then gitlab_pipeline
+  fi
+  if [[ ${github_yesno} == "y" ]]
+  then github_pipeline
+  fi
+
+  # Always assume cloud-build pipeline
+  cloud_build_pipeline
 
   echo "Creating BigQuery dataset and tables"; set -x
   bq mk \
@@ -173,7 +138,7 @@ fourkeys_project_setup () {
     $DIR/incidents_schema.json
   set +x; echo
 
-  echo "Saving Github Secret in Secret Manager.."; set -x\
+  echo "Saving Event Handler Secret in Secret Manager.."; set -x\
   # Set permissions so Cloud Run can access secrets
   SERVICE_ACCOUNT=$(gcloud iam service-accounts list --format 'value(EMAIL)' \
     --filter 'NAME:Default compute service account')
@@ -224,20 +189,114 @@ helloworld_project_setup () {
 
 }
 
+github_pipeline(){
+  echo "Creating Github Data Pipeline..."
+
+  echo "Deploying BQ github worker..."; set -x
+  cd $DIR/../bq_workers/github_parser
+  gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
+  set +x; echo
+
+  echo "Creating Github Pub/Sub Topic & Subscription..."
+  gcloud pubsub topics create GitHub-Hookshot
+
+  echo "Creating cloud-builds topic..."; set -x
+  gcloud pubsub topics create cloud-builds
+  set +x; echo
+
+  gcloud run  --platform managed services add-iam-policy-binding github-worker \
+   --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
+   --role=roles/run.invoker
+
+  # Get push endpoint for github-worker
+  export PUSH_ENDPOINT_URL=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe github-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
+  # configure the subscription push identity
+  gcloud pubsub subscriptions create GithubSubscription \
+    --topic=GitHub-Hookshot \
+    --push-endpoint=${PUSH_ENDPOINT_URL} \
+    --push-auth-service-account=cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com
+  set +x; echo
+  cd $DIR
+}
+
+gitlab_pipeline(){
+  echo "Creating Gitlab Data Pipeline..."
+
+  echo "Deploying BQ gitlab worker..."; set -x
+  cd $DIR/../bq_workers/gitlab_parser
+  gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
+  set +x; echo
+
+  echo "Creating Github Pub/Sub Topic & Subscription..."
+  gcloud pubsub topics create Gitlab
+
+  gcloud run  --platform managed services add-iam-policy-binding gitlab-worker \
+   --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
+   --role=roles/run.invoker
+
+  # Get push endpoint for gitlab-worker
+  export PUSH_ENDPOINT_URL=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe gitlab-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
+  # configure the subscription push identity
+  gcloud pubsub subscriptions create GitlabSubscription \
+    --topic=Gitlab \
+    --push-endpoint=${PUSH_ENDPOINT_URL} \
+    --push-auth-service-account=cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com
+  set +x; echo
+  cd $DIR
+}
+
+
+cloud_build_pipeline(){
+  echo "Creating Cloud Build Data Pipeline..."
+
+  echo "Deploying BQ cloud build worker..."; set -x
+  cd $DIR/../bq_workers/cloud_build_parser
+  gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} . 
+  set +x; echo
+
+  echo "Creating cloud-builds topic..."; set -x
+  gcloud pubsub topics create cloud-builds
+  set +x; echo
+
+  gcloud run  --platform managed services add-iam-policy-binding cloud-build-worker \
+   --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
+   --role=roles/run.invoker
+
+  # Get push endpoint for cloud-build-worker
+  export PUSH_ENDPOINT_URL=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe cloud-build-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
+  # configure the subscription push identity
+  gcloud pubsub subscriptions create CloudBuildSubscription \
+    --topic=cloud-builds \
+    --push-endpoint=${PUSH_ENDPOINT_URL} \
+    --push-auth-service-account=cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com
+  set +x; echo
+  cd $DIR
+}
+
 generate_data(){
   gcloud config set project ${FOURKEYS_PROJECT}
   echo "Creating mock data..."; 
   export WEBHOOK=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe event-handler --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
-  export GITHUB_SECRET=$SECRET
+  export SECRET=$SECRET
 
+
+  if [[ ${gitlab_yesno} == "y" ]]
   set -x
-  python3 ${DIR}/../data_generator/data.py
+  then python3 ${DIR}/../data_generator/gitlab_data.py
   set +x
+  fi
+  if [[ ${github_yesno} == "y" ]]
+  set -x
+  then python3 ${DIR}/../data_generator/github_data.py  
+  set +x
+  fi
+  
 }
 
 schedule_bq_queries(){
   cd ${DIR}/../queries/
   pip3 install -r requirements.txt -q
+
   echo "Creating BigQuery scheduled queries for derived tables.."; set -x
 
   python3 schedule.py --query_file=changes.sql --table=changes
@@ -308,6 +367,9 @@ create_new_project
 else project_prompt
 fi
 
+# Create workers for the correct sources
+read -p "Are you using Gitlab? (y/n):" gitlab_yesno
+read -p "Are you using Github? (y/n):" github_yesno
 fourkeys_project_setup
 
 read -p "Would you like to create a separate new project to test deployments for the four key metrics? (y/n):" test_yesno

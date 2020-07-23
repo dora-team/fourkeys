@@ -83,13 +83,13 @@ def get_source(headers):
     """
     Gets the source from the User-Agent header
     """
+    if "X-Gitlab-Event" in headers:
+        return "Gitlab"
+
     if "User-Agent" in headers:
         if "/" in headers["User-Agent"]:
             return headers["User-Agent"].split("/")[0]
         return headers["User-Agent"]
-
-    if "X-Gitlab-Event" in headers:
-        return "Gitlab"
 
     return None
 

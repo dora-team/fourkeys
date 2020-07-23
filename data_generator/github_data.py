@@ -24,7 +24,6 @@ import time
 from hashlib import sha1
 from urllib.request import Request, urlopen
 
-
 def make_changes(num_changes):
     changes = []
     # One week ago
@@ -66,7 +65,7 @@ def make_issue(root_cause):
 def send_mock_github_events(event_type, data):
     webhook_url = os.environ.get("WEBHOOK")
     data = json.dumps(data, default=str).encode()
-    secret = os.environ.get("GITHUB_SECRET").encode()
+    secret = os.environ.get("SECRET").encode()
     signature = hmac.new(secret, data, sha1)
 
     request = Request(webhook_url, data)
