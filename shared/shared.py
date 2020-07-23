@@ -18,7 +18,8 @@ from google.cloud import bigquery
 
 
 def insert_row_into_bigquery(event):
-    assert event, "No data to insert"
+    if not event:
+        raise Exception("No data to insert")
 
     # Set up bigquery instance
     client = bigquery.Client()
