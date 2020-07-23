@@ -295,6 +295,8 @@ then generate_data
 fi
 schedule_bq_queries
 
-python -m webbrowser https://datastudio.google.com/datasources/create?connectorId=AKfycbxCOPCqhVOJQlRpOPgJ47dPZNdDu44MXbjsgKw_2-s
+DATASTUDIO_URL=https://datastudio.google.com/datasources/create?connectorId=AKfycbxCOPCqhVOJQlRpOPgJ47dPZNdDu44MXbjsgKw_2-s
+python -m webbrowser ${DATASTUDIO_URL}
+echo $DATASTUDIO_URL
 
 echo "Setup complete.  To integrate with your own repo or other services, please see the README.md"
