@@ -268,6 +268,22 @@ project_prompt(){
   done
 }
 
+check_bq_status(){
+  echo "Waiting for BigQuery jobs to complete..." 
+  continue=1
+  while [[ ${continue} -gt 0 ]]
+  do
+
+  # Wait for BQ jobs to run
+  jobStatus=$(bq ls -j -a -n 10 ${FOURKEYS_PROJECT})
+  if [[ "${jobStatus}" != *"PENDING"* ]]
+  then continue=0
+  echo "BigQuery jobs done!"
+  fi
+
+  done
+}
+
 #Main
 read -p "Would you like to create a new Google Cloud Project for the four key metrics? (y/n):" new_yesno
 if [[ ${new_yesno} == "y" ]]
@@ -289,6 +305,7 @@ if [[ ${mock_yesno} == "y" ]]
 then generate_data
 fi
 schedule_bq_queries
+check_bq_status
 
 python -m webbrowser https://datastudio.google.com/datasources/create?connectorId=AKfycbxCOPCqhVOJQlRpOPgJ47dPZNdDu44MXbjsgKw_2-s
 
