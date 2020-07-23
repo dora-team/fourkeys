@@ -63,7 +63,7 @@ fourkeys_project_setup () {
   export SSH_PRIVATE_KEY=$(cat ~/.ssh/id_rsa)
 
   echo "Setting up project for Four Keys Dashboard..."; set -x
-  export FOURKEYS_PROJECTNUM=$(gcloud projects list --filter="${FOURKEYS_PROJECT}" --format="value(PROJECT_NUMBER)")
+  get_project_number
   gcloud config set project ${FOURKEYS_PROJECT}
   set +x; echo
 
@@ -263,6 +263,21 @@ project_prompt(){
   then continue=0
   else read -p "Please input project_id: " projectid
   export FOURKEYS_PROJECT=${projectid}
+  fi
+
+  done
+}
+
+get_project_number(){
+  # There is sometimes a delay in the API and gcloud projects list will return nothing
+  # Run the gcloud command until it returns a value
+  continue=1
+  while [[ ${continue} -gt 0 ]]
+  do
+
+  export FOURKEYS_PROJECTNUM=$(gcloud projects list --filter="${FOURKEYS_PROJECT}" --format="value(PROJECT_NUMBER)")
+  if [[ ${FOURKEYS_PROJECTNUM} ]]
+  then continue=0
   fi
 
   done
