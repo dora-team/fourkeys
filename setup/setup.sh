@@ -78,6 +78,11 @@ fourkeys_project_setup () {
   gcloud services enable secretmanager.googleapis.com
   set +x; echo
 
+  echo "Setting Cloud Run options"; set -x
+  gcloud config set run/platform managed
+  gcloud config set run/region ${FOURKEYS_REGION}
+  set +x; echo
+
   echo "Setting up service accounts and permissions.."; set -x
   gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} \
     --member serviceAccount:${FOURKEYS_PROJECTNUM}@cloudbuild.gserviceaccount.com \
@@ -384,6 +389,8 @@ fi
 schedule_bq_queries
 check_bq_status
 
-python -m webbrowser https://datastudio.google.com/datasources/create?connectorId=AKfycbxCOPCqhVOJQlRpOPgJ47dPZNdDu44MXbjsgKw_2-s
+DATASTUDIO_URL=https://datastudio.google.com/datasources/create?connectorId=AKfycbxCOPCqhVOJQlRpOPgJ47dPZNdDu44MXbjsgKw_2-s
+python3 -m webbrowser ${DATASTUDIO_URL}
+echo "Please visit $DATASTUDIO_URL to connect your data to the dashboard template."
 
-echo "Setup complete.  To integrate with your own repo or other services, please see the README.md"
+echo "\nSetup complete.  To integrate with your own repo or other services, please see the README.md"
