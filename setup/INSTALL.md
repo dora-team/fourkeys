@@ -71,7 +71,7 @@ The setup script can create mock data, but it cannot integrate automatically wit
 
 Doing this will require a few extra manual steps:
 
-#### Integrate with your projects for live data
+#### Collect Changes Data
 
 ##### Github instructions
 - Start with your Github repo
@@ -114,15 +114,17 @@ gcloud secrets versions access 1 --secret="github-secret"
 - Leave the `Enable SSL verification selected`
 - Finish with clicking 'Add Webhook'
 
-##### Configuring Cloud Build to deploy on PR merges
-- Go back to your forked repo's main page
+#### Collect Deployment Data
+
+##### Configuring Cloud Build to deploy on GitHub PR merges
+- Go back to your repo's main page
 - At the top of the Github page, click 'Marketplace'
 - Search for 'Cloud Build'
 - Select 'Google Cloud Build'
 - Click 'Set Up Plan'
 - Click 'Set up with Google Cloud Build'
 - Select 'Only select repositories'
-- Fill in your forked microservices-demo repo
+- Fill in your forked repo
 - Log in to Google Cloud Platform
 - Add your new FourKeys project named fourkeys-XXXXX
 - Select your repo
@@ -131,8 +133,44 @@ gcloud secrets versions access 1 --secret="github-secret"
 
 And now, whenever a pull request is merged into master of your fork, Cloud Build will trigger a deploy into prod and data will flow into your Four Keys project.
 
-## How To Configure For Your Own Repo
+##### Configuring Cloud Build to deploy on Gitlab merges
+- Go to your fourkeys project and [create a service account](https://cloud.google.com/iam/docs/creating-managing-service-accounts#iam-service-accounts-create-console) called `gitlab-deploy`
+- [Create a JSON service account key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#iam-service-account-keys-create-console) for your `gitlab-deploy` service account
+- In your Gitlab Repo, navigate to `Settings` on the left-hand menu and then select `CI/CD`
+- Save your account key under variables.
+  - Input SERVICE_ACCOUNT in the `key` field.
+  - Input the JSON in the `Value` field. 
+  - Select `Protect variable`
+- Save your Google Cloud project-id under variables
+ - Input `PROJECT_ID` in the `key` field
+ - Input your project-id in the `value` field
+- Add a `.gitlab-ci.yml` file to your repo
+```
+image: google/cloud-sdk:alpine
 
-To use this project with your own repo, it is a relatively simple matter of repeating the steps above, but instead of configuring the Hipster Store demo repo to send data, configure it against your own repo.
+deploy_production:
+  stage: deploy
+  environment: Production
+  only:
+  - master
+  script:
+  - echo $SERVICE_ACCOUNT > /tmp/$CI_PIPELINE_ID.json
+  - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
+  - gcloud builds submit . --project $PROJECT_ID
+  after_script:
+  - rm /tmp/$CI_PIPELINE_ID.json
+```
 
-## How to 
+This will trigger a deployment on any `push` to the `master` branch.
+
+#### Collect Incident Data
+
+For this demo, we're using Gitlab and/or Github issues to track incidents.  
+
+##### To create an incident
+
+- Open an issue
+- Add the tag `Incident`
+- In the body of the issue, input `root cause: {SHA of the commit}`
+
+When the incident is resolved, simply close the issue. The incident will be measured from the time of the deployment, to the resolution of the issue.  
