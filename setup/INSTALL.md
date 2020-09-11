@@ -1,176 +1,193 @@
-# Installation Guide
+# Installation guide
 
-## Getting Started
+This guide describes how to set up Four Keys with your GitHub or GitLab project. The main setps are:
 
-Getting started using FourKeys is relatively simple.  You will need a few tools installed:
-#### Requirements
-- [GCloud SDK](https://cloud.google.com/sdk/install)
+1.  [Runing the setup script](#running_the_setup_script)
+1.  Integrating with your GitHub or Git Lab repo by:
+    1.  [Collecting changes data](#collecting_changes_data)
+    1.  [Collecting deployment data](#collecting_deployment_data)
+    1.  [Collecting incident data](#collecting_incident_data)
 
-You will also need to be owner on a GCP project that has billing enabled.  You may either use this project to house the architecture for the Four Keys, or you will be given the option to create new projects.  If you create new projects, the original project will NOT be altered during set up, but the billing information from this parent project will be applied to any projects created.
+## Before you begin
 
-Once you have your parent project just do the following from the top-level directory of this repository:
-```bash
-gcloud config set project $PARENT_PROJECT_ID
-cd setup
-./setup.sh 2>&1 | tee setup.log
-```
+1.  Install [GCloud SDK](https://cloud.google.com/sdk/install).
+1.  You must be owner on a Google Cloud project that has billing enabled. You may either use this project to house the architecture for the Four Keys, or you will be given the option to create new projects. If you create new projects, the original Google Cloud project will NOT be altered during set up, but the billing information from this parent project will be applied to any projects created.
 
-#### Manual Prompts
-The setup script will prompt you for the following input:
+## Running the setup script
 
-- Would you like to create a new Google Cloud Project for the four key metrics? (y/n)
-  - If you choose no, you will be asked to input and confirm the ID of the project that you want to use.
-- Are you using Gitlab? (y/n)
-  - If you choose yes, the Gitlab specific Pub/Sub topic, subscriptions, and worker will be created.
-- Are you using Github? (y/n)
-  - If you choose yes, the Github specific Pub/Sub topic, subscriptions, and worker will be created.
-- BigQuery setup
-  - If you've never setup BigQuery before, a setup page will open in your browser.
-- Would you like to create a separate new project to test deployments for the four key metrics? (y/n)
-  - You have the option of creating a new project to test out doing deployments and seeing how they are tracked in the dashboard.  However, if you already have a project with deployments, you may select no to skip this step.  You do not need to select yes to generate mock data.
-- Would you like to generate mock data? (y/n)
-  - If you select yes, a script will run through and send mock Gitlab or Github events to your event-handler.  This will populate your dashboard with mock data.  The mock data will include the work "mock" in the source.
+1.  Once you have your Google Cloud project, run the following setup script from the top-level directory of this repository:
 
-#### New Projects
-If you've chosen to create new projects, after the script finishes you will have two new projects named in the env.sh file of the form 'fourkeys-XXXX' and 'helloworld-XXXXX'.  The fourkeys-XXXX project will be home to all the services that collect data from your deployments, while helloworld-XXXX will be the staging and prod deployments for your application.
+    ```bash
+    gcloud config set project $PARENT_PROJECT_ID
+    cd setup
+    ./setup.sh 2>&1 | tee setup.log
+    ```
 
-Later if you want to remove the newly created projects and all associated data, you can run the cleanup.sh.  **Only do this when you are done experimenting with fourkeys entirely, or want to start over because cleanup.sh will remove the projects and all the collected data.**
+1.  Answer the setup script's questions:
 
-## The Setup Explained
-The setup script is going to do many things to help create the service architecture described in the README.md.  The script will output the commands you would need to do manually.
+    *   Would you like to create a new Google Cloud Project for the four key metrics? (y/n)
+        * If you choose no, you will be asked to input and confirm the ID of the project that you want to use.
+    *   Are you using GitLab? (y/n)
+        *   If you choose yes, the GitLab specific Pub/Sub topic, subscriptions, and worker will be created.
+    *   Are you using GitHub? (y/n)
+        *   If you choose yes, the GitHub specific Pub/Sub topic, subscriptions, and worker will be created.
+    *   BigQuery setup
+        *   If you've never setup BigQuery before, a setup page will open in your browser.
+    *   Would you like to create a separate new project to test deployments for the four key metrics? (y/n)
+        *   You have the option of creating a new Google Cloud project to test out doing deployments and seeing how they are tracked in the dashboard.  However, if you already have a project with deployments, you may select no to skip this step.  You do not need to select yes to generate mock data.
+    *   Would you like to generate mock data? (y/n)
+        *   If you select yes, a script will run through and send mock GitLab or GitHub events to your event-handler.  This will populate your dashboard with mock data.  The mock data will include the work "mock" in the source. You can generate mock data without using the setup script. See [Generating mock data](../readme.md).
+
+### New Google Cloud projects
+
+If you've chosen to create new Google Cloud projects, after the script finishes you will have two new projects named in the `env.sh` file of the form `fourkeys-XXXX` and `helloworld-XXXXX`.  The `fourkeys-XXXX` project is home to all the services that collect data from your deployments, while `helloworld-XXXX` is the staging and prod deployments for your application.
+
+If you ever want to remove the newly created projects and all associated data, you can run `cleanup.sh`.  **Only do this when you are done experimenting with Four Keys entirely, or want to start over. Running `cleanup.sh` will remove the projects and all the collected data.**
+
+### The setup explained
+
+The setup script does many things to help create the service architecture described in the `README.md`.  The script will output the commands you would otherwise need to do manually.
 
 The steps are:
 - Create randomly generated project names
-- Save project names in env.sh
-- Set up Four Keys Project
+- Save project names in `env.sh`
+- Set up Four Keys project
   - Create project
   - Link billing to parent project
-  - Enable Apis
+  - Enable APIs
   - Add IAM Policy Bindings
-  - Create PubSub Topics
+  - Create Pub/Sub Topics
   - Deploy Event Handler
-  - Deploy BigQuery Github and/or Gitlab Worker
+  - Deploy BigQuery GitHub and/or GitLab Worker
   - Deploy BigQuery Cloud Build Worker
-  - Create BigQuery PubSub Subscriptions
+  - Create BigQuery Pub/Sub Subscriptions
   - Create BigQuery Dataset, Tables, and Scheduled Queries
-- Set up Helloworld Project
-  - Create Project
+- Set up Helloworld project
+  - Create Google Cloud project
   - Link billing to parent project
-  - Enable Apis
+  - Enable APIs
   - Deploy Helloworld to staging
   - Deploy Helloworld to prod
-- Generate mock data using the scripts found in the data_generator/ directory
+- Generate mock data using the scripts found in the `data_generator/` directory
 - Connect to the DataStudio Dashboard template
   - Select organization and project
-  - Click "Create Report" on the next screen with the list of fields
+  - Click **Create Report** on the next screen with the list of fields
 
 
-## Integrate with a Live Repo
+## Integrating with a live repo
 
-The setup script can create mock data, but it cannot integrate automatically with our live projects.  To measure our team's performance, we should hook up the services to a live repo with ongoing deployments so we can experiment with how changes, successful deployments, and failed deployments affect our statistics.
+The setup script can create mock data, but it cannot integrate automatically with live projects.  To measure your team's performance, you need to integrate to your live GitHub or GitLab repo that has ongoing deployments. You can then measure the four key metrics, and experiment with how changes, successful deployments, and failed deployments affect your metrics.
 
-Doing this will require a few extra manual steps:
+To integrate Four Keys with a live repo, you need to:
 
-#### Collect Changes Data
+1.  [Collect changes data](#collecting_changes_data)
+1.  [Collect deployment data](#collecting_deployment_data)
+1.  [Collect incident data](#collecting_incident_data)
 
-##### Github instructions
-- Start with your Github repo
-  - If you're using the Helloworld sample, fork the demo by navigating to the [Github Repo](https://github.com/knative/docs.git) and clicking 'Fork'.
-- Navigate to your repo (or forked repo) and click 'Settings.'
-- Select 'Webhooks' from the left hand side.
-- Click 'Add Webhook'
-- Get the Event Handler endpoint for your Four Keys service:
-```bash
-. ./env.sh
-gcloud config set project ${FOURKEYS_PROJECT}
-gcloud run --platform managed --region ${FOURKEYS_REGION} services describe event-handler --format=yaml | grep url | head -1 | sed -e 's/  *url: //g'
-```
-- In the 'Add Webhook' interface use the Event Handler endpoint for 'Payload URL'
-- Run the following command to get the secret from Google Secrets Manager
-```bash
-gcloud secrets versions access 1 --secret="github-secret"
-```
-- Put the secret in the box labelled 'Secret'
-- Select 'application/json' for 'Content Type'
-- Select 'Send me everything'
-- Finish with clicking 'Add Webhook'
+### Collecting changes data
 
-##### Gitlab instructions
-- Navigate to your repo and click 'Settings.'
-- Select `Webhooks` from the menu
-- Get the Event Handler endpoint for your Four Keys service:
-```bash
-. ./env.sh
-gcloud config set project ${FOURKEYS_PROJECT}
-gcloud run --platform managed --region ${FOURKEYS_REGION} services describe event-handler --format=yaml | grep url | head -1 | sed -e 's/  *url: //g'
-```
-- Use the Event Handler endpoint for 'Payload URL'
-- Run the following command to get the secret from Google Secrets Manager
-```bash
-gcloud secrets versions access 1 --secret="github-secret"
-```
-- Put the secret in the box labelled 'Secret Token'
-- Select all the checkboxes
-- Leave the `Enable SSL verification selected`
-- Finish with clicking 'Add Webhook'
+#### GitHub instructions
 
-#### Collect Deployment Data
+1.  Start with your GitHub repo
+    *  If you're using the `Helloworld` sample, fork the demo by navigating to the [GitHub Repo](https://github.com/knative/docs.git) and clicking **Fork**.
+1.  Navigate to your repo (or forked repo) and click **Settings**.
+1.  Select **Webhooks** from the left hand side.
+1.  Click **Add Webhook**.
+1.  Get the Event Handler endpoint for your Four Keys service:
+    ```bash
+    . ./env.sh
+    gcloud config set project ${FOURKEYS_PROJECT}
+    gcloud run --platform managed --region ${FOURKEYS_REGION} services describe event-handler --format=yaml | grep url | head -1 | sed -e 's/  *url: //g'
+    ```
+1.  In the **Add Webhook** interface use the Event Handler endpoint for **Payload URL**.
+1.  Run the following command to get the secret from Google Secrets Manager:
+    ```bash
+    gcloud secrets versions access 1 --secret="github-secret"
+    ```
+1.  Put the secret in the box labelled **Secret**.
+1.  For **Content Type**, select **application/json**.
+1.  Select **Send me everything**.
+1.  Click **Add Webhook**.
 
-##### Configuring Cloud Build to deploy on GitHub PR merges
-- Go back to your repo's main page
-- At the top of the Github page, click 'Marketplace'
-- Search for 'Cloud Build'
-- Select 'Google Cloud Build'
-- Click 'Set Up Plan'
-- Click 'Set up with Google Cloud Build'
-- Select 'Only select repositories'
-- Fill in your forked repo
-- Log in to Google Cloud Platform
-- Add your new FourKeys project named fourkeys-XXXXX
-- Select your repo
-- Click 'Connect repository'
-- Click 'Create push trigger'
+#### GitLab instructions
+
+1.  Navigate to your repo and click **Settings**.
+1.  Select **Webhooks** from the menu.
+1.  Get the Event Handler endpoint for your Four Keys service by running the following:
+    ```bash
+    . ./env.sh
+    gcloud config set project ${FOURKEYS_PROJECT}
+    gcloud run --platform managed --region ${FOURKEYS_REGION} services describe event-handler --format=yaml | grep url | head -1 | sed -e 's/  *url: //g'
+    ```
+1.  For **Payload URL**, use the Event Handler endpoint.
+1.  Run the following command to get the secret from Google Secrets Manager:
+    ```bash
+    gcloud secrets versions access 1 --secret="github-secret"
+    ```
+1.  Put the secret in the box labelled **Secret Token**.
+1.  Select all the checkboxes.
+1.  Leave the **Enable SSL verification** selected.
+1.  Click **Add Webhook**.
+
+### Collecting deployment data
+
+#### Configuring Cloud Build to deploy on GitHub Pull Request merges
+
+1.  Go back to your repo's main page.
+1.  At the top of the GitHub page, click **Marketplace**.
+1.  Search for **Cloud Build**.
+1.  Select **Google Cloud Build**.
+1.  Click **Set Up Plan**.
+1.  Click **Set up with Google Cloud Build**.
+1.  Select **Only select repositories**.
+1.  Fill in your forked repo.
+1.  Log in to Google Cloud Platform.
+1.  Add your new Four Keys project named `fourkeys-XXXXX`.
+1.  Select your repo.
+1.  Click **Connect repository**.
+1.  Click **Create push trigger**.
 
 And now, whenever a pull request is merged into master of your fork, Cloud Build will trigger a deploy into prod and data will flow into your Four Keys project.
 
-##### Configuring Cloud Build to deploy on Gitlab merges
-- Go to your fourkeys project and [create a service account](https://cloud.google.com/iam/docs/creating-managing-service-accounts#iam-service-accounts-create-console) called `gitlab-deploy`
-- [Create a JSON service account key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#iam-service-account-keys-create-console) for your `gitlab-deploy` service account
-- In your Gitlab Repo, navigate to `Settings` on the left-hand menu and then select `CI/CD`
-- Save your account key under variables.
-  - Input SERVICE_ACCOUNT in the `key` field.
-  - Input the JSON in the `Value` field. 
-  - Select `Protect variable`
-- Save your Google Cloud project-id under variables
- - Input `PROJECT_ID` in the `key` field
- - Input your project-id in the `value` field
-- Add a `.gitlab-ci.yml` file to your repo
-```
-image: google/cloud-sdk:alpine
+#### Configuring Cloud Build to deploy on GitLab merges
 
-deploy_production:
-  stage: deploy
-  environment: Production
-  only:
-  - master
-  script:
-  - echo $SERVICE_ACCOUNT > /tmp/$CI_PIPELINE_ID.json
-  - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
-  - gcloud builds submit . --project $PROJECT_ID
-  after_script:
-  - rm /tmp/$CI_PIPELINE_ID.json
-```
+1.  Go to your Four Keys project and [create a service account](https://cloud.google.com/iam/docs/creating-managing-service-accounts#iam-service-accounts-create-console) called `gitlab-deploy`.
+1.  [Create a JSON service account key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#iam-service-account-keys-create-console) for your `gitlab-deploy` service account.
+1.  In your GitLab repo, navigate to `Settings` on the left-hand menu and then select `CI/CD`.
+1.  Save your account key under variables.
+    1.  In the **key** field, input `SERVICE_ACCOUNT`.
+    1.  In the **Value** field, input the JSON . 
+    1.  Select **Protect variable**.
+1.  Save your Google Cloud project-id under variables.
+    1.  In the **key** field, input `PROJECT_ID`.
+    1.  In the **value** field, input your `project-id`.
+1.  Add a `.gitlab-ci.yml` file to your repo.
+    ```
+    image: google/cloud-sdk:alpine
 
-This will trigger a deployment on any `push` to the `master` branch.
+    deploy_production:
+      stage: deploy
+      environment: Production
+      only:
+      - master
+      script:
+      - echo $SERVICE_ACCOUNT > /tmp/$CI_PIPELINE_ID.json
+      - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
+      - gcloud builds submit . --project $PROJECT_ID
+      after_script:
+      - rm /tmp/$CI_PIPELINE_ID.json
+    ```
 
-#### Collect Incident Data
+This setup will trigger a deployment on any `push` to the `master` branch.
 
-For this demo, we're using Gitlab and/or Github issues to track incidents.  
+### Collecting incident data
 
-##### To create an incident
+Four Keys uses GitLab and/or GitHub issues to track incidents.  
 
-- Open an issue
-- Add the tag `Incident`
-- In the body of the issue, input `root cause: {SHA of the commit}`
+#### Creating an incident
 
-When the incident is resolved, simply close the issue. The incident will be measured from the time of the deployment, to the resolution of the issue.  
+1.  Open an issue.
+1.  Add the tag `Incident`.
+1.  In the body of the issue, input `root cause: {SHA of the commit}`.
+
+When the incident is resolved, close the issue. Four Keys will measure the incident from the time of the deployment to when the issue is closed.
