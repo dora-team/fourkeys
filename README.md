@@ -2,7 +2,7 @@
 
 # Background
 
-Through six years of research, the [DevOps Research and Assessment (DORA)](https://cloud.google.com/blog/products/devops-sre/the-2019-accelerate-state-of-devops-elite-performance-productivity-and-scaling) team has identified four key metrics that indicate the performance of a software development team. Four Keys allows you to collect data from your GitHub or GitLab project and compiles it into a dashboard displaying these key metrics.
+Through six years of research, the [DevOps Research and Assessment (DORA)](https://cloud.google.com/blog/products/devops-sre/the-2019-accelerate-state-of-devops-elite-performance-productivity-and-scaling) team has identified four key metrics that indicate the performance of a software development team. Four Keys allows you to collect data from your development environment (such as GitHub or GitLab) and compiles it into a dashboard displaying these key metrics.
 
 These four key metrics are:
 
@@ -19,7 +19,7 @@ Use Four Keys if:
 *   You have a project in GitHub or GitLab.
 *   Your project has deployments.
 
-Four Keys does not work well with projects that have software releases because of how GitHub and GitLab collects data about releases. 
+Four Keys works well with projects that have deployments. Projects with releases and no deployments, for example, libraries, do not work well because of how GitHub and GitLab present their data about releases.
 
 For a quick baseline of your team's software delivery performance, use can also use the [DORA DevOps Quick Check](https://www.devops-research.com/quickcheck.html). The quick check also suggests DevOps capabilities you can work on to improve your performance. The Four Keys project itself can help you improve the following DevOps capabilities:
 
@@ -29,7 +29,7 @@ For a quick baseline of your team's software delivery performance, use can also 
 
 # How it works
 
-1.  Events are sent to a webhook target hosted on Cloud Run. Events are any occurance in GitHub or GitLab that can be measured, such as a pull request or new issue. Four Keys defines events to measure, and you can add others that are relevant to your project.
+1.  Events are sent to a webhook target hosted on Cloud Run. Events are any occurance in your development environment (for example, GitHub or GitLab) that can be measured, such as a pull request or new issue. Four Keys defines events to measure, and you can add others that are relevant to your project.
 1.  The Cloud Run target publishes all events to Pub/Sub.
 1.  A Cloud Run instance is subscribed to the Pub/Sub topics, does some light data transformation, and inputs the data into BigQuery.
 1.  Nightly scripts are scheduled in BigQuery to complete the data transformations and feed into the dashboard.
