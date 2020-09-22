@@ -19,6 +19,7 @@ import sys
 
 import shared
 
+from cloudevents.http import from_http, to_json
 from flask import Flask, request
 
 app = Flask(__name__)
@@ -45,11 +46,13 @@ def index():
         raise Exception("Missing pubsub attributes")
 
     try:
-        # [TODO: Replace mock function below]
-        event = process_new_source_event(msg)
+        attr = msg["attributes"]
 
-        # [Do not edit below]
-        shared.insert_row_into_bigquery(event)
+        if "headers" in attr:
+            headers = json.loads(attr["headers"])
+
+            event = process_tekton_event(headers, msg)
+            shared.insert_row_into_bigquery(event)
 
     except Exception as e:
         entry = {
@@ -63,23 +66,29 @@ def index():
     return "", 204
 
 
-# [TODO: Replace mock function below]
-def process_new_source_event(msg):
-    metadata = json.loads(base64.b64decode(msg["data"]).decode("utf-8").strip())
+def process_tekton_event(headers, msg):
+    data = base64.b64decode(msg["data"]).decode("utf-8").strip()
+    cloud_event = from_http(headers, data)
 
-    # [TODO: Parse the msg data to map to the event object below]
-    new_source_event = {
-        "event_type": "event_type",  # Event type, eg "push", "pull_reqest", etc
-        "id": "e_id",  # Object ID, eg pull request ID
-        "metadata": json.dumps(metadata),  # The body of the msg
-        "time_created": 0,  # The timestamp of with the event
-        "signature": "signature",  # The unique event signature
+    if "pipelineRun" in cloud_event.data:
+        uid = cloud_event.data["pipelineRun"]["metadata"]["uid"]
+
+    if "taskRun" in cloud_event.data:
+        uid = cloud_event.data["taskRun"]["metadata"]["uid"]
+
+
+
+    event = {
+        "event_type": cloud_event["type"],  
+        "id": uid, # ID of the taskRun or pipelineRun
+        "metadata": to_json(cloud_event).decode(),
+        "time_created": cloud_event["time"], 
+        "signature": cloud_event["id"],  # Unique ID for the event
         "msg_id": msg["message_id"],  # The pubsub message id
-        "source": "source",  # The name of the source, eg "github"
+        "source": "tekton",  
     }
 
-    print(new_source_event)
-    return new_source_event
+    return event
 
 
 if __name__ == "__main__":
