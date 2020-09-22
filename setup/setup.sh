@@ -114,6 +114,10 @@ fourkeys_project_setup () {
   then github_pipeline
   fi
 
+  if [[ ${tekton_yesno} == "y" ]]
+  then tekton_pipeline
+  fi
+
   # Always assume cloud-build pipeline
   cloud_build_pipeline
 
@@ -205,10 +209,6 @@ github_pipeline(){
   echo "Creating Github Pub/Sub Topic & Subscription..."
   gcloud pubsub topics create GitHub-Hookshot
 
-  echo "Creating cloud-builds topic..."; set -x
-  gcloud pubsub topics create cloud-builds
-  set +x; echo
-
   gcloud run  --platform managed services add-iam-policy-binding github-worker \
    --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
    --role=roles/run.invoker
@@ -277,6 +277,34 @@ cloud_build_pipeline(){
   set +x; echo
   cd $DIR
 }
+
+
+tekton_pieline(){
+  echo "Creating Tekton Data Pipeline..."
+
+  echo "Deploying BQ tekton worker..."; set -x
+  cd $DIR/../bq_workers/tekton_parser
+  gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
+  set +x; echo
+
+  echo "Creating Tekton Pub/Sub Topic & Subscription..."
+  gcloud pubsub topics create Tekton
+
+  gcloud run  --platform managed services add-iam-policy-binding tekton-worker \
+   --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
+   --role=roles/run.invoker
+
+  # Get push endpoint for github-worker
+  export PUSH_ENDPOINT_URL=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe tekton-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
+  # configure the subscription push identity
+  gcloud pubsub subscriptions create TektonSubscription \
+    --topic=Tekton \
+    --push-endpoint=${PUSH_ENDPOINT_URL} \
+    --push-auth-service-account=cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com
+  set +x; echo
+  cd $DIR
+}
+
 
 generate_data(){
   gcloud config set project ${FOURKEYS_PROJECT}
@@ -375,6 +403,8 @@ fi
 # Create workers for the correct sources
 read -p "Are you using Gitlab? (y/n):" gitlab_yesno
 read -p "Are you using Github? (y/n):" github_yesno
+read -p "Are you using Tekton? (y/n):" tekton_yesno
+#TODO: Split into repo sources and CI/CD sources, give enumerated options
 fourkeys_project_setup
 
 read -p "Would you like to create a separate new project to test deployments for the four key metrics? (y/n):" test_yesno
