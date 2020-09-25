@@ -320,13 +320,11 @@ generate_data(){
 
 
   if [[ ${git_system} == "1" ]]
-  set -x
-  then python3 ${DIR}/../data_generator/gitlab_data.py
+  then set -x python3 ${DIR}/../data_generator/gitlab_data.py
   set +x
   fi
   if [[ ${git_system} == "2" ]]
-  set -x
-  then python3 ${DIR}/../data_generator/github_data.py  
+  then set -x python3 ${DIR}/../data_generator/github_data.py  
   set +x
   fi
   
