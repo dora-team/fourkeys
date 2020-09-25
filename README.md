@@ -451,7 +451,7 @@ The data ranges used for this color coding roughly follows the ranges for elite,
 *   **Yellow:** 16% - 45%
 *   **Red:**  Anything greater than 45%
 
-The following chart is from the [2019  of DevOps Report](https://www.devops-research.com/research.html#reports), and shows the ranges of each key metric for the different category of performers.
+The following chart is from the [2019 State of DevOps Report](https://www.devops-research.com/research.html#reports), and shows the ranges of each key metric for the different category of performers.
 
 ![Image of chart from the State of DevOps Report, showing the range of each key metric for elite, high, medium, and low software delivery performers.](images/dora-chart.png)
 
