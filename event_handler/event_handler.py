@@ -40,7 +40,8 @@ def index():
         raise Exception(f"Source not authorized: {source}")
 
     auth_source = sources.AUTHORIZED_SOURCES[source]
-    signature = request.headers.get(auth_source.signature, None)
+    signature_sources = {**request.headers, **request.args}
+    signature = signature_sources.get(auth_source.signature, None)
     body = request.data
 
     # Verify the signature

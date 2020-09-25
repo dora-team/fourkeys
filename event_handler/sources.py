@@ -53,15 +53,15 @@ def github_verification(signature, body):
     return hmac.compare_digest(signature, expected_signature)
 
 
-def gitlab_verification(signature, body):
+def simple_token_verification(token, body):
     """
-    Verifies that the signature received from the gitlab event is accurate
+    Verifies that the token received from the event is accurate
     """
-    if not signature:
-        raise Exception("Gitlab signature is empty")
+    if not token:
+        raise Exception("Token is empty")
     secret = get_secret(PROJECT_NAME, "event-handler", "1")
 
-    return secret.decode() == signature
+    return secret.decode() == token
 
 
 def get_secret(project_name, secret_name, version_num):
@@ -86,10 +86,14 @@ def get_source(headers):
     if "X-Gitlab-Event" in headers:
         return "Gitlab"
 
+    if "Ce-Type" in headers and "tekton" in headers["Ce-Type"]:
+        return "Tekton"
+
     if "User-Agent" in headers:
         if "/" in headers["User-Agent"]:
             return headers["User-Agent"].split("/")[0]
         return headers["User-Agent"]
+
 
     return None
 
@@ -99,6 +103,9 @@ AUTHORIZED_SOURCES = {
         "github", "X-Hub-Signature", github_verification
         ),
     "Gitlab": EventSource(
-        "gitlab", "X-Gitlab-Token", gitlab_verification
+        "gitlab", "X-Gitlab-Token", simple_token_verification
+        ),
+    "Tekton": EventSource(
+        "tekton", "tekton-secret", simple_token_verification
         )
 }

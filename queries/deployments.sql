@@ -19,20 +19,39 @@ FROM(
   change_metadata,
   json2array(JSON_EXTRACT(change_metadata, '$.commits')) array_commits
   FROM
-    (
-    SELECT 
-    source,
-    id as deploy_id,
-    time_created,
-    CASE WHEN source = "cloud_build" then JSON_EXTRACT_SCALAR(metadata, '$.substitutions.COMMIT_SHA')
-         WHEN source like "github%" then JSON_EXTRACT_SCALAR(metadata, '$.deployment.sha')
-         WHEN source like "gitlab%" then JSON_EXTRACT_SCALAR(metadata, '$.commit.id') end as main_commit
-    FROM four_keys.events_raw 
-    WHERE ((source = "cloud_build"
-    AND JSON_EXTRACT_SCALAR(metadata, '$.status') = "SUCCESS")
-    OR (source LIKE "github%" and event_type = "deployment")
-    OR (source LIKE "gitlab%" and event_type = "pipeline" and JSON_EXTRACT_SCALAR(metadata, '$.object_attributes.status') = "success"))
-    ) deploys
+  (
+    (# Cloud Build, Github, Gitlab pipelines
+      SELECT 
+      source,
+      id as deploy_id,
+      time_created,
+      CASE WHEN source = "cloud_build" then JSON_EXTRACT_SCALAR(metadata, '$.substitutions.COMMIT_SHA')
+           WHEN source like "github%" then JSON_EXTRACT_SCALAR(metadata, '$.deployment.sha')
+           WHEN source like "gitlab%" then JSON_EXTRACT_SCALAR(metadata, '$.commit.id') end as main_commit
+      FROM four_keys.events_raw 
+      WHERE ((source = "cloud_build"
+      AND JSON_EXTRACT_SCALAR(metadata, '$.status') = "SUCCESS")
+      OR (source LIKE "github%" and event_type = "deployment")
+      OR (source LIKE "gitlab%" and event_type = "pipeline" and JSON_EXTRACT_SCALAR(metadata, '$.object_attributes.status') = "success"))
+    ) 
+    UNION ALL
+    (# Tekton Pipelines
+      SELECT
+      source,
+      id as deploy_id,
+      time_created,
+      IF(JSON_EXTRACT_SCALAR(param, '$.name') = "gitrevision", JSON_EXTRACT_SCALAR(param, '$.value'), Null) as main_commit
+      FROM (
+      SELECT 
+      id,
+      TIMESTAMP_TRUNC(time_created, second) as time_created,
+      source,
+      json2array(JSON_EXTRACT(metadata, '$.data.pipelineRun.spec.params')) params
+      FROM four_keys.events_raw
+      WHERE event_type = "dev.tekton.event.pipelinerun.successful.v1" 
+      AND metadata like "%gitrevision%") e, e.params as param
+    )  
+  ) deploys
   JOIN 
     (SELECT
     id,
@@ -41,4 +60,3 @@ FROM(
     changes on deploys.main_commit = changes.id) d, d.array_commits changes
 GROUP BY 1,2,3
 ;
-

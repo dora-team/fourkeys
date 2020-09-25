@@ -15,6 +15,7 @@
 
 from absl import app
 from absl import flags
+import google.oauth2.credentials
 from google.cloud import bigquery_datatransfer_v1
 import google.protobuf.json_format
 import json
@@ -24,13 +25,33 @@ FLAGS = flags.FLAGS
 
 flags.DEFINE_string('table', '', 'Table name for scheduled query output')
 flags.DEFINE_string('query_file', '', 'Query to schedule')
+flags.DEFINE_string('access_token', '', 'Access token from `gcloud auth print-access-token`')
 
 PROJECT_ID = os.environ.get("FOURKEYS_PROJECT")
 
+
+def get_bq_client():
+    # If the BigQuery DataTransfer API has been enabled recently, there is sometimes a delay.
+    # Script will retry until the API settings have propagated
+    retry = True
+    while retry is True:
+        try: 
+            # Set up the client
+            credentials = google.oauth2.credentials.Credentials(FLAGS.access_token)
+            client = bigquery_datatransfer_v1.DataTransferServiceClient(credentials=credentials)
+            parent = client.project_path(PROJECT_ID)
+            retry = False
+        except Exception as e:
+            # Only retry for the service account error
+            if "BigQuery Data Transfer service account is not found" not in str(e):
+                retry = False
+
+    return client, parent
+
+
 def create_or_update_scheduled_query(argv):
-    # Set up the client 
-    client = bigquery_datatransfer_v1.DataTransferServiceClient()
-    parent = client.project_path(PROJECT_ID)
+    # Set up the client
+    client, parent = get_bq_client()
 
     # Flags from command line
     table = FLAGS.table

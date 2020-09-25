@@ -61,9 +61,9 @@ fourkeys_project_setup () {
 
   export FOURKEYS_REGION=us-central1
 
-  echo "Setting up project for Four Keys Dashboard..."; set -x
+  echo "Setting up project for Four Keys Dashboard..." 
   get_project_number
-  gcloud config set project ${FOURKEYS_PROJECT}
+  gcloud config set project ${FOURKEYS_PROJECT}; set -x
   set +x; echo
 
   echo "Enabling apis..."; set -x
@@ -107,15 +107,26 @@ fourkeys_project_setup () {
   set +x; echo
 
   echo "Creating source pipelines"
-  if [[ ${gitlab_yesno} == "y" ]]
+  if [[ ${git_system} == "1" ]]
   then gitlab_pipeline
   fi
-  if [[ ${github_yesno} == "y" ]]
+  if [[ ${git_system} == "2" ]]
   then github_pipeline
+  else echo "Please see the documentation to learn how to extend to sources other than GitHub or GitLab"
   fi
 
-  # Always assume cloud-build pipeline
-  cloud_build_pipeline
+  if [[ ${cicd_system} == "1" ]]
+  then cloud_build_pipeline
+  fi
+  if [[ ${cicd_system} == "2" ]]
+  then tekton_pipeline
+  fi
+  # Only set up GitLab pipeline if it wasn't selected as the version control system
+  if [[ ${cicd_system} == "3" &&  ${git_system} != "1" ]] 
+  then gitlab_pipeline
+  else echo "Please see the documentation to learn how to extend to sources other than Cloud Build, Tekton, GitLab, or GitHub."
+  fi
+
 
   echo "Creating BigQuery dataset and tables"; set -x
   bq mk \
@@ -145,8 +156,7 @@ fourkeys_project_setup () {
 
   echo "Saving Event Handler Secret in Secret Manager.."; set -x\
   # Set permissions so Cloud Run can access secrets
-  SERVICE_ACCOUNT=$(gcloud iam service-accounts list --format 'value(EMAIL)' \
-    --filter 'NAME:Default compute service account')
+  SERVICE_ACCOUNT="${FOURKEYS_PROJECTNUM}-compute@developer.gserviceaccount.com"
   gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} \
     --member=serviceAccount:$SERVICE_ACCOUNT \
     --role=roles/secretmanager.secretAccessor
@@ -204,10 +214,6 @@ github_pipeline(){
 
   echo "Creating Github Pub/Sub Topic & Subscription..."
   gcloud pubsub topics create GitHub-Hookshot
-
-  echo "Creating cloud-builds topic..."; set -x
-  gcloud pubsub topics create cloud-builds
-  set +x; echo
 
   gcloud run  --platform managed services add-iam-policy-binding github-worker \
    --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
@@ -278,6 +284,34 @@ cloud_build_pipeline(){
   cd $DIR
 }
 
+
+tekton_pipeline(){
+  echo "Creating Tekton Data Pipeline..."
+
+  echo "Deploying BQ tekton worker..."; set -x
+  cd $DIR/../bq_workers/tekton_parser
+  gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
+  set +x; echo
+
+  echo "Creating Tekton Pub/Sub Topic & Subscription..."
+  gcloud pubsub topics create Tekton
+
+  gcloud run  --platform managed services add-iam-policy-binding tekton-worker \
+   --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
+   --role=roles/run.invoker
+
+  # Get push endpoint for github-worker
+  export PUSH_ENDPOINT_URL=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe tekton-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
+  # configure the subscription push identity
+  gcloud pubsub subscriptions create TektonSubscription \
+    --topic=Tekton \
+    --push-endpoint=${PUSH_ENDPOINT_URL} \
+    --push-auth-service-account=cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com
+  set +x; echo
+  cd $DIR
+}
+
+
 generate_data(){
   gcloud config set project ${FOURKEYS_PROJECT}
   echo "Creating mock data..."; 
@@ -285,14 +319,12 @@ generate_data(){
   export SECRET=$SECRET
 
 
-  if [[ ${gitlab_yesno} == "y" ]]
-  set -x
-  then python3 ${DIR}/../data_generator/gitlab_data.py
+  if [[ ${git_system} == "1" ]]
+  then set -x python3 ${DIR}/../data_generator/gitlab_data.py
   set +x
   fi
-  if [[ ${github_yesno} == "y" ]]
-  set -x
-  then python3 ${DIR}/../data_generator/github_data.py  
+  if [[ ${git_system} == "2" ]]
+  then set -x python3 ${DIR}/../data_generator/github_data.py  
   set +x
   fi
   
@@ -300,13 +332,14 @@ generate_data(){
 
 schedule_bq_queries(){
   cd ${DIR}/../queries/
-  pip3 install -r requirements.txt -q
+  pip3 install -r requirements.txt -q --user
+  token=$(gcloud auth print-access-token)
 
   echo "Creating BigQuery scheduled queries for derived tables.."; set -x
 
-  python3 schedule.py --query_file=changes.sql --table=changes
-  python3 schedule.py --query_file=deployments.sql --table=deployments
-  python3 schedule.py --query_file=incidents.sql --table=incidents
+  python3 schedule.py --query_file=changes.sql --table=changes --access_token=${token}
+  python3 schedule.py --query_file=deployments.sql --table=deployments  --access_token=${token}
+  python3 schedule.py --query_file=incidents.sql --table=incidents --access_token=${token}
 
   set +x; echo
   cd ${DIR}
@@ -363,7 +396,7 @@ check_bq_status(){
   done
 }
 
-#Main
+# # Main
 read -p "Would you like to create a new Google Cloud Project for the four key metrics? (y/n):" new_yesno
 if [[ ${new_yesno} == "y" ]]
 then echo "Setting up the environment..."
@@ -373,8 +406,22 @@ else project_prompt
 fi
 
 # Create workers for the correct sources
-read -p "Are you using Gitlab? (y/n):" gitlab_yesno
-read -p "Are you using Github? (y/n):" github_yesno
+read -p "Which version control system are you using? 
+(1) GitLab
+(2) GitHub
+(3) Other
+
+Enter a selection (1 - 3):" git_system
+
+
+read -p "Which CI/CD system are you using? 
+(1) Cloud Build
+(2) Tekton
+(3) GitLab
+(4) Other
+
+Enter a selection (1 - 4):" cicd_system
+
 fourkeys_project_setup
 
 read -p "Would you like to create a separate new project to test deployments for the four key metrics? (y/n):" test_yesno
@@ -386,10 +433,11 @@ read -p "Would you like to generate mock data? (y/n):" mock_yesno
 if [[ ${mock_yesno} == "y" ]]
 then generate_data
 fi
+
 schedule_bq_queries
 check_bq_status
 
-DATASTUDIO_URL=https://datastudio.google.com/datasources/create?connectorId=AKfycbxCOPCqhVOJQlRpOPgJ47dPZNdDu44MXbjsgKw_2-s
+DATASTUDIO_URL="https://datastudio.google.com/datasources/create?connectorId=AKfycbxCOPCqhVOJQlRpOPgJ47dPZNdDu44MXbjsgKw_2-s"
 python3 -m webbrowser ${DATASTUDIO_URL}
 echo "Please visit $DATASTUDIO_URL to connect your data to the dashboard template."
 
