@@ -1,0 +1,7 @@
+steps:
+  - name: gcr.io/cloud-devrel-public-resources/python-multi
+    entrypoint: /bin/bash
+    args:
+       - '-c'
+       - |
+        pip3 install nox && python3 -m nox
