@@ -82,7 +82,7 @@ def process_github_event(headers, msg):
     types = {"push", "pull_request", "pull_request_review",
              "pull_request_review_comment", "issues",
              "issue_comment", "check_run", "check_suite", "status",
-             "deployment", "release"}
+             "deployment_status", "release"}
 
     if event_type not in types:
         raise Exception("Unsupported GitHub event: '%s'" % event_type)
@@ -123,9 +123,9 @@ def process_github_event(headers, msg):
                         metadata["check_suite"]["created_at"])
         e_id = metadata["check_suite"]["id"]
 
-    if event_type == "deployment":
-        time_created = metadata["deployment"]["updated_at"]
-        e_id = metadata["deployment"]["id"]
+    if event_type == "deployment_status":
+        time_created = metadata["deployment_status"]["updated_at"]
+        e_id = metadata["deployment_status"]["id"]
 
     if event_type == "status":
         time_created = metadata["updated_at"]
