@@ -18,7 +18,6 @@ from absl import flags
 import google.oauth2.credentials
 from google.cloud import bigquery_datatransfer_v1
 import google.protobuf.json_format
-import json
 import os
 
 FLAGS = flags.FLAGS
@@ -35,7 +34,7 @@ def get_bq_client():
     # Script will retry until the API settings have propagated
     retry = True
     while retry is True:
-        try: 
+        try:
             # Set up the client
             credentials = google.oauth2.credentials.Credentials(FLAGS.access_token)
             client = bigquery_datatransfer_v1.DataTransferServiceClient(credentials=credentials)
@@ -95,4 +94,4 @@ def create_or_update_scheduled_query(argv):
 
 
 if __name__ == '__main__':
-  app.run(create_or_update_scheduled_query)
+    app.run(create_or_update_scheduled_query)

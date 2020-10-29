@@ -15,7 +15,6 @@
 import base64
 import os
 import json
-import sys
 
 import shared
 
