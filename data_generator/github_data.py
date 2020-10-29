@@ -24,6 +24,7 @@ import time
 from hashlib import sha1
 from urllib.request import Request, urlopen
 
+
 def make_changes(num_changes):
     changes = []
     # One week ago

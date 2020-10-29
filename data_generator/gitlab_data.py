@@ -14,15 +14,14 @@
 
 
 import datetime
-import hmac
 import json
 import random
 import os
 import secrets
 import time
 
-from hashlib import sha1
 from urllib.request import Request, urlopen
+
 
 def make_changes(num_changes):
     changes = []
@@ -44,8 +43,8 @@ def make_changes(num_changes):
 
         changes.append(change)
 
-    event = {"object_kind": "push", 
-             "checkout_sha": head_commit["id"], 
+    event = {"object_kind": "push",
+             "checkout_sha": head_commit["id"],
              "commits": changes}
     return event
 
@@ -127,8 +126,9 @@ def generate_data():
 
     return num_success
 
+
 num_success = 0
 for x in range(100):
     num_success += generate_data()
-    
+
 print(f"{num_success} changes successfully sent to event-handler")
