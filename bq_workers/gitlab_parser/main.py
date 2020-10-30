@@ -79,7 +79,7 @@ def process_gitlab_event(headers, msg):
     types = {"push", "merge_request", "note", "tag_push", "issue", "pipeline", "job"}
 
     metadata = json.loads(base64.b64decode(msg["data"]).decode("utf-8").strip())
-    print(metadata)
+
     event_type = metadata["object_kind"]
 
     if event_type not in types:

@@ -57,24 +57,30 @@ def test_missing_msg_attributes(client):
     assert "Missing pubsub attributes" in str(e.value)
 
 
-def test_new_source_event_processed(client):
-    data = json.dumps({"foo": "bar"}).encode("utf-8")
+def test_gitlab_event_processed(client):
+    headers = {"X-Gitlab-Event": "push", "X-Gitlab-Token": "foo"}
+    data = json.dumps({"object_kind": "push",
+                       "checkout_sha": "foo",
+                       "commits": [{"id": "foo", "timestamp": 2}],
+                       }).encode("utf-8")
+
     pubsub_msg = {
         "message": {
             "data": base64.b64encode(data).decode("utf-8"),
-            "attributes": {"foo": "bar"},
+            "attributes": {"headers": json.dumps(headers)},
             "message_id": "foobar",
+            "publishTime": 1,
         },
     }
 
     event = {
-        "event_type": "event_type",
-        "id": "e_id",
-        "metadata": '{"foo": "bar"}',
-        "time_created": 0,
-        "signature": "signature",
+        "event_type": "push",
+        "id": "foo",
+        "metadata": data.decode(),
+        "time_created": 2,
+        "signature": shared.create_unique_id(pubsub_msg["message"]),
         "msg_id": "foobar",
-        "source": "source",
+        "source": "gitlab",
     }
 
     shared.insert_row_into_bigquery = mock.MagicMock()
