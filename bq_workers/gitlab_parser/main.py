@@ -15,7 +15,6 @@
 import base64
 import os
 import json
-import sys
 
 import shared
 
@@ -80,7 +79,7 @@ def process_gitlab_event(headers, msg):
     types = {"push", "merge_request", "note", "tag_push", "issue", "pipeline", "job"}
 
     metadata = json.loads(base64.b64decode(msg["data"]).decode("utf-8").strip())
-    print(metadata)
+
     event_type = metadata["object_kind"]
 
     if event_type not in types:
@@ -96,14 +95,14 @@ def process_gitlab_event(headers, msg):
         event_object = metadata["object_attributes"]
         e_id = event_object["id"]
         time_created = (
-            event_object.get("updated_at") or 
+            event_object.get("updated_at") or
             event_object.get("finished_at") or
             event_object.get("created_at"))
 
     if event_type in ("job"):
         e_id = metadata["build_id"]
         time_created = (
-            event_object.get("finished_at") or 
+            event_object.get("finished_at") or
             event_object.get("started_at"))
 
     gitlab_event = {
@@ -111,7 +110,7 @@ def process_gitlab_event(headers, msg):
         "id": e_id,
         "metadata": json.dumps(metadata),
         # If time_created not supplied by event, default to pub/sub publishTime
-        "time_created": time_created or msg["publishTime"], 
+        "time_created": time_created or msg["publishTime"],
         "signature": signature,
         "msg_id": msg["message_id"],
         "source": source,

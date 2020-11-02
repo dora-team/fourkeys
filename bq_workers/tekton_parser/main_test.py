@@ -57,24 +57,37 @@ def test_missing_msg_attributes(client):
     assert "Missing pubsub attributes" in str(e.value)
 
 
-def test_new_source_event_processed(client):
-    data = json.dumps({"foo": "bar"}).encode("utf-8")
+def test_tekton_source_event_processed(client):
+    from cloudevents.http import CloudEvent, to_structured
+
+    attributes = {
+        "type": "tekton.foo",
+        "source": "https://example.com/event-producer",
+        "time": 0,
+        "id": "bar"
+    }
+    data = {"pipelineRun": {"metadata": {"uid": "foo"}}}
+    event = CloudEvent(attributes, data)
+
+    # Creates the HTTP request representation of the CloudEvent in structured content mode
+    headers, body = to_structured(event)
+
     pubsub_msg = {
         "message": {
-            "data": base64.b64encode(data).decode("utf-8"),
-            "attributes": {"foo": "bar"},
+            "data": base64.b64encode(body).decode("utf-8"),
+            "attributes": {"headers": json.dumps(headers)},
             "message_id": "foobar",
         },
     }
 
     event = {
-        "event_type": "event_type",
-        "id": "e_id",
-        "metadata": '{"foo": "bar"}',
+        "event_type": "tekton.foo",
+        "id": "foo",
+        "metadata": body.decode(),
         "time_created": 0,
-        "signature": "signature",
+        "signature": "bar",
         "msg_id": "foobar",
-        "source": "source",
+        "source": "tekton",
     }
 
     shared.insert_row_into_bigquery = mock.MagicMock()
