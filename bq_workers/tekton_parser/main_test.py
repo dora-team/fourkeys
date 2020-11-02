@@ -18,6 +18,8 @@ import json
 import main
 import shared
 
+from cloudevents.http import CloudEvent, to_structured
+
 import mock
 import pytest
 
@@ -58,8 +60,6 @@ def test_missing_msg_attributes(client):
 
 
 def test_tekton_source_event_processed(client):
-    from cloudevents.http import CloudEvent, to_structured
-
     attributes = {
         "type": "tekton.foo",
         "source": "https://example.com/event-producer",
