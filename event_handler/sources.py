@@ -94,7 +94,6 @@ def get_source(headers):
             return headers["User-Agent"].split("/")[0]
         return headers["User-Agent"]
 
-
     return None
 
 

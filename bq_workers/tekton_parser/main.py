@@ -15,7 +15,6 @@
 import base64
 import os
 import json
-import sys
 
 import shared
 
@@ -76,16 +75,14 @@ def process_tekton_event(headers, msg):
     if "taskRun" in cloud_event.data:
         uid = cloud_event.data["taskRun"]["metadata"]["uid"]
 
-
-
     event = {
-        "event_type": cloud_event["type"],  
-        "id": uid, # ID of the taskRun or pipelineRun
+        "event_type": cloud_event["type"],
+        "id": uid,  # ID of the taskRun or pipelineRun
         "metadata": to_json(cloud_event).decode(),
-        "time_created": cloud_event["time"], 
+        "time_created": cloud_event["time"],
         "signature": cloud_event["id"],  # Unique ID for the event
         "msg_id": msg["message_id"],  # The pubsub message id
-        "source": "tekton",  
+        "source": "tekton",
     }
 
     return event
