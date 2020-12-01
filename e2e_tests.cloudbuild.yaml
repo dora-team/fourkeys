@@ -1,0 +1,19 @@
+steps:
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: /bin/bash
+    args:
+      - '-c'
+      - |
+        cd setup/
+        export FOURKEYS_PROJECT=${PROJECT_ID}
+        echo "Hello friend!"
+        echo ${FOURKEYS_PROJECT}
+        printf "n\ny\n2\n1\n" | ./setup.sh
+
+      #  echo "n ${PROJECT_ID} 2 1 n y" | sh setup.sh
+
+# substitutions:
+#   _SERVICE: vpc-sample
+#   _SAMPLE_DIR: vpc-sample
+#   _SERVICE_REGION: us-central1
+#   _CLOUDSDK_VERSION: latest
