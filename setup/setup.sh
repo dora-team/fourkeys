@@ -318,19 +318,27 @@ generate_data(){
   export WEBHOOK=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe event-handler --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
   export SECRET=$SECRET
 
-
   if [[ ${git_system} == "1" ]]
-  then set -x python3 ${DIR}/../data_generator/gitlab_data.py
+  then set -x; python3 ${DIR}/../data_generator/gitlab_data.py
   set +x
   fi
   if [[ ${git_system} == "2" ]]
-  then set -x python3 ${DIR}/../data_generator/github_data.py  
+  then set -x; python3 ${DIR}/../data_generator/github_data.py  
   set +x
   fi
   
 }
 
 schedule_bq_queries(){
+  echo "Check BigQueryDataTransfer is enabled" 
+  enabled=$(gcloud services list --enabled --filter name:bigquerydatatransfer.googleapis.com)
+
+  while [[ "${enabled}" != *"bigquerydatatransfer.googleapis.com"* ]]
+  do gcloud services enable bigquerydatatransfer.googleapis.com
+  # Keep checking if it's enabled
+  enabled=$(gcloud services list --enabled --filter name:bigquerydatatransfer.googleapis.com)
+  done
+
   cd ${DIR}/../queries/
   pip3 install -r requirements.txt -q --user
   token=$(gcloud auth print-access-token)

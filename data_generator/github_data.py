@@ -86,10 +86,13 @@ def send_mock_github_events(event_type, data):
 
 def create_deploy_event(change):
     deployment = {
-        "deployment": {
+        "deployment_status": {
             "updated_at": change["timestamp"],
             "id": secrets.token_hex(20),
-            "sha": change["id"],
+            "state": "success",
+        },
+        "deployment": {
+           "sha": change["id"],
         }
     }
     return deployment
@@ -109,7 +112,7 @@ def generate_data():
 
     # Make and send a deployment
     deploy = create_deploy_event(changes["head_commit"])
-    num_success += send_mock_github_events("deployment", deploy)
+    num_success += send_mock_github_events("deployment_status", deploy)
 
     # 15% of deployments create incidents
     x = random.randrange(0, 100)
