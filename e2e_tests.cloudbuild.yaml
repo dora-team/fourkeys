@@ -1,19 +1,76 @@
 steps:
-  - name: 'gcr.io/cloud-builders/gcloud'
+  - id: Setup Script
+    name: 'google/cloud-sdk'
     entrypoint: /bin/bash
     args:
       - '-c'
       - |
+        pip3 install --upgrade pip
         cd setup/
         export FOURKEYS_PROJECT=${PROJECT_ID}
-        echo "Hello friend!"
-        echo ${FOURKEYS_PROJECT}
-        printf "n\ny\n2\n1\n" | ./setup.sh
+        printf "n\ny\n2\n1\nn\ny\n" | ./setup.sh
 
-      #  echo "n ${PROJECT_ID} 2 1 n y" | sh setup.sh
+  - id: Check Tables are Populated
+    name: 'google/cloud-sdk'
+    entrypoint: /bin/bash
+    args:
+      - '-c'
+      - |
+        result_check="import sys, json
+        results = int(json.load(sys.stdin)[0]['vol'])
+        try:
+          if results < 1:
+            sys.exit('Table is empty')
+        except Exception as e:
+          sys.exit(e)"
 
-# substitutions:
-#   _SERVICE: vpc-sample
-#   _SAMPLE_DIR: vpc-sample
-#   _SERVICE_REGION: us-central1
-#   _CLOUDSDK_VERSION: latest
+        echo "Checking events_raw table"
+        bq query --format=json \
+        'SELECT count(*) as vol FROM four_keys.events_raw' | \
+         python3 -c "$result_check"
+
+        echo "Checking deployments table"
+        bq query --format=json \
+        'SELECT count(*) as vol FROM four_keys.deployments' | \
+         python3 -c "$result_check"
+
+        echo "Checking changes table"
+        bq query --format=json \
+        'SELECT count(*) as vol FROM four_keys.changes' | \
+         python3 -c "$result_check"
+
+        echo "Checking incidents table"
+        bq query --format=json \
+        'SELECT count(*) as vol FROM four_keys.incidents' | \
+         python3 -c "$result_check"
+
+  - id: Tear Down Resources
+    name: 'google/cloud-sdk'
+    entrypoint: /bin/bash
+    args: 
+      - '-c'
+      - |
+        echo "Dropping BQ Resources"
+        bq rm -f -d ${PROJECT_ID}:four_keys
+
+        echo "Removing secret"
+        gcloud beta secrets delete event-handler -q
+
+        echo "Delete Cloud Run services"
+        gcloud run services delete event-handler --platform managed --region us-central1 -q
+        gcloud run services delete github-worker --platform managed --region us-central1 -q
+        gcloud run services delete cloud-build-worker --platform managed --region us-central1 -q
+
+        echo "Delete Pub/Sub topics and subscriptions"
+        gcloud pubsub topics delete GitHub-Hookshot -q
+        gcloud pubsub subscriptions delete GithubSubscription -q
+        gcloud pubsub subscriptions delete CloudBuildSubscription -q
+
+        echo "Turning off APIs"
+        gcloud services disable compute.googleapis.com 
+        gcloud services disable run.googleapis.com 
+        gcloud services disable containerregistry.googleapis.com 
+        gcloud services disable bigquery.googleapis.com 
+        gcloud services disable bigquerydatatransfer.googleapis.com 
+        gcloud services disable bigqueryconnection.googleapis.com 
+        gcloud services disable secretmanager.googleapis.com 
