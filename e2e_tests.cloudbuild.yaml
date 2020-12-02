@@ -52,6 +52,14 @@ steps:
       - |
         echo "Dropping BQ Resources"
         bq rm -f -d ${PROJECT_ID}:four_keys
+        configs=$(bq ls --transfer_config --transfer_location us --format=json) 
+
+        for ID in $(python3 -c "import json
+        for config in $configs: 
+          print(config['name'])")
+        do
+        bq rm --transfer_config $ID
+        done
 
         echo "Removing secret"
         gcloud beta secrets delete event-handler -q
