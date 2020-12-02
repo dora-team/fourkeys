@@ -130,26 +130,26 @@ fourkeys_project_setup () {
 
   echo "Creating BigQuery dataset and tables"; set -x
   bq mk \
-    --dataset \
+    --dataset -f \
     ${FOURKEYS_PROJECT}:four_keys
 
   bq mk \
-    --table \
+    --table -f\
     ${FOURKEYS_PROJECT}:four_keys.changes \
     $DIR/changes_schema.json
 
   bq mk \
-    --table \
+    --table -f\
     ${FOURKEYS_PROJECT}:four_keys.deployments \
     $DIR/deployments_schema.json
   
   bq mk \
-    --table \
+    --table -f\
     ${FOURKEYS_PROJECT}:four_keys.events_raw \
     $DIR/events_raw_schema.json
 
   bq mk \
-    --table \
+    --table -f\
     ${FOURKEYS_PROJECT}:four_keys.incidents \
     $DIR/incidents_schema.json
   set +x; echo
