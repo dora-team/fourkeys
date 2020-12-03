@@ -63,12 +63,14 @@ steps:
         echo "Dropping BQ Resources"
         set -x
         bq rm -r -f -d ${PROJECT_ID}:four_keys
+        set +x
         configs=$(bq ls --transfer_config --transfer_location us --format=json) 
 
         config_ids=$(python3 -c "import json, subprocess
         for config in $configs: 
           print(config['name'])")
 
+        set -x
         for config in $config_ids
         do
         bq rm -f --transfer_config $config
