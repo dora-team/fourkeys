@@ -8,6 +8,16 @@ steps:
         pip3 install --upgrade pip
         cd setup/
         export FOURKEYS_PROJECT=${PROJECT_ID}
+
+        # passing in responses to the prompts
+        # "n\ny\n2\n1\nn\ny\n" maps to:
+        ### No, do not make new project
+        ### Yes, it's the correct project id
+        ### 2, Using github for version control
+        ### 1, Using Cloud Build for deployments
+        ### No, do not create a test project
+        ### Yes, make mock data
+
         printf "n\ny\n2\n1\nn\ny\n" | ./setup.sh
 
   - id: Check Tables are Populated
@@ -51,6 +61,7 @@ steps:
       - '-c'
       - |
         echo "Dropping BQ Resources"
+        set -x
         bq rm -r -f -d ${PROJECT_ID}:four_keys
         configs=$(bq ls --transfer_config --transfer_location us --format=json) 
 
@@ -60,9 +71,7 @@ steps:
 
         for config in $config_ids
         do
-        set -x
         bq rm -f --transfer_config $config
-        set +x
         done
 
         echo "Removing secret"
@@ -85,3 +94,4 @@ steps:
         gcloud services disable bigquerydatatransfer.googleapis.com 
         gcloud services disable bigqueryconnection.googleapis.com 
         gcloud services disable secretmanager.googleapis.com 
+        set +x
