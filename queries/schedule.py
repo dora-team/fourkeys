@@ -86,6 +86,10 @@ def create_or_update_scheduled_query(argv):
             update_mask = {"paths": ["params"]}
 
             response = client.update_transfer_config(transfer_config, update_mask)
+
+            # Manually Run the transfer before the next scheduled time
+            client.start_manual_transfer_runs(transfer_config.name, 
+                requested_run_time=transfer_config.schedule_options.start_time.GetCurrentTime())
             return f"Updated scheduled query '{response.name}'"
 
     # Create the transfer config if it doesn't exist
