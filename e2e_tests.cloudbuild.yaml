@@ -51,14 +51,18 @@ steps:
       - '-c'
       - |
         echo "Dropping BQ Resources"
-        bq rm -f -d ${PROJECT_ID}:four_keys
+        bq rm -r -f -d ${PROJECT_ID}:four_keys
         configs=$(bq ls --transfer_config --transfer_location us --format=json) 
 
-        for ID in $(python3 -c "import json
+        config_ids=$(python3 -c "import json, subprocess
         for config in $configs: 
           print(config['name'])")
+
+        for config in $config_ids
         do
-        bq rm --transfer_config $ID
+        set -x
+        bq rm -f --transfer_config $config
+        set +x
         done
 
         echo "Removing secret"
@@ -77,7 +81,6 @@ steps:
         echo "Turning off APIs"
         gcloud services disable compute.googleapis.com 
         gcloud services disable run.googleapis.com 
-        gcloud services disable containerregistry.googleapis.com 
         gcloud services disable bigquery.googleapis.com 
         gcloud services disable bigquerydatatransfer.googleapis.com 
         gcloud services disable bigqueryconnection.googleapis.com 
