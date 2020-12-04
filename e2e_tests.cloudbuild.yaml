@@ -16,6 +16,8 @@ steps:
          "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/cloud-run-pubsub-invoker@${PROJECT_ID}.iam.gserviceaccount.com:generateIdToken" | \
          python3 -c "import sys, json; print(json.load(sys.stdin)['token'])")
 
+        echo $TOKEN
+
         # passing in responses to the prompts
         # "n\ny\n2\n1\nn\ny\n" maps to:
         ### No, do not make new project

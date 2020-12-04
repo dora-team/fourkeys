@@ -324,6 +324,7 @@ generate_data(){
   echo "Creating mock data..."; 
   export WEBHOOK=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe event-handler --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
   export SECRET=$SECRET
+  echo $TOKEN
 
   if [[ ${git_system} == "1" ]]
   then set -x; python3 ${DIR}/../data_generator/gitlab_data.py
