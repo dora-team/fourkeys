@@ -154,7 +154,7 @@ fourkeys_project_setup () {
     $DIR/incidents_schema.json
   set +x; echo
 
-  echo "Saving Event Handler Secret in Secret Manager.."; set -x
+  echo "Saving Event Handler Secret in Secret Manager.."
   # Set permissions so Cloud Run can access secrets
   SERVICE_ACCOUNT="${FOURKEYS_PROJECTNUM}-compute@developer.gserviceaccount.com"
   gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} \
@@ -167,6 +167,7 @@ fourkeys_project_setup () {
   then
   SECRET=$check_secret
   else
+
   # If not, create and save secret
   SECRET="$(python3 -c 'import secrets 
 print(secrets.token_hex(20))' | tr -d '\n')"
@@ -174,7 +175,6 @@ print(secrets.token_hex(20))' | tr -d '\n')"
     --replication-policy=automatic \
     --data-file=-
   fi
-  set +x; echo
 }
 
 helloworld_project_setup () {
@@ -325,14 +325,15 @@ generate_data(){
   export WEBHOOK=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe event-handler --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
   export SECRET=$SECRET
 
-  # Create identity-token        
+  # Create an identity token if running in cloudbuild tests
+  if [[ "$(gcloud config get-value account)" == "${FOURKEYS_PROJECTNUM}@cloudbuild.gserviceaccount.com" ]]
+  then
   export TOKEN=$(curl -X POST -H "content-type: application/json" \
     -H "Authorization: Bearer $(gcloud auth print-access-token)" \
-    -d "{\"audience\": \"${WEBHOOK}\" }" \
-     "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/cloud-run-pubsub-invoker@${PROJECT_ID}.iam.gserviceaccount.com:generateIdToken" | \
-     python3 -c "import sys, json; print(json.load(sys.stdin)['token'])")
-
-  echo $TOKEN
+    -d "{\"audience\": \"${WEBHOOK}\"}" \
+    "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com:generateIdToken" | \
+    python3 -c "import sys, json; print(json.load(sys.stdin)['token'])")
+  fi
 
   if [[ ${git_system} == "1" ]]
   then set -x; python3 ${DIR}/../data_generator/gitlab_data.py
