@@ -130,43 +130,50 @@ fourkeys_project_setup () {
 
   echo "Creating BigQuery dataset and tables"; set -x
   bq mk \
-    --dataset \
+    --dataset -f \
     ${FOURKEYS_PROJECT}:four_keys
 
   bq mk \
-    --table \
+    --table -f\
     ${FOURKEYS_PROJECT}:four_keys.changes \
     $DIR/changes_schema.json
 
   bq mk \
-    --table \
+    --table -f\
     ${FOURKEYS_PROJECT}:four_keys.deployments \
     $DIR/deployments_schema.json
   
   bq mk \
-    --table \
+    --table -f\
     ${FOURKEYS_PROJECT}:four_keys.events_raw \
     $DIR/events_raw_schema.json
 
   bq mk \
-    --table \
+    --table -f\
     ${FOURKEYS_PROJECT}:four_keys.incidents \
     $DIR/incidents_schema.json
   set +x; echo
 
-  echo "Saving Event Handler Secret in Secret Manager.."; set -x\
+  echo "Saving Event Handler Secret in Secret Manager.."; set -x
   # Set permissions so Cloud Run can access secrets
   SERVICE_ACCOUNT="${FOURKEYS_PROJECTNUM}-compute@developer.gserviceaccount.com"
   gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} \
     --member=serviceAccount:$SERVICE_ACCOUNT \
     --role=roles/secretmanager.secretAccessor
 
-  # Create and save secret
+  # Check if event-handler secret already exists
+  check_secret=$(gcloud secrets versions access "1" --secret="event-handler")
+  if [[ $check_secret ]]
+  then
+  SECRET=$check_secret
+  else
+  # If not, create and save secret
   SECRET="$(python3 -c 'import secrets 
 print(secrets.token_hex(20))' | tr -d '\n')"
   echo $SECRET | tr -d '\n' | gcloud beta secrets create event-handler \
     --replication-policy=automatic \
     --data-file=-
+  fi
   set +x; echo
 }
 
