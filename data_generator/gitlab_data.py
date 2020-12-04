@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from absl import app
+from absl import flags
 
 import datetime
 import json
@@ -77,6 +79,10 @@ def send_mock_gitlab_events(event_type, data):
     request.add_header("X-Gitlab-Token", secret)
     request.add_header("Content-Type", "application/json")
     request.add_header("Mock", True)
+
+    token = os.environ.get("TOKEN")
+    if token:
+        request.add_header("Authorization", f"Bearer {token}")
 
     response = urlopen(request)
 

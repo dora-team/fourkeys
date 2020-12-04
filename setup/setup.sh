@@ -325,6 +325,9 @@ generate_data(){
   export WEBHOOK=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe event-handler --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
   export SECRET=$SECRET
 
+  # If event-handler requires authorization, pass it token
+  export token=$(gcloud auth print-access-token)
+
   if [[ ${git_system} == "1" ]]
   then set -x; python3 ${DIR}/../data_generator/gitlab_data.py
   set +x

@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import datetime
 import hmac
 import json
@@ -75,6 +74,10 @@ def send_mock_github_events(event_type, data):
     request.add_header("User-Agent", "GitHub-Hookshot/mock")
     request.add_header("Content-Type", "application/json")
     request.add_header("Mock", True)
+
+    token = os.environ.get("TOKEN")
+    if token:
+        request.add_header("Authorization", f"Bearer {token}")
 
     response = urlopen(request)
 
