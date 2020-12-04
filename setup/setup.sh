@@ -329,7 +329,7 @@ generate_data(){
   export TOKEN=$(curl -X POST -H "content-type: application/json" \
         -H "Authorization: Bearer $(gcloud auth print-access-token)" \
         -d '{"audience": "${WEBHOOK}"}' \
-         "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com:generateIdToken")
+         "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${FOURKEYS_PROJECTNUM}@cloudbuild.gserviceaccount.com:generateIdToken")
 
   if [[ ${git_system} == "1" ]]
   then set -x; python3 ${DIR}/../data_generator/gitlab_data.py
