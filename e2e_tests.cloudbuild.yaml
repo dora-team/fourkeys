@@ -9,6 +9,12 @@ steps:
         cd setup/
         export FOURKEYS_PROJECT=${PROJECT_ID}
 
+        # Create identity-token
+        export TOKEN=$(curl -X POST -H "content-type: application/json" \
+        -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+        -d '{"audience": "${WEBHOOK}"}' \
+         "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${FOURKEYS_PROJECTNUM}@cloudbuild.gserviceaccount.com:generateIdToken")
+
         # passing in responses to the prompts
         # "n\ny\n2\n1\nn\ny\n" maps to:
         ### No, do not make new project
