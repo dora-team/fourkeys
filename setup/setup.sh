@@ -324,6 +324,14 @@ generate_data(){
   echo "Creating mock data..."; 
   export WEBHOOK=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe event-handler --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
   export SECRET=$SECRET
+
+  # Create identity-token        
+  export TOKEN=$(curl -X POST -H "content-type: application/json" \
+    -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+    -d "{\"audience\": \"${WEBHOOK}\" }" \
+     "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/cloud-run-pubsub-invoker@${PROJECT_ID}.iam.gserviceaccount.com:generateIdToken" | \
+     python3 -c "import sys, json; print(json.load(sys.stdin)['token'])")
+
   echo $TOKEN
 
   if [[ ${git_system} == "1" ]]
