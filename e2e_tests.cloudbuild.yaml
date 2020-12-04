@@ -9,11 +9,12 @@ steps:
         cd setup/
         export FOURKEYS_PROJECT=${PROJECT_ID}
 
-        # Create identity-token
+        # Create identity-token        
         export TOKEN=$(curl -X POST -H "content-type: application/json" \
         -H "Authorization: Bearer $(gcloud auth print-access-token)" \
-        -d '{"audience": "${WEBHOOK}"}' \
-         "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${FOURKEYS_PROJECTNUM}@cloudbuild.gserviceaccount.com:generateIdToken")
+        -d "{\"audience\": \"run.googleapis.com\" }" \
+         "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/cloud-run-pubsub-invoker@${PROJECT_ID}.iam.gserviceaccount.com:generateIdToken" | \
+         python3 -c "import sys, json; print(json.load(sys.stdin)['token'])")
 
         # passing in responses to the prompts
         # "n\ny\n2\n1\nn\ny\n" maps to:
