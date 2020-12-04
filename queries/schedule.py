@@ -86,6 +86,11 @@ def create_or_update_scheduled_query(argv):
             update_mask = {"paths": ["params"]}
 
             response = client.update_transfer_config(transfer_config, update_mask)
+
+            # Manually Run the transfer before the next scheduled time
+            run_time = google.protobuf.timestamp_pb2.Timestamp()
+            run_time.GetCurrentTime()
+            client.start_manual_transfer_runs(transfer_config.name, requested_run_time=run_time)
             return f"Updated scheduled query '{response.name}'"
 
     # Create the transfer config if it doesn't exist
