@@ -326,7 +326,10 @@ generate_data(){
   export SECRET=$SECRET
 
   # If event-handler requires authorization, pass it token
-  export token=$(gcloud auth print-identity-token)
+  export TOKEN=$(curl -X POST -H "content-type: application/json" \
+        -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+        -d '{"audience": "${WEBHOOK}"}' \
+         "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com:generateIdToken")
 
   if [[ ${git_system} == "1" ]]
   then set -x; python3 ${DIR}/../data_generator/gitlab_data.py
