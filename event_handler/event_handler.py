@@ -51,7 +51,7 @@ def index():
 
     # Remove the Auth header so we do not publish it to Pub/Sub
     pubsub_headers = dict(request.headers)
-    if "Authorization" in pubsub_headers: 
+    if "Authorization" in pubsub_headers:
         del pubsub_headers["Authorization"]
 
     # Publish to Pub/Sub
