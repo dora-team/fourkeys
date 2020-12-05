@@ -49,8 +49,12 @@ def index():
     if not verify_signature(signature, body):
         raise Exception("Unverified Signature")
 
+    # Remove the Auth header so we do not publish it to Pub/Sub
+    pubsub_headers = dict(request.headers)
+    del pubsub_headers["Authorization"]
+
     # Publish to Pub/Sub
-    publish_to_pubsub(source, body, dict(request.headers))
+    publish_to_pubsub(source, body, pubsub_headers)
 
     # Flush the stdout to avoid log buffering.
     sys.stdout.flush()
