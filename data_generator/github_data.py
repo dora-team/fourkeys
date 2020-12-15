@@ -76,6 +76,10 @@ def send_mock_github_events(event_type, data):
     request.add_header("Content-Type", "application/json")
     request.add_header("Mock", True)
 
+    token = os.environ.get("TOKEN")
+    if token:
+        request.add_header("Authorization", f"Bearer {token}")
+
     response = urlopen(request)
 
     if response.getcode() == 204:
