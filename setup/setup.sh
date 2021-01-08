@@ -162,7 +162,7 @@ fourkeys_project_setup () {
     --role=roles/secretmanager.secretAccessor
 
   # Check if event-handler secret already exists
-  check_secret=$(gcloud secrets versions access "1" --secret="event-handler")
+  check_secret=$(gcloud secrets versions access "1" --secret="event-handler" -q)
   if [[ $check_secret ]]
   then
   SECRET=$check_secret

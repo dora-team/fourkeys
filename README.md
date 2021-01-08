@@ -415,6 +415,8 @@ This Four Keys project defines the key metrics as follows:
 
 *   The number of failures per the number of deployments. For example, if there are four deployments in a day and one causes a failure, that is a 25% change failure rate.
 
+For more information on the calculation of the metrics, see the [METRICS.md](INSTALL.md)
+
 ## Color coding
 
 The dashboard has color coding to show the performance of each metric. Green is strong performance, yellow is moderate performance, and red is poor performance. Below is the description of the data that corresponds to the color for each metric.
