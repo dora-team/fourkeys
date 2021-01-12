@@ -2,7 +2,7 @@
 
 For each of the metrics, the dashboard shows a running daily calculation, as well as a 90 day bucketed view.  The 90 day buckets are categorized per the [2019 State of DevOps Report](https://www.devops-research.com/research.html#reports). 
 
-**Deployment Frequency**
+## Deployment Frequency ##
 
 *   How frequently organization successfully releases to production. 
 
