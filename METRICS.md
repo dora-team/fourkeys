@@ -21,7 +21,7 @@ four_keys.deployments
 GROUP BY day;
 ```
 
-###Calculating the bucket### 
+### Calculating the bucket ### 
 ![Image of chart from the Four Keys dashboard, showing the deployment frequency.](images/deployment_frequency.png)
 
 Here we see more complexity.  The first thing to consider is that to calculate frequency, we need rows for the days with no deployments. To achieve this, we unpack a date array to join against our table, which will create Null values for days without deployments.
@@ -103,11 +103,11 @@ FROM (
 LIMIT 1;
 ```
 
-##Lead Time for Changes##
+## Lead Time for Changes ##
 
 **Definition**:The median amount of time for a commit to be deployed into production.
 
-###Daily Median Lead Time###
+### Daily Median Lead Time ###
 ![Image of chart from the Four Keys dashboard, showing the daily median lead time.](images/daily_lead_time.png)
 
 
@@ -148,7 +148,7 @@ GROUP BY day, time_to_change_minutes
 
 It is up for debate whether or not we want to ignore the automated changes.  The rationale here is that when we merge a Pull Request it creates a Push event in the main branch.  This Push event is not its own distinct change, but rather a link in the workflow.  If we trigger a deployment off of this push event, this artificially skews the metrics and does not give us a clear picture of developer velocity. 
 
-###Calculating the bucket###
+### Calculating the bucket ###
 ![Image of chart from the Four Keys dashboard, showing the median Lead Time to Change.](images/lead_time.png)
 
 ```sql
@@ -181,11 +181,11 @@ LIMIT 1;
 
 To get the buckets, rather than aggregating daily, we look at the last 3 months and bucket the results according to the DORA research.  [TODO: Show how we limit to 3 months]
 
-##Time to Restore Services##
+## Time to Restore Services ##
 
 **Definition**:For a failure, the median amount of time between the deployment which caused the failure and the restoration.  The restoration is measured by closing an associated bug / incident report. 
 
-###Daily Median Time to Restore Services###
+### Daily Median Time to Restore Services ###
 ![Image of chart from the Four Keys dashboard, showing the daily MTTR.](images/daily_mttr.png)
 
 To calculate the daily median time to restore services, all the information we need is in the incidents table.
@@ -201,7 +201,7 @@ SELECT
   FROM four_keys.incidents;
 ```
 
-###Calculating the bucket###
+### Calculating the bucket ###
 ![Image of chart from the Four Keys dashboard, showing the time to restore.](images/time_to_restore.png)
 
 ```sql
@@ -224,11 +224,11 @@ LIMIT 1;
 
 We remove the daily aggregation and bucket the overall median according to the DORA research.
 
-##Change Failure Rate##
+## Change Failure Rate ##
 
 **Definition**:The number of failures per the number of deployments. For example, if there are four deployments in a day and one causes a failure, that is a 25% change failure rate.
 
-###Daily Change Failure Rate###
+### Daily Change Failure Rate ###
 ![Image of chart from the Four Keys dashboard, showing the daily change failure rate.](images/daily_change_fail.png)
 
 ```sql
@@ -246,7 +246,7 @@ LEFT JOIN(SELECT
 GROUP BY day;
 ```
 
-###Calculating the bucket###
+### Calculating the bucket ###
 ![Image of chart from the Four Keys dashboard, showing the change failure rate.](images/change_fail_rate.png)
 
 ```sql
