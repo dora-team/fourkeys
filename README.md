@@ -415,7 +415,7 @@ This Four Keys project defines the key metrics as follows:
 
 *   The number of failures per the number of deployments. For example, if there are four deployments in a day and one causes a failure, that is a 25% change failure rate.
 
-For more information on the calculation of the metrics, see the [METRICS.md](INSTALL.md)
+For more information on the calculation of the metrics, see the [METRICS.md](METRICS.md)
 
 ## Color coding
 
