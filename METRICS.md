@@ -120,7 +120,7 @@ SELECT
  ##### Time to Change
  TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE) time_to_change_minutes
 FROM four_keys.deployments d, d.changes
-LEFT JOIN four_keys.changes c ON changes = c.change_id
+LEFT JOIN four_keys.changes c ON changes = c.change_id;
 ```
 
 From this base, we want to extract the daily median lead time to change. 
@@ -142,8 +142,7 @@ FROM
  FROM four_keys.deployments d, d.changes
  LEFT JOIN four_keys.changes c ON changes = c.change_id
  )
-GROUP BY day, time_to_change_minutes
-;
+GROUP BY day, time_to_change_minutes;
 ```
 
 It is up for debate whether or not we want to ignore the automated changes.  The rationale here is that when we merge a Pull Request it creates a Push event in the main branch.  This Push event is not its own distinct change, but rather a link in the workflow.  If we trigger a deployment off of this push event, this artificially skews the metrics and does not give us a clear picture of developer velocity. 
@@ -179,8 +178,7 @@ FROM
        )
       GROUP BY day, time_to_change_minutes
       )
-LIMIT 1
-;
+LIMIT 1;
 ```
 
 To get the buckets, rather than aggregating daily, we look at the last 3 months and bucket the results according to the DORA research. 
