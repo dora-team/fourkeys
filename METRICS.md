@@ -1,6 +1,8 @@
 # Four Key Metrics Calculations
 
-For each of the metrics, the dashboard shows a running daily calculation, as well as a 90 day bucketed view.  The 90 day buckets are categorized per the [2019 State of DevOps Report](https://www.devops-research.com/research.html#reports). 
+![Image of the Four Keys dashboard from the Four Keys dashboard.](images/dashboard.png)
+
+For each of the metrics, the dashboard shows a running daily calculation, as well as a 3 month bucketed view.  The  buckets are categorized per the [2019 State of DevOps Report](https://www.devops-research.com/research.html#reports). 
 
 ## Deployment Frequency ##
 
