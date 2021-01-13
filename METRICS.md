@@ -1,12 +1,12 @@
 # Four Key Metrics Calculations
 
-![Image of the Four Keys dashboard from the Four Keys dashboard.](images/dashboard.png)
+![Image of the Four Keys dashboard.](images/dashboard.png)
 
 For each of the metrics, the dashboard shows a running daily calculation, as well as a 3 month bucketed view.  The  buckets are categorized per the [2019 State of DevOps Report](https://www.devops-research.com/research.html#reports). 
 
 ## Deployment Frequency ##
 
-**Definition**: How frequently organization successfully releases to production. 
+**Definition**: How frequently an organization successfully releases to production. 
 
 ### Daily Deployment Volumes ###
 ![Image of chart from the Four Keys dashboard, showing the daily deployment volume.](images/daily_deployments.png)
@@ -26,7 +26,7 @@ GROUP BY day;
 ### Calculating the bucket ### 
 ![Image of chart from the Four Keys dashboard, showing the deployment frequency.](images/deployment_frequency.png)
 
-Here we see more complexity.  The first thing to consider is that to calculate frequency, we need rows for the days with no deployments. To achieve this, we unpack a date array to join against our table, which will create Null values for days without deployments.
+Here we see more complexity.  The first thing to consider is that we need rows for the days with no deployments. To achieve this, we unpack a date array to join against our table, which will create Null values for days without deployments.
 
 ```sql
 WITH last_three_months AS
@@ -52,12 +52,12 @@ LEFT JOIN(
   FROM four_keys.deployments) deployments ON deployments.day = last_three_months.day;
 ```
 
-Now we have a full picture of the last three months, and will use this to calculate the frequency.  To do this we have to decide what each bucket means.  
+Now we have a full picture of the last three months and will use this to calculate the frequency.  To do this we have to decide what each bucket means.  
 
-- Daily: Over the last three months, the median number of days per week with deployments is equal to or greater than three.  Ie, most working days have deployments.
-- Weekly: Over the last three months, the median number of days per week with deployments is at least 1.  Ie, most weeks have at least one deployment.
-- Monthly:  Over the last three months, the median number of deployments per month is at least 1.  Ie, most months have at least one deployment.
-- Yearly: Any frequency slower than Monthly.  This is the else statement and will default to Yearly if the above conditions are not met. 
+- **Daily**: Over the last three months, the median number of days per week with deployments is equal to or greater than three; ie, most working days have deployments.
+- **Weekly**: Over the last three months, the median number of days per week with deployments is at least 1; ie, most weeks have at least one deployment.
+- **Monthly**:  Over the last three months, the median number of deployments per month is at least 1; ie, most months have at least one deployment.
+- **Yearly**: Any frequency slower than Monthly.  This is the else statement and will default to Yearly if the above conditions are not met. 
 
 ```sql
 WITH last_three_months AS
@@ -152,6 +152,8 @@ It is up for debate whether or not we want to ignore the automated changes.  The
 ### Calculating the bucket ###
 ![Image of chart from the Four Keys dashboard, showing the median Lead Time to Change.](images/lead_time.png)
 
+To get the buckets, rather than aggregating daily, we look at the last 3 months and bucket the results according to the DORA research. 
+
 ```sql
 SELECT 
 CASE WHEN median_time_to_change < 24 * 60 then "One day"
@@ -183,8 +185,6 @@ FROM
 LIMIT 1;
 ```
 
-To get the buckets, rather than aggregating daily, we look at the last 3 months and bucket the results according to the DORA research. 
-
 ## Time to Restore Services ##
 
 **Definition**: For a failure, the median amount of time between the deployment which caused the failure and the restoration.  The restoration is measured by closing an associated bug / incident report. 
@@ -208,6 +208,8 @@ SELECT
 ### Calculating the bucket ###
 ![Image of chart from the Four Keys dashboard, showing the time to restore.](images/time_to_restore.png)
 
+We remove the daily aggregation and bucket the overall median according to the DORA research.
+
 ```sql
 SELECT
 CASE WHEN med_time_to_resolve < 24  then "One day"
@@ -228,7 +230,6 @@ FROM (
 LIMIT 1;
 ```
 
-We remove the daily aggregation and bucket the overall median according to the DORA research.
 
 ## Change Failure Rate ##
 
@@ -255,6 +256,8 @@ GROUP BY day;
 ### Calculating the bucket ###
 ![Image of chart from the Four Keys dashboard, showing the change failure rate.](images/change_fail_rate.png)
 
+We remove the daily aggregation and bucket according to DORA research.
+
 ```sql
 SELECT
 CASE WHEN change_fail_rate <= .15 then "0-15%"
@@ -276,6 +279,4 @@ FROM
   )
 LIMIT 1;
 ```
-
-Remove the daily aggregation and bucket according to DORA research.
 
