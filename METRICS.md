@@ -9,7 +9,7 @@ For each of the metrics, the dashboard shows a running daily calculation, as wel
 ### Daily Deployment Volumes ###
 ![Image of chart from the Four Keys dashboard, showing the daily deployment volume.](images/daily_deployments.png)
 
-This is the simplest of the charts to create. This script is very straight forward.  We simply want the daily volume of distinct deployments.
+This is the simplest of the charts to create, with a very straightforward script.  We simply want the daily volume of distinct deployments.
 
 
 ``` sql
@@ -105,7 +105,7 @@ LIMIT 1;
 
 ## Lead Time for Changes ##
 
-**Definition**:The median amount of time for a commit to be deployed into production.
+**Definition**: The median amount of time for a commit to be deployed into production.
 
 ### Daily Median Lead Time ###
 ![Image of chart from the Four Keys dashboard, showing the daily median lead time.](images/daily_lead_time.png)
@@ -174,16 +174,20 @@ FROM
        TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE) time_to_change_minutes
        FROM four_keys.deployments d, d.changes
        LEFT JOIN four_keys.changes c ON changes = c.change_id
+       # Limit to 3 months
+       WHERE d.time_created > TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH))
        )
-      GROUP BY day, time_to_change_minutes)
-LIMIT 1;
+      GROUP BY day, time_to_change_minutes
+      )
+LIMIT 1
+;
 ```
 
-To get the buckets, rather than aggregating daily, we look at the last 3 months and bucket the results according to the DORA research.  [TODO: Show how we limit to 3 months]
+To get the buckets, rather than aggregating daily, we look at the last 3 months and bucket the results according to the DORA research. 
 
 ## Time to Restore Services ##
 
-**Definition**:For a failure, the median amount of time between the deployment which caused the failure and the restoration.  The restoration is measured by closing an associated bug / incident report. 
+**Definition**: For a failure, the median amount of time between the deployment which caused the failure and the restoration.  The restoration is measured by closing an associated bug / incident report. 
 
 ### Daily Median Time to Restore Services ###
 ![Image of chart from the Four Keys dashboard, showing the daily MTTR.](images/daily_mttr.png)
@@ -218,7 +222,9 @@ FROM (
   PERCENTILE_CONT(
     TIMESTAMP_DIFF(time_resolved, time_created, HOUR), 0.5)
     OVER() as med_time_to_resolve,
-  FROM four_keys.incidents)
+  FROM four_keys.incidents
+  # Limit to 3 months
+  WHERE time_created > TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH)))
 LIMIT 1;
 ```
 
@@ -264,8 +270,11 @@ FROM
           change,
           time_resolved
           FROM four_keys.incidents i,
-          i.changes change) i ON i.change = changes)
-;
+          i.changes change) i ON i.change = changes
+  # Limit to 3 months
+  WHERE d.time_created > TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH))
+  )
+LIMIT 1;
 ```
 
 Remove the daily aggregation and bucket according to DORA research.
