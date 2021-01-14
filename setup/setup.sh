@@ -227,7 +227,7 @@ github_pipeline(){
    --role=roles/run.invoker
 
   # Get push endpoint for github-worker
-  export PUSH_ENDPOINT_URL=$(gcloud run ${FOURKEYS_REGION} services describe github-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
+  export PUSH_ENDPOINT_URL=$(gcloud run services describe github-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
   # configure the subscription push identity
   gcloud pubsub subscriptions create GithubSubscription \
     --topic=GitHub-Hookshot \
@@ -253,7 +253,7 @@ gitlab_pipeline(){
    --role=roles/run.invoker
 
   # Get push endpoint for gitlab-worker
-  export PUSH_ENDPOINT_URL=$(gcloud run ${FOURKEYS_REGION} services describe gitlab-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
+  export PUSH_ENDPOINT_URL=$(gcloud run services describe gitlab-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
   # configure the subscription push identity
   gcloud pubsub subscriptions create GitlabSubscription \
     --topic=Gitlab \
@@ -281,7 +281,7 @@ cloud_build_pipeline(){
    --role=roles/run.invoker
 
   # Get push endpoint for cloud-build-worker
-  export PUSH_ENDPOINT_URL=$(gcloud run ${FOURKEYS_REGION} services describe cloud-build-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
+  export PUSH_ENDPOINT_URL=$(gcloud run services describe cloud-build-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
   # configure the subscription push identity
   gcloud pubsub subscriptions create CloudBuildSubscription \
     --topic=cloud-builds \
@@ -308,7 +308,7 @@ tekton_pipeline(){
    --role=roles/run.invoker
 
   # Get push endpoint for github-worker
-  export PUSH_ENDPOINT_URL=$(gcloud run ${FOURKEYS_REGION} services describe tekton-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
+  export PUSH_ENDPOINT_URL=$(gcloud run services describe tekton-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
   # configure the subscription push identity
   gcloud pubsub subscriptions create TektonSubscription \
     --topic=Tekton \
@@ -322,7 +322,7 @@ tekton_pipeline(){
 generate_data(){
   gcloud config set project ${FOURKEYS_PROJECT}
   echo "Creating mock data..."; 
-  export WEBHOOK=$(gcloud run ${FOURKEYS_REGION} services describe event-handler --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
+  export WEBHOOK=$(gcloud run services describe event-handler --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
   export SECRET=$SECRET
 
   # Create an identity token if running in cloudbuild tests
