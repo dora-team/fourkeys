@@ -41,8 +41,8 @@ steps:
          '--region=${_REGION}', '--member=allUsers', '--role=roles/run.invoker', 
          'event-handler'
   ]
-  id: deploy
-  waitFor: push
+  id: allow-unauthenticated-requests
+  waitFor: deploy
 
 images: [
   'gcr.io/$PROJECT_ID/event-handler:${_TAG}'
