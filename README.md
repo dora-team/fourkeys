@@ -49,7 +49,7 @@ This diagram shows the design of the Four Keys system:
 * `queries/`
   * Contains the SQL queries for creating the derived tables.
   * Contains a Python script for scheduling the queries.
-* setup/
+* `setup/`
   * Contains the code for setting up and tearing down the Four Keys pipeline. Also contains a script for extending the data sources.
 * `shared/`
   * Contains a shared module for inserting data into BigQuery, which is used by the `bq_workers`
