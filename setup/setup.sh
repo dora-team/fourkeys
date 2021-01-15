@@ -322,7 +322,7 @@ tekton_pipeline(){
 generate_data(){
   gcloud config set project ${FOURKEYS_PROJECT}
   echo "Creating mock data..."; 
-  export WEBHOOK=$(gcloud run services describe event-handler --format="value(status.url)")
+  export WEBHOOK=$(gcloud run services describe event-handler  --format="value(status.url)")
   export SECRET=$SECRET
 
   # Create an identity token if running in cloudbuild tests
