@@ -307,7 +307,7 @@ tekton_pipeline(){
    --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
    --role=roles/run.invoker
 
-  # Get push endpoint for github-worker
+  # Get push endpoint for tekton-worker
   export PUSH_ENDPOINT_URL=$(gcloud run services describe tekton-worker --format="value(status.url)")
   # configure the subscription push identity
   gcloud pubsub subscriptions create TektonSubscription \
@@ -322,7 +322,7 @@ tekton_pipeline(){
 generate_data(){
   gcloud config set project ${FOURKEYS_PROJECT}
   echo "Creating mock data..."; 
-  export WEBHOOK=$(gcloud run services describe event-handler  --format="value(status.url)")
+  export WEBHOOK=$(gcloud run services describe event-handler --format="value(status.url)")
   export SECRET=$SECRET
 
   # Create an identity token if running in cloudbuild tests
