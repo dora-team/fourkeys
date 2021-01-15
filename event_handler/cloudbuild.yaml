@@ -26,7 +26,7 @@ steps:
 
 - # Deploy to Cloud Run
   name: google/cloud-sdk
-  args: ['run', 'deploy', 'event-handler',
+  args: ['gcloud', 'run', 'deploy', 'event-handler',
          '--image', 'gcr.io/$PROJECT_ID/event-handler:${_TAG}',
          '--region', '${_REGION}',
          '--platform', 'managed',
