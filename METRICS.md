@@ -6,7 +6,7 @@ For each of the metrics, the dashboard shows a running daily calculation, as wel
 
 ## Deployment Frequency ##
 
-**Definition**: How frequently an organization successfully releases to production. 
+**Definition**: How frequently a team successfully releases to production. 
 
 ### Daily Deployment Volumes ###
 ![Image of chart from the Four Keys dashboard, showing the daily deployment volume.](images/daily_deployments.png)
@@ -147,7 +147,7 @@ FROM
 GROUP BY day, time_to_change_minutes;
 ```
 
-It is up for debate whether or not we want to ignore the automated changes.  The rationale here is that when we merge a Pull Request it creates a Push event in the main branch.  This Push event is not its own distinct change, but rather a link in the workflow.  If we trigger a deployment off of this push event, this artificially skews the metrics and does not give us a clear picture of developer velocity. 
+Automated changes are excluded from this metric.  This is a subject up for debate. Our rationale is that when we merge a Pull Request it creates a Push event in the main branch.  This Push event is not its own distinct change, but rather a link in the workflow.  If we trigger a deployment off of this push event, this artificially skews the metrics and does not give us a clear picture of developer velocity. 
 
 ### Calculating the bucket ###
 ![Image of chart from the Four Keys dashboard, showing the median Lead Time to Change.](images/lead_time.png)
@@ -187,7 +187,7 @@ LIMIT 1;
 
 ## Time to Restore Services ##
 
-**Definition**: For a failure, the median amount of time between the deployment which caused the failure and the restoration.  The restoration is measured by closing an associated bug / incident report. 
+**Definition**: For a failure, the median amount of time between the deployment which caused the failure and the remediation.  The remediation is measured by closing an associated bug / incident report. 
 
 ### Daily Median Time to Restore Services ###
 ![Image of chart from the Four Keys dashboard, showing the daily MTTR.](images/daily_mttr.png)
