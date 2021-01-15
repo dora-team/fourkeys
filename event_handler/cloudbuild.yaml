@@ -26,23 +26,15 @@ steps:
 
 - # Deploy to Cloud Run
   name: google/cloud-sdk
-  args: ['gcloud', 'run', 'deploy', 'event-handler',
+  args: ['run', 'deploy', 'event-handler',
          '--image', 'gcr.io/$PROJECT_ID/event-handler:${_TAG}',
          '--region', '${_REGION}',
          '--platform', 'managed',
+         '--allow-unauthenticated',
          '--set-env-vars', 'PROJECT_NAME=$PROJECT_ID'
   ]
   id: deploy
   waitFor: push
-
-- # Update service to allow unauthenticated requests
-  name: google/cloud-sdk
-  args: ['gcloud', 'run', 'services', 'add-iam-policy-binding', 
-         '--region=${_REGION}', '--member=allUsers', '--role=roles/run.invoker', 
-         'event-handler'
-  ]
-  id: allow-unauthenticated-requests
-  waitFor: deploy
 
 images: [
   'gcr.io/$PROJECT_ID/event-handler:${_TAG}'
