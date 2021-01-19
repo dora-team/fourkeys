@@ -18,10 +18,11 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 environment () {
   # Set values that will be overwritten if env.sh exists
+  RANDOM_IDENTIFIER=$((RANDOM%999999))
   export PARENT_PROJECT=$(gcloud config get-value project)
-  export FOURKEYS_PROJECT=$(printf "fourkeys-%06d" $((RANDOM%999999)))
+  export FOURKEYS_PROJECT=$(printf "fourkeys-%06d" $RANDOM_IDENTIFIER)
   export FOURKEYS_REGION=us-central1
-  export HELLOWORLD_PROJECT=$(printf "helloworld-%06d" $((RANDOM%999999)))
+  export HELLOWORLD_PROJECT=$(printf "helloworld-%06d" $RANDOM_IDENTIFIER)
   export HELLOWORLD_REGION=us-central
   export HELLOWORLD_ZONE=${HELLOWORLD_REGION}1-a
   export PARENT_FOLDER=$(gcloud projects describe ${PARENT_PROJECT} --format="value(parent.id)")
@@ -426,6 +427,7 @@ read -p "Would you like to create a new Google Cloud Project for the four key me
 if [[ ${new_yesno} == "y" ]]
 then echo "Setting up the environment..."
 environment
+exit 99
 create_new_project
 else project_prompt
 fi
