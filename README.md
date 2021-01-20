@@ -29,7 +29,7 @@ For a quick baseline of your team's software delivery performance, you can also 
 
 # How it works
 
-1.  Events are sent to a webhook target hosted on Cloud Run. Events are any occurance in your development environment (for example, GitHub or GitLab) that can be measured, such as a pull request or new issue. Four Keys defines events to measure, and you can add others that are relevant to your project.
+1.  Events are sent to a webhook target hosted on Cloud Run. Events are any occurrence in your development environment (for example, GitHub or GitLab) that can be measured, such as a pull request or new issue. Four Keys defines events to measure, and you can add others that are relevant to your project.
 1.  The Cloud Run target publishes all events to Pub/Sub.
 1.  A Cloud Run instance is subscribed to the Pub/Sub topics, does some light data transformation, and inputs the data into BigQuery.
 1.  Nightly scripts are scheduled in BigQuery to complete the data transformations and feed into the dashboard.
