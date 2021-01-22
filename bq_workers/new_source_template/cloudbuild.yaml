@@ -26,8 +26,8 @@ steps:
   id: push
 
 - # Deploy to Cloud Run
-  name: gcr.io/cloud-builders/gcloud
-  args: ['run', 'deploy', '${_SOURCE}-worker',
+  name: google/cloud-sdk
+  args: ['gcloud', 'run', 'deploy', '${_SOURCE}-worker',
          '--image', 'gcr.io/$PROJECT_ID/${_SOURCE}-worker',
          '--region', '${_REGION}',
          '--platform', 'managed'

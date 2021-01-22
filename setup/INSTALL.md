@@ -1,6 +1,6 @@
 # Installation guide
 
-This guide describes how to set up Four Keys with your GitHub or GitLab project. The main setps are:
+This guide describes how to set up Four Keys with your GitHub or GitLab project. The main steps are:
 
 1.  [Runing the setup script](#running-the-setup-script)
 1.  Integrating with your GitHub or Git Lab repo by:
