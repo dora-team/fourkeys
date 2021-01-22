@@ -26,8 +26,8 @@ steps:
   id: push
 
 - # Deploy to Cloud Run
-  name: gcr.io/cloud-builders/gcloud
-  args: ['run', 'deploy', 'tekton-worker',
+  name: google/cloud-sdk
+  args: ['gcloud', 'run', 'deploy', 'tekton-worker',
          '--image', 'gcr.io/$PROJECT_ID/tekton-worker',
          '--region', '${_REGION}',
          '--platform', 'managed'

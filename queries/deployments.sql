@@ -27,7 +27,11 @@ FROM(
       time_created,
       CASE WHEN source = "cloud_build" then JSON_EXTRACT_SCALAR(metadata, '$.substitutions.COMMIT_SHA')
            WHEN source like "github%" then JSON_EXTRACT_SCALAR(metadata, '$.deployment.sha')
-           WHEN source like "gitlab%" then JSON_EXTRACT_SCALAR(metadata, '$.commit.id') end as main_commit
+           WHEN source like "gitlab%" then JSON_EXTRACT_SCALAR(metadata, '$.commit.id') end as main_commit,
+      CASE WHEN source LIKE "github%" THEN ARRAY(
+                SELECT JSON_EXTRACT_SCALAR(string_element, '$')
+                FROM UNNEST(JSON_EXTRACT_ARRAY(metadata, '$.deployment.additional_sha')) AS string_element)
+           ELSE [] end as additional_commits
       FROM four_keys.events_raw 
       WHERE ((source = "cloud_build"
       AND JSON_EXTRACT_SCALAR(metadata, '$.status') = "SUCCESS")
@@ -40,7 +44,8 @@ FROM(
       source,
       id as deploy_id,
       time_created,
-      IF(JSON_EXTRACT_SCALAR(param, '$.name') = "gitrevision", JSON_EXTRACT_SCALAR(param, '$.value'), Null) as main_commit
+      IF(JSON_EXTRACT_SCALAR(param, '$.name') = "gitrevision", JSON_EXTRACT_SCALAR(param, '$.value'), Null) as main_commit,
+      [] AS additional_commits
       FROM (
       SELECT 
       id,
@@ -57,6 +62,9 @@ FROM(
     id,
     metadata as change_metadata
     FROM four_keys.events_raw) 
-    changes on deploys.main_commit = changes.id) d, d.array_commits changes
+    changes on (
+        changes.id = deploys.main_commit
+        or changes.id in unnest(deploys.additional_commits)
+      )) d, d.array_commits changes
 GROUP BY 1,2,3
 ;
