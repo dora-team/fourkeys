@@ -26,7 +26,7 @@ help() {
 
 # PARSE INPUTS
 
-OPTS=`getopt -o vhns: --long query_file:,table:,project_id: -n 'schedule' -- "$@"`
+OPTS=`getopt -o vhns: --long query_file:,table:,project_id:,help -n 'schedule' -- "$@"`
 
 if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
 
@@ -38,6 +38,7 @@ while true; do
     -q | --query_file ) QUERY_FILE="$2"; shift; shift ;;
     -t | --table ) TABLE="$2"; shift; shift ;;
     -p | --project_id ) PROJECT_ID="$2"; shift; shift ;;
+    -h | --help ) help; exit 0; shift; shift ;;
     -- ) shift; break ;;
     * ) break ;;
   esac
