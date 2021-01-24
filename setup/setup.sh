@@ -363,10 +363,10 @@ schedule_bq_queries(){
 
   echo "Creating BigQuery scheduled queries for derived tables.."; set -x
 
-  python3 schedule.py --query_file=changes.sql --table=changes --access_token=${token}
-  python3 schedule.py --query_file=deployments.sql --table=deployments  --access_token=${token}
-  python3 schedule.py --query_file=incidents.sql --table=incidents --access_token=${token}
-
+  ./schedule.sh --query_file=changes.sql --table=changes --project_id=$FOURKEYS_PROJECT
+  ./schedule.sh --query_file=deployments.sql --table=deployments --project_id=$FOURKEYS_PROJECT
+  ./schedule.sh --query_file=incidents.sql --table=incidents --project_id=$FOURKEYS_PROJECT
+  
   set +x; echo
   cd ${DIR}
 }
