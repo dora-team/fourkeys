@@ -357,11 +357,8 @@ schedule_bq_queries(){
   enabled=$(gcloud services list --enabled --filter name:bigquerydatatransfer.googleapis.com)
   done
 
-  cd ${DIR}/../queries/
-  pip3 install -r requirements.txt -q --user
-  token=$(gcloud auth print-access-token)
-
   echo "Creating BigQuery scheduled queries for derived tables.."; set -x
+  cd ${DIR}/../queries/
 
   ./schedule.sh --query_file=changes.sql --table=changes --project_id=$FOURKEYS_PROJECT
   ./schedule.sh --query_file=deployments.sql --table=deployments --project_id=$FOURKEYS_PROJECT
