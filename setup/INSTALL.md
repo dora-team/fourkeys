@@ -1,12 +1,12 @@
 # Installation guide
 
-This guide describes how to set up Four Keys with your GitHub or GitLab project. The main setps are:
+This guide describes how to set up Four Keys with your GitHub or GitLab project. The main steps are:
 
-1.  [Runing the setup script](#running_the_setup_script)
+1.  [Runing the setup script](#running-the-setup-script)
 1.  Integrating with your GitHub or Git Lab repo by:
-    1.  [Collecting changes data](#collecting_changes_data)
-    1.  [Collecting deployment data](#collecting_deployment_data)
-    1.  [Collecting incident data](#collecting_incident_data)
+    1.  [Collecting changes data](#collecting-changes-data)
+    1.  [Collecting deployment data](#collecting-deployment-data)
+    1.  [Collecting incident data](#collecting-incident-data)
 
 ## Before you begin
 
@@ -80,9 +80,9 @@ The setup script can create mock data, but it cannot integrate automatically wit
 
 To integrate Four Keys with a live repo, you need to:
 
-1.  [Collect changes data](#collecting_changes_data)
-1.  [Collect deployment data](#collecting_deployment_data)
-1.  [Collect incident data](#collecting_incident_data)
+1.  [Collect changes data](#collecting-changes-data)
+1.  [Collect deployment data](#collecting-deployment-data)
+1.  [Collect incident data](#collecting-incident-data)
 
 ### Collecting changes data
 

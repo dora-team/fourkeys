@@ -18,10 +18,11 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 environment () {
   # Set values that will be overwritten if env.sh exists
+  RANDOM_IDENTIFIER=$((RANDOM%999999))
   export PARENT_PROJECT=$(gcloud config get-value project)
-  export FOURKEYS_PROJECT=$(printf "fourkeys-%06d" $((RANDOM%999999)))
+  export FOURKEYS_PROJECT=$(printf "fourkeys-%06d" $RANDOM_IDENTIFIER)
   export FOURKEYS_REGION=us-central1
-  export HELLOWORLD_PROJECT=$(printf "helloworld-%06d" $((RANDOM%999999)))
+  export HELLOWORLD_PROJECT=$(printf "helloworld-%06d" $RANDOM_IDENTIFIER)
   export HELLOWORLD_REGION=us-central
   export HELLOWORLD_ZONE=${HELLOWORLD_REGION}1-a
   export PARENT_FOLDER=$(gcloud projects describe ${PARENT_PROJECT} --format="value(parent.id)")
@@ -130,44 +131,51 @@ fourkeys_project_setup () {
 
   echo "Creating BigQuery dataset and tables"; set -x
   bq mk \
-    --dataset \
+    --dataset -f \
     ${FOURKEYS_PROJECT}:four_keys
 
   bq mk \
-    --table \
+    --table -f\
     ${FOURKEYS_PROJECT}:four_keys.changes \
     $DIR/changes_schema.json
 
   bq mk \
-    --table \
+    --table -f\
     ${FOURKEYS_PROJECT}:four_keys.deployments \
     $DIR/deployments_schema.json
   
   bq mk \
-    --table \
+    --table -f\
     ${FOURKEYS_PROJECT}:four_keys.events_raw \
     $DIR/events_raw_schema.json
 
   bq mk \
-    --table \
+    --table -f\
     ${FOURKEYS_PROJECT}:four_keys.incidents \
     $DIR/incidents_schema.json
   set +x; echo
 
-  echo "Saving Event Handler Secret in Secret Manager.."; set -x\
+  echo "Saving Event Handler Secret in Secret Manager.."
   # Set permissions so Cloud Run can access secrets
   SERVICE_ACCOUNT="${FOURKEYS_PROJECTNUM}-compute@developer.gserviceaccount.com"
   gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} \
     --member=serviceAccount:$SERVICE_ACCOUNT \
     --role=roles/secretmanager.secretAccessor
 
-  # Create and save secret
+  # Check if event-handler secret already exists
+  check_secret=$(gcloud secrets versions access "1" --secret="event-handler" 2>/dev/null)
+  if [[ $check_secret ]]
+  then
+  SECRET=$check_secret
+  else
+
+  # If not, create and save secret
   SECRET="$(python3 -c 'import secrets 
 print(secrets.token_hex(20))' | tr -d '\n')"
   echo $SECRET | tr -d '\n' | gcloud beta secrets create event-handler \
     --replication-policy=automatic \
     --data-file=-
-  set +x; echo
+  fi
 }
 
 helloworld_project_setup () {
@@ -215,12 +223,12 @@ github_pipeline(){
   echo "Creating Github Pub/Sub Topic & Subscription..."
   gcloud pubsub topics create GitHub-Hookshot
 
-  gcloud run  --platform managed services add-iam-policy-binding github-worker \
+  gcloud run services add-iam-policy-binding github-worker \
    --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
    --role=roles/run.invoker
 
   # Get push endpoint for github-worker
-  export PUSH_ENDPOINT_URL=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe github-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
+  export PUSH_ENDPOINT_URL=$(gcloud run services describe github-worker --format="value(status.url)")
   # configure the subscription push identity
   gcloud pubsub subscriptions create GithubSubscription \
     --topic=GitHub-Hookshot \
@@ -241,12 +249,12 @@ gitlab_pipeline(){
   echo "Creating Github Pub/Sub Topic & Subscription..."
   gcloud pubsub topics create Gitlab
 
-  gcloud run  --platform managed services add-iam-policy-binding gitlab-worker \
+  gcloud run services add-iam-policy-binding gitlab-worker \
    --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
    --role=roles/run.invoker
 
   # Get push endpoint for gitlab-worker
-  export PUSH_ENDPOINT_URL=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe gitlab-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
+  export PUSH_ENDPOINT_URL=$(gcloud run services describe gitlab-worker --format="value(status.url)")
   # configure the subscription push identity
   gcloud pubsub subscriptions create GitlabSubscription \
     --topic=Gitlab \
@@ -269,12 +277,12 @@ cloud_build_pipeline(){
   gcloud pubsub topics create cloud-builds
   set +x; echo
 
-  gcloud run  --platform managed services add-iam-policy-binding cloud-build-worker \
+  gcloud run services add-iam-policy-binding cloud-build-worker \
    --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
    --role=roles/run.invoker
 
   # Get push endpoint for cloud-build-worker
-  export PUSH_ENDPOINT_URL=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe cloud-build-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
+  export PUSH_ENDPOINT_URL=$(gcloud run services describe cloud-build-worker --format="value(status.url)")
   # configure the subscription push identity
   gcloud pubsub subscriptions create CloudBuildSubscription \
     --topic=cloud-builds \
@@ -296,12 +304,12 @@ tekton_pipeline(){
   echo "Creating Tekton Pub/Sub Topic & Subscription..."
   gcloud pubsub topics create Tekton
 
-  gcloud run  --platform managed services add-iam-policy-binding tekton-worker \
+  gcloud run services add-iam-policy-binding tekton-worker \
    --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
    --role=roles/run.invoker
 
-  # Get push endpoint for github-worker
-  export PUSH_ENDPOINT_URL=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe tekton-worker --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
+  # Get push endpoint for tekton-worker
+  export PUSH_ENDPOINT_URL=$(gcloud run services describe tekton-worker --format="value(status.url)")
   # configure the subscription push identity
   gcloud pubsub subscriptions create TektonSubscription \
     --topic=Tekton \
@@ -315,22 +323,40 @@ tekton_pipeline(){
 generate_data(){
   gcloud config set project ${FOURKEYS_PROJECT}
   echo "Creating mock data..."; 
-  export WEBHOOK=$(gcloud run --platform managed --region ${FOURKEYS_REGION} services describe event-handler --format=yaml | grep url | head -1 | sed -e 's/  *url: //g')
+  export WEBHOOK=$(gcloud run services describe event-handler --format="value(status.url)")
   export SECRET=$SECRET
 
+  # Create an identity token if running in cloudbuild tests
+  if [[ "$(gcloud config get-value account)" == "${FOURKEYS_PROJECTNUM}@cloudbuild.gserviceaccount.com" ]]
+  then
+  export TOKEN=$(curl -X POST -H "content-type: application/json" \
+    -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+    -d "{\"audience\": \"${WEBHOOK}\"}" \
+    "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com:generateIdToken" | \
+    python3 -c "import sys, json; print(json.load(sys.stdin)['token'])")
+  fi
 
   if [[ ${git_system} == "1" ]]
-  then set -x python3 ${DIR}/../data_generator/gitlab_data.py
+  then set -x; python3 ${DIR}/../data_generator/gitlab_data.py
   set +x
   fi
   if [[ ${git_system} == "2" ]]
-  then set -x python3 ${DIR}/../data_generator/github_data.py  
+  then set -x; python3 ${DIR}/../data_generator/github_data.py  
   set +x
   fi
   
 }
 
 schedule_bq_queries(){
+  echo "Check BigQueryDataTransfer is enabled" 
+  enabled=$(gcloud services list --enabled --filter name:bigquerydatatransfer.googleapis.com)
+
+  while [[ "${enabled}" != *"bigquerydatatransfer.googleapis.com"* ]]
+  do gcloud services enable bigquerydatatransfer.googleapis.com
+  # Keep checking if it's enabled
+  enabled=$(gcloud services list --enabled --filter name:bigquerydatatransfer.googleapis.com)
+  done
+
   cd ${DIR}/../queries/
   pip3 install -r requirements.txt -q --user
   token=$(gcloud auth print-access-token)
