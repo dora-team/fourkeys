@@ -44,23 +44,9 @@ while true; do
   esac
 done
 
-if [ -z "$QUERY_FILE" ]
+if [[ -z "$QUERY_FILE" || -z "$TABLE" || -z "$PROJECT_ID" ]]
 then
-    printf "Error: please specify query file.\n"
-    help
-    exit 1
-fi
-
-if [ -z "$TABLE" ]
-then
-    printf "Error: please specify destination table.\n"
-    help
-    exit 1
-fi
-
-if [ -z "$PROJECT_ID" ]
-then
-    printf "Error: please specify project ID.\n"
+    printf "Error: one or more required arguments not specified\n"
     help
     exit 1
 fi
