@@ -13,16 +13,47 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Bulk delete: if flag `-b` is specified, delete all projects with IDs that
+# match patterns: fourkeys_* or helloworld_*
+
+bulk_delete=0
+
+while getopts ":b" opt; do
+  case ${opt} in
+    b ) bulk_delete=1  ;;
+    \? ) echo "Usage: ./cleanup.sh [-b]" ;;
+  esac
+done
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 [[ -f "$DIR/env.sh" ]] && echo "Importing environment from $DIR/env.sh..." && . $DIR/env.sh
 
-echo "Deleting projects..."
-set -x
-gcloud projects delete ${FOURKEYS_PROJECT}
-gcloud projects delete ${HELLOWORLD_PROJECT}
-gcloud config set project ${PARENT_PROJECT}
-rm env.sh
+if [[ ${bulk_delete} -gt 0 ]]
+then
+    # disregard env variables and delete all projects matching "fourkeys-*" or "helloworld-*"
+    projects=$(gcloud projects list --filter="projectId=fourkeys-* OR projectId=helloworld-*" --format="value(projectId)")
+else
+    projects="${FOURKEYS_PROJECT}"
+    if [ ! -z "${HELLOWORLD_PROJECT}" ]
+    then
+        projects="${FOURKEYS_PROJECT} ${HELLOWORLD_PROJECT}"
+    fi
+fi
+
+if [ ! -z "${projects}"]; then echo "Deleting projects..."; else echo "no projects to delete."; fi
+
+for project in $projects; do
+    echo "delete project ${project}..."
+    gcloud projects delete "${project}"
+done
+
+if [ ! -z "${PARENT_PROJECT}" ]
+then
+    gcloud config set project ${PARENT_PROJECT}
+fi
+
+# purge env.sh file, if it exists
+[[ -f "$DIR/env.sh" ]] && rm env.sh
 
 
