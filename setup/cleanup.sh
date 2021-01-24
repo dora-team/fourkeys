@@ -41,7 +41,7 @@ else
     fi
 fi
 
-if [ ! -z "${projects}"]; then echo "Deleting projects..."; else echo "no projects to delete."; fi
+if [ ! -z "${projects}" ]; then echo "Deleting projects..."; else echo "no projects to delete."; fi
 
 for project in $projects; do
     echo "delete project ${project}..."
