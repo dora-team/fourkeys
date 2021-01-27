@@ -116,16 +116,16 @@ The scripts consider some events to be “changes”, “deploys”, and “inci
 
 1.  Update the nightly scripts in BigQuery for the following tables:
 
-    *   `four\_keys.changes`
-    *   `four\_keys.deployments`
-    *   `four\_keys.incidents`
+    *   `four_keys.changes`
+    *   `four_keys.deployments`
+    *   `four_keys.incidents`
 
     To update the scripts, we recommend that you update the `sql` files in the `queries` folder, rather than in the BigQuery UI.
 
-1.  Once you've edited the SQL, run the `schedule.py` script to update the scheduled query that populates the table.  For example, if you wanted to update the `four_keys.changes` table, you'd run:
+1.  Once you've edited the SQL, run the `schedule.sh` script to update the scheduled query that populates the table.  For example, if you wanted to update the `four_keys.changes` table, you'd run:
 
     ```sh 
-    python3 schedule.py --query_file=changes.sql --table=changes
+    schedule.sh --query_file=changes.sql --table=changes --project_id=$FOURKEYS_PROJECT
     ```
 
 Notes: 
