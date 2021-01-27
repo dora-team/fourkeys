@@ -25,44 +25,41 @@ import sys
 from hashlib import sha1
 from urllib.request import Request, urlopen
 
-# set defaults
-event_timespan = 604800
-num_events = 20
-num_issues = 2
-
 # parse arguments
 parser = argparse.ArgumentParser()
-parser.add_argument("--event_timespan", "-t",
+parser.add_argument("--event_timespan", "-t", type=int, default=604800,
                     help="time duration (in seconds) of timestamps of generated events \
                     (from [Now-timespan] to [Now]); default=604800 (1 week)")
-parser.add_argument("--num_events", "-e", help="number of events to generate; default=20")
-parser.add_argument("--num_issues", "-i", help="number of issues to generate; default=2")
-parser.add_argument("--vc_system", "-v", help="version control system (e.g. 'github', 'gitlab')",
-                    required=True, choices=['gitlab', 'github'])
+parser.add_argument("--num_events", "-e", type=int, default=20,
+                    help="number of events to generate; default=20")
+parser.add_argument("--num_issues", "-i", type=int, default=2,
+                    help="number of issues to generate; default=2")
+parser.add_argument("--vc_system", "-v", required=True, choices=['gitlab', 'github'],
+                    help="version control system (e.g. 'github', 'gitlab')",)
 args = parser.parse_args()
 
-# override defaults if specified in command line
-if args.event_timespan:
-    event_timespan = int(args.event_timespan)
-if args.num_events:
-    num_events = int(args.num_events)
-if args.num_issues:
-    num_issues = int(args.num_issues)
-
-if num_issues > num_events:
+if args.num_issues > args.num_events:
     print("Error: num_issues cannot be greater than num_events")
+    sys.exit()
+
+# get environment vars
+webhook_url = os.environ.get("WEBHOOK")
+secret = os.environ.get("SECRET")
+
+if not webhook_url or not secret:
+    print("Error: please ensure the following environment variables are set: WEBHOOK, SECRET")
     sys.exit()
 
 
 def make_changes(num_changes):
     changes = []
-    max_time = time.time() - event_timespan
+    max_time = time.time() - args.event_timespan
     head_commit = None
     event = None
 
     for x in range(num_changes):
         change_id = secrets.token_hex(20)
-        unix_timestamp = time.time() - random.randrange(0, event_timespan)
+        unix_timestamp = time.time() - random.randrange(0, args.event_timespan)
         change = {
             "id": change_id,
             "timestamp": datetime.datetime.fromtimestamp(unix_timestamp),
@@ -148,19 +145,16 @@ def make_gitlab_issue(changes):
 
 
 def post_to_webhook(event_type, data):
-    webhook_url = os.environ.get("WEBHOOK")
     data = json.dumps(data, default=str).encode()
     request = Request(webhook_url, data)
 
     if args.vc_system == "github":
-        secret = os.environ.get("SECRET").encode()
-        signature = hmac.new(secret, data, sha1)
+        signature = hmac.new(secret.encode(), data, sha1)
         request.add_header("X-Github-Event", event_type)
         request.add_header("X-Hub-Signature", "sha1=" + signature.hexdigest())
         request.add_header("User-Agent", "GitHub-Hookshot/mock")
 
     if args.vc_system == "gitlab":
-        secret = os.environ.get("SECRET")
         request.add_header("X-Gitlab-Event", event_type)
         request.add_header("X-Gitlab-Token", secret)
 
@@ -181,7 +175,7 @@ def post_to_webhook(event_type, data):
 
 all_changesets = []
 changes_sent = 0
-for x in range(num_events):
+for x in range(args.num_events):
 
     # make a change set containing a random number of changes
     changeset = make_changes(random.randrange(1, 5))
@@ -210,7 +204,7 @@ for x in range(num_events):
     all_changesets.append(changeset)
 
 # randomly create incidents associated to changes
-changesets_with_issues = random.sample(all_changesets, num_issues)
+changesets_with_issues = random.sample(all_changesets, args.num_issues)
 for changeset in changesets_with_issues:
     issue = None
     if args.vc_system == "gitlab":
