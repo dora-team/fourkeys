@@ -389,13 +389,13 @@ project_prompt(){
 }
 
 get_project_number(){
-  # There is sometimes a delay in the API and gcloud projects list will return nothing
+  # There is sometimes a delay in the API and the gcloud command
   # Run the gcloud command until it returns a value
   continue=1
   while [[ ${continue} -gt 0 ]]
   do
 
-  export FOURKEYS_PROJECTNUM=$(gcloud projects list --filter="${FOURKEYS_PROJECT}" --format="value(PROJECT_NUMBER)")
+  export FOURKEYS_PROJECTNUM=$(gcloud projects describe ${FOURKEYS_PROJECT} --format='value(projectNumber)')
   if [[ ${FOURKEYS_PROJECTNUM} ]]
   then continue=0
   fi
