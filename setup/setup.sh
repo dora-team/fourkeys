@@ -357,16 +357,13 @@ schedule_bq_queries(){
   enabled=$(gcloud services list --enabled --filter name:bigquerydatatransfer.googleapis.com)
   done
 
-  cd ${DIR}/../queries/
-  pip3 install -r requirements.txt -q --user
-  token=$(gcloud auth print-access-token)
-
   echo "Creating BigQuery scheduled queries for derived tables.."; set -x
+  cd ${DIR}/../queries/
 
-  python3 schedule.py --query_file=changes.sql --table=changes --access_token=${token}
-  python3 schedule.py --query_file=deployments.sql --table=deployments  --access_token=${token}
-  python3 schedule.py --query_file=incidents.sql --table=incidents --access_token=${token}
-
+  ./schedule.sh --query_file=changes.sql --table=changes --project_id=$FOURKEYS_PROJECT
+  ./schedule.sh --query_file=deployments.sql --table=deployments --project_id=$FOURKEYS_PROJECT
+  ./schedule.sh --query_file=incidents.sql --table=incidents --project_id=$FOURKEYS_PROJECT
+  
   set +x; echo
   cd ${DIR}
 }
@@ -392,13 +389,13 @@ project_prompt(){
 }
 
 get_project_number(){
-  # There is sometimes a delay in the API and gcloud projects list will return nothing
+  # There is sometimes a delay in the API and the gcloud command
   # Run the gcloud command until it returns a value
   continue=1
   while [[ ${continue} -gt 0 ]]
   do
 
-  export FOURKEYS_PROJECTNUM=$(gcloud projects list --filter="${FOURKEYS_PROJECT}" --format="value(PROJECT_NUMBER)")
+  export FOURKEYS_PROJECTNUM=$(gcloud projects describe ${FOURKEYS_PROJECT} --format='value(projectNumber)')
   if [[ ${FOURKEYS_PROJECTNUM} ]]
   then continue=0
   fi
