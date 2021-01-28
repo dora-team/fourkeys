@@ -28,12 +28,22 @@ help() {
 for i in "$@"
 do
 case $i in
-    -q | --query_file ) QUERY_FILE="$2"; shift; shift ;;
-    -t | --table ) TABLE="$2"; shift; shift ;;
-    -p | --project_id ) PROJECT_ID="$2"; shift; shift ;;
-    -h | --help ) help; exit 0; shift; shift ;;
-    -- ) shift; break ;;
-    * ) break ;;
+    -q=*|--query_file=*) 
+    QUERY_FILE="${i#*=}"
+    shift 
+    ;;
+    -t=* | --table=*) 
+    TABLE="${i#*=}"
+    shift 
+    ;;
+    -p=* | --project_id=*) 
+    PROJECT_ID="${i#*=}"
+    shift
+    ;;
+    -h | --help ) help; exit 0; shift;;
+    *)
+          # unknown option
+    ;;
   esac
 done
 
