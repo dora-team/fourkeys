@@ -62,9 +62,9 @@ echo PROJECT_ID=$PROJECT_ID
 
 # First, delete the transfer config, if it exists
 for location in US EU; do
-    while [ ! -z "$(bq ls --transfer_config --transfer_location=$location | grep "four_keys_$TABLE" -m 1 | awk '{print $1;}')" ]
+    while [ ! -z "$(bq ls --transfer_config --transfer_location=$location | grep "$TABLE" -m 1 | awk '{print $1;}')" ]
     do
-        scheduled_query=$(bq ls --transfer_config --transfer_location=$location | grep "four_keys_$TABLE" -m 1 | awk '{print $1;}')
+        scheduled_query=$(bq ls --transfer_config --transfer_location=$location | grep "$TABLE" -m 1 | awk '{print $1;}')
         echo "deleting prior scheduled query for $TABLE: $scheduled_query"
         bq rm --force --transfer_config $scheduled_query
     done
