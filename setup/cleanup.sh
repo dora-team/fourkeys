@@ -35,7 +35,7 @@ then
     projects=$(gcloud projects list --filter="projectId=fourkeys-* OR projectId=helloworld-*" --format="value(projectId)")
 else
     projects="${FOURKEYS_PROJECT}"
-    if [ ! -z "${HELLOWORLD_PROJECT}" ]
+    if [[ ! -z "${HELLOWORLD_PROJECT}" && ! -z "$(gcloud projects list --filter="projectId=${HELLOWORLD_PROJECT}" --format="value(projectId)")" ]]
     then
         projects="${FOURKEYS_PROJECT} ${HELLOWORLD_PROJECT}"
     fi
