@@ -44,7 +44,7 @@ If you've chosen to create new Google Cloud projects, after the script finishes 
 
 If you ever want to remove the newly created projects and all associated data, you can run `cleanup.sh`.  **Only do this when you are done experimenting with Four Keys entirely, or want to start over. Running `cleanup.sh` will remove the projects and all the collected data.**
 
-If you want to bulk delete many projects that you've created via the setup script, all of which will be named `fourkeys-XXXX` and `helloworld-XXXXX`, pass a flag to the cleanup script: `cleanup.sh -1`
+If you want to bulk delete many projects that you've created via the setup script, all of which will be named `fourkeys-XXXX` and `helloworld-XXXXX`, pass a flag to the cleanup script: `./cleanup.sh -1`
 
 ### The setup explained
 
