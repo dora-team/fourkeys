@@ -4,4 +4,19 @@ steps:
     args:
        - '-c'
        - |
-        pip3 install nox && python3 -m nox
+        pip3 install nox && python3 -m nox --python=3.6
+    waitFor: ['-'] # run in parallel
+  - name: gcr.io/cloud-devrel-public-resources/python-multi
+    entrypoint: /bin/bash
+    args:
+       - '-c'
+       - |
+        pip3 install nox && python3 -m nox --python=3.7
+    waitFor: ['-'] # run in parallel
+  - name: gcr.io/cloud-devrel-public-resources/python-multi
+    entrypoint: /bin/bash
+    args:
+       - '-c'
+       - |
+        pip3 install nox && python3 -m nox --python=3.8
+    waitFor: ['-'] # run in parallel        
