@@ -25,41 +25,15 @@ import sys
 from hashlib import sha1
 from urllib.request import Request, urlopen
 
-# parse arguments
-parser = argparse.ArgumentParser()
-parser.add_argument("--event_timespan", "-t", type=int, default=604800,
-                    help="time duration (in seconds) of timestamps of generated events \
-                    (from [Now-timespan] to [Now]); default=604800 (1 week)")
-parser.add_argument("--num_events", "-e", type=int, default=20,
-                    help="number of events to generate; default=20")
-parser.add_argument("--num_issues", "-i", type=int, default=2,
-                    help="number of issues to generate; default=2")
-parser.add_argument("--vc_system", "-v", required=True, choices=['gitlab', 'github'],
-                    help="version control system (e.g. 'github', 'gitlab')",)
-args = parser.parse_args()
-
-if args.num_issues > args.num_events:
-    print("Error: num_issues cannot be greater than num_events")
-    sys.exit()
-
-# get environment vars
-webhook_url = os.environ.get("WEBHOOK")
-secret = os.environ.get("SECRET")
-
-if not webhook_url or not secret:
-    print("Error: please ensure the following environment variables are set: WEBHOOK, SECRET")
-    sys.exit()
-
-
-def make_changes(num_changes):
+def make_changes(num_changes, vcs, event_timespan):
     changes = []
-    max_time = time.time() - args.event_timespan
+    max_time = time.time() - event_timespan
     head_commit = None
     event = None
 
     for x in range(num_changes):
         change_id = secrets.token_hex(20)
-        unix_timestamp = time.time() - random.randrange(0, args.event_timespan)
+        unix_timestamp = time.time() - random.randrange(0, event_timespan)
         change = {
             "id": change_id,
             "timestamp": datetime.datetime.fromtimestamp(unix_timestamp),
@@ -71,10 +45,10 @@ def make_changes(num_changes):
 
         changes.append(change)
 
-    if args.vc_system == "gitlab":
+    if vcs == "gitlab":
         event = {"object_kind": "push",
                  "checkout_sha": head_commit["id"], "commits": changes}
-    if args.vc_system == "github":
+    if vcs == "github":
         event = {"head_commit": head_commit, "commits": changes}
 
     return event
@@ -144,17 +118,17 @@ def make_gitlab_issue(changes):
     return issue
 
 
-def post_to_webhook(event_type, data):
+def post_to_webhook(vcs, webhook_url, secret, event_type, data):
     data = json.dumps(data, default=str).encode()
     request = Request(webhook_url, data)
 
-    if args.vc_system == "github":
+    if vcs == "github":
         signature = hmac.new(secret.encode(), data, sha1)
         request.add_header("X-Github-Event", event_type)
         request.add_header("X-Hub-Signature", "sha1=" + signature.hexdigest())
         request.add_header("User-Agent", "GitHub-Hookshot/mock")
 
-    if args.vc_system == "gitlab":
+    if vcs == "gitlab":
         request.add_header("X-Gitlab-Event", event_type)
         request.add_header("X-Gitlab-Token", secret)
 
@@ -172,45 +146,73 @@ def post_to_webhook(event_type, data):
     else:
         return 0
 
+if __name__ == "__main__":
+    # parse arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--event_timespan", "-t", type=int, default=604800,
+                        help="time duration (in seconds) of timestamps of generated events \
+                        (from [Now-timespan] to [Now]); default=604800 (1 week)")
+    parser.add_argument("--num_events", "-e", type=int, default=20,
+                        help="number of events to generate; default=20")
+    parser.add_argument("--num_issues", "-i", type=int, default=2,
+                        help="number of issues to generate; default=2")
+    parser.add_argument("--vc_system", "-v", required=True, choices=['gitlab', 'github'],
+                        help="version control system (e.g. 'github', 'gitlab')",)
+    args = parser.parse_args()
 
-all_changesets = []
-changes_sent = 0
-for x in range(args.num_events):
+    if args.num_issues > args.num_events:
+        print("Error: num_issues cannot be greater than num_events")
+        sys.exit()
 
-    # make a change set containing a random number of changes
-    changeset = make_changes(random.randrange(1, 5))
+    # get environment vars
+    webhook_url = os.environ.get("WEBHOOK")
+    secret = os.environ.get("SECRET")
 
-    # Send individual changes data
-    for c in changeset["commits"]:
-        curr_change = None
+    if not webhook_url or not secret:
+        print("Error: please ensure the following environment variables are set: WEBHOOK, SECRET")
+        sys.exit()
+
+    all_changesets = []
+    changes_sent = 0
+    for x in range(args.num_events):
+
+        # make a change set containing a random number of changes
+        changeset = make_changes(
+            random.randrange(1, 5),
+            args.vc_system,
+            args.event_timespan,)
+
+        # Send individual changes data
+        for c in changeset["commits"]:
+            curr_change = None
+            if args.vc_system == "gitlab":
+                curr_change = {"object_kind": "push", "checkout_sha": c['id'], "commits": [c]}
+            if args.vc_system == "github":
+                curr_change = {"head_commit": c, "commits": [c]}
+            changes_sent += post_to_webhook(args.vc_system, webhook_url, secret, "push", curr_change)
+
+        # Send fully associated push event
+        post_to_webhook(args.vc_system, webhook_url, secret, "push", changeset)
+
+        # Make and send a deployment
         if args.vc_system == "gitlab":
-            curr_change = {"object_kind": "push", "checkout_sha": c['id'], "commits": [c]}
+            pipeline = create_gitlab_pipeline_event(changeset)
+            post_to_webhook(args.vc_system, webhook_url, secret, "pipeline", pipeline)
+
         if args.vc_system == "github":
-            curr_change = {"head_commit": c, "commits": [c]}
-        changes_sent += post_to_webhook("push", curr_change)
+            deploy = create_github_deploy_event(changeset["head_commit"])
+            post_to_webhook(args.vc_system, webhook_url, secret, "deployment_status", deploy)
 
-    # Send fully associated push event
-    post_to_webhook("push", changeset)
+        all_changesets.append(changeset)
 
-    # Make and send a deployment
-    if args.vc_system == "gitlab":
-        pipeline = create_gitlab_pipeline_event(changeset)
-        post_to_webhook("pipeline", pipeline)
+    # randomly create incidents associated to changes
+    changesets_with_issues = random.sample(all_changesets, args.num_issues)
+    for changeset in changesets_with_issues:
+        issue = None
+        if args.vc_system == "gitlab":
+            issue = make_gitlab_issue(changeset)
+        if args.vc_system == "github":
+            issue = make_github_issue(changeset["head_commit"])
+        post_to_webhook(args.vc_system, webhook_url, secret, "issues", issue)
 
-    if args.vc_system == "github":
-        deploy = create_github_deploy_event(changeset["head_commit"])
-        post_to_webhook("deployment_status", deploy)
-
-    all_changesets.append(changeset)
-
-# randomly create incidents associated to changes
-changesets_with_issues = random.sample(all_changesets, args.num_issues)
-for changeset in changesets_with_issues:
-    issue = None
-    if args.vc_system == "gitlab":
-        issue = make_gitlab_issue(changeset)
-    if args.vc_system == "github":
-        issue = make_github_issue(changeset["head_commit"])
-    post_to_webhook("issues", issue)
-
-print(f"{changes_sent} changes successfully sent to event-handler")
+    print(f"{changes_sent} changes successfully sent to event-handler")
