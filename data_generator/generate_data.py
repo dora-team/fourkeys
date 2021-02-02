@@ -25,6 +25,7 @@ import sys
 from hashlib import sha1
 from urllib.request import Request, urlopen
 
+
 def make_changes(num_changes, vcs, event_timespan):
     changes = []
     max_time = time.time() - event_timespan
@@ -118,7 +119,7 @@ def make_gitlab_issue(changes):
     return issue
 
 
-def post_to_webhook(vcs, webhook_url, secret, event_type, data):
+def make_webhook_request(vcs, webhook_url, secret, event_type, data):
     data = json.dumps(data, default=str).encode()
     request = Request(webhook_url, data)
 
@@ -139,12 +140,20 @@ def post_to_webhook(vcs, webhook_url, secret, event_type, data):
     if token:
         request.add_header("Authorization", f"Bearer {token}")
 
+    return request
+
+
+def post_to_webhook(vcs, webhook_url, secret, event_type, data):
+
+    request = make_webhook_request(vcs, webhook_url, secret, event_type, data)
+
     response = urlopen(request)
 
     if response.getcode() == 204:
         return 1
     else:
         return 0
+
 
 if __name__ == "__main__":
     # parse arguments
