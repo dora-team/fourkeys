@@ -1,12 +1,14 @@
 # Four Key Metrics Calculations
 
+This page describes the calculation of each metric that the Four Keys dashboard displays. Read this page if you are contributing to the source code for the metrics calculation, or if you want details about the source of each metric.
+
 ![Image of the Four Keys dashboard.](images/dashboard.png)
 
 For each of the metrics, the dashboard shows a running daily calculation, as well as a 3 month bucketed view.  The  buckets are categorized per the [2019 State of DevOps Report](https://www.devops-research.com/research.html#reports). 
 
 ## Deployment Frequency ##
 
-**Definition**: How frequently a team successfully releases to production. 
+**Definition**: How frequently a team successfully releases to production, e.g., daily, weekly, monthly, yearly. 
 
 ### Daily Deployment Volumes ###
 ![Image of chart from the Four Keys dashboard, showing the daily deployment volume.](images/daily_deployments.png)
@@ -233,7 +235,7 @@ LIMIT 1;
 
 ## Change Failure Rate ##
 
-**Definition**:The number of failures per the number of deployments. For example, if there are four deployments in a day and one causes a failure, that is a 25% change failure rate.
+**Definition**: The number of failures per the number of deployments. For example, if there are four deployments in a day and one causes a failure, that is a 25% change failure rate.
 
 ### Daily Change Failure Rate ###
 ![Image of chart from the Four Keys dashboard, showing the daily change failure rate.](images/daily_change_fail.png)
