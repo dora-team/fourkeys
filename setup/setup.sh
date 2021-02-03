@@ -164,7 +164,6 @@ fourkeys_project_setup () {
 
   # Check if event-handler secret already exists
   check_secret=$(gcloud secrets versions access "1" --secret="event-handler" 2>/dev/null)
-
   if [[ $check_secret ]]
   then
   SECRET=$check_secret
