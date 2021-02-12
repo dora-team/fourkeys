@@ -69,7 +69,7 @@ def get_secret(project_name, secret_name, version_num):
     Returns secret payload from Cloud Secret Manager
     """
     try:
-        client = secretmanager_v1beta1.SecretManagerServiceClient()
+        client = secretmanager.SecretManagerServiceClient()
         name = client.secret_version_path(
             project_name, secret_name, version_num
         )
