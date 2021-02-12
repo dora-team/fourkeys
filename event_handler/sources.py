@@ -16,7 +16,7 @@ import hmac
 from hashlib import sha1
 import os
 
-from google.cloud import secretmanager_v1beta1
+from google.cloud import secretmanager
 
 PROJECT_NAME = os.environ.get("PROJECT_NAME")
 
