@@ -59,26 +59,25 @@ def valid_changes(vcs):
 
     # return an example of what valid data looks like
     if vcs == 'github':
-        return {
-            'head_commit': {
+        return {'head_commit': {
                 'id': '29f54bb6cdb25a67dc7a2b7dae17a1346e2e9609',
-                'timestamp': datetime.datetime(2021, 2, 1, 3, 38, 39, 923909)
-            },
-            'commits': [
-                {'id': 'c814b7082ba2ae5d2076568baa67a6b694845e42',
-                 'timestamp': datetime.datetime(2021, 2, 1, 3, 38, 39, 923909)},
-                {'id': '29f54bb6cdb25a67dc7a2b7dae17a1346e2e9609',
-                 'timestamp': datetime.datetime(2021, 1, 28, 10, 28, 32, 923935)}
-            ]
-        }
+                'timestamp': datetime.datetime(2021, 2, 1, 3, 38, 39, 923909), },
+                'commits': [
+                    {'id': 'c814b7082ba2ae5d2076568baa67a6b694845e42',
+                     'timestamp': datetime.datetime(2021, 2, 1, 3, 38, 39, 923909), },
+                    {'id': '29f54bb6cdb25a67dc7a2b7dae17a1346e2e9609',
+                     'timestamp': datetime.datetime(2021, 1, 28, 10, 28, 32, 923935), }]
+                }
 
     elif vcs == 'gitlab':
-        return {'object_kind': 'push', 'checkout_sha': '29f54bb6cdb25a67dc7a2b7dae17a1346e2e9609',
+        return {'object_kind': 'push',
+                'checkout_sha': '29f54bb6cdb25a67dc7a2b7dae17a1346e2e9609',
                 'commits': [
                     {'id': '308ad3e4f9aa16c9c9873d61ace54002a8f5edb8',
                      'timestamp': datetime.datetime(2021, 1, 29, 12, 13, 37, 98007)},
                     {'id': '29f54bb6cdb25a67dc7a2b7dae17a1346e2e9609',
-                     'timestamp': datetime.datetime(2021, 2, 1, 16, 32, 16, 98023)}]}
+                     'timestamp': datetime.datetime(2021, 2, 1, 16, 32, 16, 98023)}]
+                }
 
 
 @pytest.fixture
@@ -90,11 +89,12 @@ def valid_deployment(vcs):
                  'id': '14cdd47757a1ef343c4e183b457ff5cbe85a173b', 'state': 'success'},
                 'deployment': {'sha': '189941869a9bee33fb03e1e18596ea55c4d892e2'}}
     elif vcs == 'gitlab':
-        return {'object_kind': 'pipeline', 'object_attributes':
-                {'created_at': datetime.datetime(2021, 1, 31, 19, 18, 31, 977940),
-                 'id': 856, 'status': 'success'},
-                'commit': {'id': '70f6356d837c981651e6abd2079dc6d4915bae24',
-                           'timestamp': datetime.datetime(2021, 1, 31, 19, 18, 31, 977940)}}
+        return {'object_kind': 'pipeline',
+                'object_attributes':
+                    {'created_at': datetime.datetime(2021, 1, 31, 19, 18, 31, 977940),
+                     'id': 856, 'status': 'success'},
+                    'commit': {'id': '70f6356d837c981651e6abd2079dc6d4915bae24',
+                               'timestamp': datetime.datetime(2021, 1, 31, 19, 18, 31, 977940)}}
 
 
 @pytest.fixture
@@ -104,32 +104,34 @@ def valid_issue(vcs):
             'created_at': datetime.datetime(2021, 1, 30, 22, 30, 5, 76942),
             'updated_at': datetime.datetime(2021, 2, 2, 21, 20, 58, 77232),
             'closed_at': datetime.datetime(2021, 2, 2, 21, 20, 58, 77235),
-            'number': 440, 'labels': [{'name': 'Incident'}],
+            'number': 440,
+            'labels': [{'name': 'Incident'}],
             'body': 'root cause: 2b04b6d3939608f19776193697e0e30c04d9c6b8'}}
     elif vcs == 'gitlab':
-        return {'object_kind': 'issue', 'object_attributes':
+        return {'object_kind': 'issue',
+                'object_attributes':
                 {'created_at': datetime.datetime(2021, 1, 30, 17, 15, 36, 642384),
                  'updated_at': datetime.datetime(2021, 2, 2, 21, 24, 21, 642669),
                  'closed_at': datetime.datetime(2021, 2, 2, 21, 24, 21, 642672),
-                 'id': 764, 'labels': [{'title': 'Incident'}],
+                 'id': 764,
+                 'labels': [{'title': 'Incident'}],
                  'description': 'root cause: 51b14a84cbc2a8877c7b5b0986e15e37a259060b'}}
 
 
 @pytest.fixture
 def valid_change_request(vcs, generate_changes):
-    
+
     request = Request(
         url='http://dummy_url',
         data=generate_changes,
-        headers={
-            'Content-type': 'application/json',
-            'Mock': True
-        }
+        headers={'Content-type': 'application/json',
+                 'Mock': True}
     )
 
     if vcs == 'github':
         request.add_header('X-github-event', 'push')
-        request.add_header('X-hub-signature','sha1=73a9ef6ce9bda2b769807691ddacfe3caf50f4e0')
+        request.add_header('X-hub-signature',
+                           'sha1=73a9ef6ce9bda2b769807691ddacfe3caf50f4e0')
         request.add_header('User-agent', 'GitHub-Hookshot/mock')
     elif vcs == 'gitlab':
         request.add_header('X-gitlab-event', 'push')
@@ -140,19 +142,22 @@ def valid_change_request(vcs, generate_changes):
 
 @pytest.mark.parametrize('vcs', ['github', 'gitlab'])
 def test_changes(generate_changes, valid_changes):
-    compare_dicts(generate_changes, valid_changes)
+    assert compare_dicts(
+        generate_changes, valid_changes) == 'pass', compare_dicts
 
 
 @pytest.mark.parametrize('vcs', ['github', 'gitlab'])
 def test_deployment(valid_deployment, generate_deployment):
-    compare_dicts(generate_deployment, valid_deployment)
+    assert compare_dicts(generate_deployment,
+                         valid_deployment) == 'pass', compare_dicts
 
 
 @pytest.mark.parametrize('vcs', ['github', 'gitlab'])
 def test_issue(valid_issue, generate_issue):
-    compare_dicts(generate_issue, valid_issue)
+    assert compare_dicts(generate_issue, valid_issue) == 'pass', compare_dicts
 
 
 @pytest.mark.parametrize('vcs', ['github', 'gitlab'])
 def test_request(valid_change_request, make_change_request):
-    compare_dicts(make_change_request.headers, valid_change_request.headers)
+    assert compare_dicts(make_change_request.headers,
+                         valid_change_request.headers) == 'pass', compare_dicts
