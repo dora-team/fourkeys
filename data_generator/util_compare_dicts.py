@@ -1,8 +1,5 @@
-import collections
-
-
 def flatten(d, sep="_"):
-    obj = collections.OrderedDict()
+    obj = {}
 
     def recurse(t, parent_key=""):
 
@@ -28,7 +25,7 @@ def compare_dicts(dict_a, dict_b):
     flat_dict_a = flatten(dict_a)
     flat_dict_b = flatten(dict_b)
 
-    if sorted(flat_dict_a.keys()) != sorted(flat_dict_b.keys()):
+    if flat_dict_a.keys() != flat_dict_b.keys():
         errors.append('dictionary keys do not match')
 
     for key in flat_dict_a:
@@ -36,11 +33,10 @@ def compare_dicts(dict_a, dict_b):
         if not isinstance(flat_dict_a[key], type(flat_dict_b[key])):
             errors.append(f"type mismatch comparing '{key}': {type(flat_dict_a[key]).__name__} != {type(flat_dict_b[key]).__name__}")
 
-        if isinstance(flat_dict_a[key], str):
-            if len(flat_dict_a[key]) != len(flat_dict_b[key]):
-                errors.append(f"length mismatch comparing strings in '{key}': {len(flat_dict_a[key])} != {len(flat_dict_b[key])}")
+        if isinstance(flat_dict_a[key], str) and len(flat_dict_a[key]) != len(flat_dict_b[key]):
+            errors.append(f"length mismatch comparing strings in '{key}': {len(flat_dict_a[key])} != {len(flat_dict_b[key])}")
 
-    if not len(errors):
-        return 'pass'
-    else:
+    if errors:
         return '\n'.join(errors)
+
+    return 'pass'
