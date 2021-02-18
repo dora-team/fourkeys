@@ -1,16 +1,47 @@
-resource "random_id" "project_id" {
-    prefix = "fourkeys-"
-    byte_length = 4
+terraform {
+  required_version = ">= 0.14"
 }
 
-data "google_billing_account" "acct" {
-  display_name = var.billing_account
+resource "google_project_service" "run_api" {
+  service = "run.googleapis.com"
 }
 
-resource "google_project" "fourkeys-project" {
-  name       = "Four Keys Dashboard"
-  project_id = random_id.project_id.dec
-  billing_account = data.google_billing_account.acct.id
-  # org_id = "" # TODO: add support for orgs
-  # folder_id = "" # TODO: add support for folders
+data "google_iam_policy" "run_noauth" {
+  binding {
+    role = "roles/run.invoker"
+    members = [
+      "allUsers",
+    ]
+  }
+}
+
+# TODO: move cloud run service resource to a module
+
+resource "google_cloud_run_service" "event_handler_service" {
+  name = "event-handler"
+  location = var.google_region
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/stanke-fourkeys-20210217/event-handler:latest"
+        env {
+          name = "PROJECT_NAME"
+          value = var.google_project_id
+        }
+      }
+    }
+  }
+
+  traffic {
+    percent = 100
+    latest_revision = true
+  }
+
+  autogenerate_revision_name = true
+
+  depends_on = [
+    google_project_service.run_api,
+  ]
+
 }
