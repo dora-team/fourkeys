@@ -38,4 +38,5 @@ def compare_dicts(dict_a, dict_b):
 
     if errors:
         return '\n'.join(errors)
+
     return 'pass'
