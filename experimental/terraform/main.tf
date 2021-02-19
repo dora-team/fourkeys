@@ -9,30 +9,33 @@ resource "google_project_service" "run_api" {
 
 resource "google_project_service" "cloudbuild_api" {
   service = "cloudbuild.googleapis.com"
-  project = var.google_project_id
 }
 
-data "google_iam_policy" "run_noauth" {
+data "google_iam_policy" "cloudbuild_gcs" {
   binding {
-    role = "roles/run.invoker"
+    role = "roles/storage.admin"
     members = [
-      "allUsers",
+      "serviceAcct:${var.google_project_number}@cloudbuild.gserviceaccount.com"
     ]
   }
 }
 
-module "cloud_run_resource" {
-  source="./cloud_run_service"
-  google_project_id=var.google_project_id
-  google_region=var.google_region
-  service_name="event-handler"
-  container_source_path="../../event_handler"
-  container_image_path="gcr.io/${var.google_project_id}/event-handler"
+module "cloud_run_service" {
+  source                = "./cloud_run_service"
+  google_project_id     = var.google_project_id
+  google_region         = var.google_region
+  service_name          = "event-handler"
+  container_source_path = "../../event_handler"
+  container_image_path  = "gcr.io/${var.google_project_id}/event-handler"
 
   providers = {
     google = google
   }
 
-  depends_on = [ google_project_service.run_api, google_project_service.cloudbuild_api ]
+  depends_on = [
+    google_project_service.run_api,
+    google_project_service.cloudbuild_api,
+    data.google_iam_policy.cloudbuild_gcs,
+  ]
 
 }

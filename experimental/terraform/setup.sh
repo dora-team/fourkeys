@@ -32,8 +32,15 @@ gcloud projects create ${FOURKEYS_PROJECT} --folder=${PARENT_FOLDER}
 gcloud beta billing projects link ${FOURKEYS_PROJECT} --billing-account=${BILLING_ACCOUNT}
 
 # FOR DEVELOPMENT ONLY: purge all TF state
-rm -rf .terraform terraform.tfstate*
+rm -rf .terraform terraform.tfstate* terraform.tfvars
+
+# create a tfvars file
+cat > terraform.tfvars <<EOF
+google_project_id = "${FOURKEYS_PROJECT}"
+google_project_number = $(gcloud projects list --filter="projectId=${FOURKEYS_PROJECT}" --format="value(projectNumber)")
+google_region = "${FOURKEYS_REGION}"
+EOF
 
 echo "Invoking Terraform on project ${FOURKEYS_PROJECT}..."
 terraform init
-terraform apply -var="google_project_id=${FOURKEYS_PROJECT}" -var="google_region=${FOURKEYS_REGION}" --auto-approve
+terraform apply --auto-approve
