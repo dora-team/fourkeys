@@ -97,3 +97,4 @@ steps:
         gcloud services disable bigqueryconnection.googleapis.com 
         gcloud services disable secretmanager.googleapis.com 
         set +x
+timeout: '3600s'

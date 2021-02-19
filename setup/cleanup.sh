@@ -27,13 +27,14 @@ done
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-[[ -f "$DIR/env.sh" ]] && echo "Importing environment from $DIR/env.sh..." && . $DIR/env.sh
-
 if [[ ${bulk_delete} -gt 0 ]]
 then
-    # disregard env variables and delete all projects matching "fourkeys-*" or "helloworld-*"
-    projects=$(gcloud projects list --filter="projectId=fourkeys-* OR projectId=helloworld-*" --format="value(projectId)")
+    # disregard env variables and delete all projects matching "fourkeys-XXXXXX" or "helloworld-XXXXXX"
+    projects=$(gcloud projects list --filter="projectId~^fourkeys-\d{6}$ OR projectId~^helloworld-\d{6}$" --format="value(projectId)")
 else
+
+    [[ -f "$DIR/env.sh" ]] && echo "Importing environment from $DIR/env.sh..." && . $DIR/env.sh
+
     projects="${FOURKEYS_PROJECT}"
     if [[ ! -z "${HELLOWORLD_PROJECT}" && ! -z "$(gcloud projects list --filter="projectId=${HELLOWORLD_PROJECT}" --format="value(projectId)")" ]]
     then
