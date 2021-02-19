@@ -1,0 +1,30 @@
+# Experimental Terraform setup
+
+This folder contains terraform scripts to provision all of the infrastructure in a Four Keys GCP project. 
+
+**DO NOT USE!** It's very early and very incomplete. (Though: holler if you want to contribute!)
+
+Current functionality (2021-02-19):
+- Create a GCP project (outside of terraform)
+- Build the event-handler container image and push to GCR [TODO: use AR instead]
+- Deploy the event-handler container as a Cloud Run service
+- Omit the event-handler endpoint as an output
+
+TODO:
+- Create and store webhook secret
+- Create pubsub
+- Set up BigQuery
+- Build and deploy bigquery workers
+- Establish BigQuery data transfer
+- Populate Data Studio dashboard
+- (much else)
+
+ALSO:
+- provide user inputs for VCS system, CI/CD system, and GCP project settings
+
+Open questions:
+- What's an elegant way to support those user inputs (VCS, CI/CD) as conditionals in the TF?
+- Should we create a service account and run TF as that, or keep the current process of using application default credentials of the user who invokes the script?
+
+Answered questions:
+- Should we create the GCP project in terraform? No. The auth gets really complicated, especially when considering that the project may or may not be in an organization and/or folder
