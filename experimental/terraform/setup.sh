@@ -31,6 +31,9 @@ echo "Creating new project for Four Keys Dashboard..."
 gcloud projects create ${FOURKEYS_PROJECT} --folder=${PARENT_FOLDER}
 gcloud beta billing projects link ${FOURKEYS_PROJECT} --billing-account=${BILLING_ACCOUNT}
 
+# FOR DEVELOPMENT ONLY: purge all TF state
+rm -rf .terraform terraform.tfstate*
+
 echo "Invoking Terraform on project ${FOURKEYS_PROJECT}..."
 terraform init
-terraform apply -var="google_project_id=${FOURKEYS_PROJECT}" -var="google_region=${FOURKEYS_REGION}"
+terraform apply -var="google_project_id=${FOURKEYS_PROJECT}" -var="google_region=${FOURKEYS_REGION}" --auto-approve
