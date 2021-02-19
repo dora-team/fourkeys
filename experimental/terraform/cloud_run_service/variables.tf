@@ -6,13 +6,13 @@ variable "google_region" {
 }
 
 variable "service_name" {
-    type = string
+  type = string
 }
 
 variable "container_source_path" {
-    type= string
+  type = string
 }
 
 variable "container_image_path" {
-    type= string
+  type = string
 }
