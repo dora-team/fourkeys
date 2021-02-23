@@ -1,11 +1,11 @@
 resource "google_cloud_run_service" "cloud_run_service" {
-  name     = "event-handler"
+  name     = var.service_name
   location = var.google_region
 
   template {
     spec {
       containers {
-        image = "gcr.io/stanke-fourkeys-20210217/event-handler:latest"
+        image = var.container_image_path
         env {
           name  = "PROJECT_NAME"
           value = var.google_project_id
@@ -46,7 +46,7 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
 
 resource "null_resource" "app_container" {
   provisioner "local-exec" {
-    # build event-handler container using Dockerfile
+    # build container using Dockerfile
     command = "gcloud builds submit ${var.container_source_path} --tag=${var.container_image_path} --project=${var.google_project_id}"
   }
 
