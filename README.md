@@ -42,8 +42,10 @@ This diagram shows the design of the Four Keys system:
 
 * `bq_workers/`
   * Contains the code for the individual BigQuery workers.  Each data source has its own worker service with the logic for parsing the data from the Pub/Sub message. For example, GitHub has its own worker which only looks at events pushed to the GitHub-Hookshot Pub/Sub topic
+* `connectors/`
+  * Contains the code for the DataStudio Connector which generates the Four Keys Dashboard
 * `data_generator/`
-  * Contains a Python script for generating mock GitHub data.
+  * Contains a Python script for generating mock GitHub or Gitlab data.
 * `event_handler/`
   * Contains the code for the `event_handler`, which is the public service that accepts incoming webhooks.  
 * `queries/`
@@ -86,17 +88,17 @@ The data generator creates mocked GitHub events, which are ingested into the tab
 
 To run outside of the setup script:
 
-1. Ensure that you’ve saved your webhook URL and GitHub Secret in your environment variables:
+1. Ensure that you’ve saved your webhook URL and secret in your environment variables:
 
    ```sh
    export WEBHOOK={your event handler URL}
-   export GITHUB_SECRET={your github signing secret}
+   export SECRET={your event-handler secret}
    ```
 
 1. Run the following command:
 
    ```sh
-   python3 data_generator/data.py
+   python3 data_generator/generate_data.py --vc_system=github
    ```
 
    You can see these events being run through the pipeline:
