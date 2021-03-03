@@ -42,6 +42,8 @@ This diagram shows the design of the Four Keys system:
 
 * `bq_workers/`
   * Contains the code for the individual BigQuery workers.  Each data source has its own worker service with the logic for parsing the data from the Pub/Sub message. For example, GitHub has its own worker which only looks at events pushed to the GitHub-Hookshot Pub/Sub topic
+* `connectors/`
+  * Contains the code for the DataStudio Connector which generates the Four Keys Dashboard
 * `data_generator/`
   * Contains a Python script for generating mock GitHub or Gitlab data.
 * `event_handler/`
