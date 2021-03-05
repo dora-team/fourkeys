@@ -27,21 +27,23 @@ resource "google_cloud_run_service" "cloud_run_service" {
 
 }
 
-data "google_iam_policy" "run_noauth" {
-  binding {
-    role = "roles/run.invoker"
-    members = [
-      "allUsers",
-    ]
-  }
-}
-
-resource "google_cloud_run_service_iam_policy" "noauth" {
+resource "google_cloud_run_service_iam_binding" "noauth" {
   location = google_cloud_run_service.cloud_run_service.location
   project  = google_cloud_run_service.cloud_run_service.project
   service  = google_cloud_run_service.cloud_run_service.name
 
-  policy_data = data.google_iam_policy.run_noauth.policy_data
+  role    = "roles/run.invoker"
+  members = ["allUsers"]
+}
+
+data "google_project" "prj" {
+  project_id = var.google_project_id
+}
+
+# allow Cloud Build service account to push container image to GCR (requires Storage admin)
+resource "google_project_iam_member" "cloudbuild_gcs" {
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${data.google_project.prj.number}@cloudbuild.gserviceaccount.com"
 }
 
 resource "null_resource" "app_container" {
@@ -49,5 +51,9 @@ resource "null_resource" "app_container" {
     # build container using Dockerfile
     command = "gcloud builds submit ${var.container_source_path} --tag=${var.container_image_path} --project=${var.google_project_id}"
   }
+
+  depends_on = [
+    google_project_iam_member.cloudbuild_gcs
+  ]
 
 }
