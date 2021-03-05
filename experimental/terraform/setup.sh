@@ -37,7 +37,6 @@ rm -rf .terraform terraform.tfstate* terraform.tfvars
 # create a tfvars file
 cat > terraform.tfvars <<EOF
 google_project_id = "${FOURKEYS_PROJECT}"
-google_project_number = $(gcloud projects list --filter="projectId=${FOURKEYS_PROJECT}" --format="value(projectNumber)")
 google_region = "${FOURKEYS_REGION}"
 EOF
 
