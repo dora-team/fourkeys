@@ -40,20 +40,10 @@ data "google_project" "prj" {
   project_id = var.google_project_id
 }
 
-# allow Cloud Build service account to push container image to GCR (requires Storage admin)
-resource "google_project_iam_member" "cloudbuild_gcs" {
-  role   = "roles/storage.admin"
-  member = "serviceAccount:${data.google_project.prj.number}@cloudbuild.gserviceaccount.com"
-}
-
 resource "null_resource" "app_container" {
   provisioner "local-exec" {
     # build container using Dockerfile
     command = "gcloud builds submit ${var.container_source_path} --tag=${var.container_image_path} --project=${var.google_project_id}"
   }
-
-  depends_on = [
-    google_project_iam_member.cloudbuild_gcs
-  ]
 
 }
