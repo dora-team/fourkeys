@@ -13,7 +13,3 @@ variable "service_name" {
 variable "container_source_path" {
   type = string
 }
-
-variable "container_image_path" {
-  type = string
-}
