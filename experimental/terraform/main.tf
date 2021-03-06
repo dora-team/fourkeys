@@ -12,12 +12,11 @@ resource "google_project_service" "cloudbuild_api" {
 }
 
 module "cloud_run_service" {
-  source            = "./cloud_run_service"
-  google_project_id = var.google_project_id
+  source                = "./cloud_run_service"
+  google_project_id     = var.google_project_id
   google_region         = var.google_region
   service_name          = "event-handler"
   container_source_path = "../../event_handler"
-  container_image_path  = "gcr.io/${var.google_project_id}/event-handler"
 
   depends_on = [
     google_project_service.run_api,
