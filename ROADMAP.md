@@ -4,12 +4,17 @@
 
 Four Keys mission:
 
-  Be the industry-standard reference implementation for the automated calculation of the DORA Four Keys metrics.  
+  Be the industry-standard reference implementation for the automated calculation of the [DORA](https://cloud.google.com/blog/products/devops-sre/the-2019-accelerate-state-of-devops-elite-performance-productivity-and-scaling) Four Keys metrics.  
 
 The vision for this is:
 
 * All discussion of the DORA Four Key metrics center around the key data entities of Changes, Deployments, and Incidents
 * A rich set of tool integrations and data mappings
+* Clear guidelines on how to adapt the tooling to fit the organization's workflow
+
+Non-goals:
+
+* The DORA research includes predictive analytics, recommendations, and improvement strategies.  The Four Keys dashboard will not provide these resources. It will simply be a reflection of an organization’s software delivery performance.
 
 ## Roadmap
 
