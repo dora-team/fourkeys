@@ -15,6 +15,7 @@ The vision for this is:
 Non-goals:
 
 * The DORA research includes predictive analytics, recommendations, and improvement strategies.  The Four Keys dashboard will not provide these resources. It will simply be a reflection of an organization’s software delivery performance.
+*  Four Keys does not intend to be a one-stop shop for all operational performance metrics. The focus of this project should always be on the predictive metrics identified by the DORA research. 
 
 ## Roadmap
 
