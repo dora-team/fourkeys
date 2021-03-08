@@ -9,7 +9,3 @@ variable "google_region" {
 variable "service_name" {
   type = string
 }
-
-variable "container_source_path" {
-  type = string
-}
