@@ -4,7 +4,7 @@
 
 Four Keys mission:
 
-  Be the industry-standard reference implementation for the automated calculation of the [DORA](https://cloud.google.com/blog/products/devops-sre/the-2019-accelerate-state-of-devops-elite-performance-productivity-and-scaling) Four Keys metrics.  
+  Be the industry-standard reference implementation for the automated calculation of the [DORA](https://cloud.google.com/blog/products/devops-sre/the-2019-accelerate-state-of-devops-elite-performance-productivity-and-scaling) Four Key metrics.  
 
 The vision for this is:
 
