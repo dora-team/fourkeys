@@ -36,8 +36,8 @@ The vision for this is:
       * [GitHub Enterprise](https://github.com/enterprise)
       * [Gitea](https://gitea.io/en-us/)
   * Custom deployment events
-    * Support for different [deployment patterns](https://github.com/GoogleCloudPlatform/fourkeys/issues/46), eg multiple change sets in a single deployment.
+    * Support for different [deployment patterns](https://github.com/GoogleCloudPlatform/fourkeys/issues/46), eg multiple change sets in a single deployment
     * Canary and Blue/Green deployments
   * Enriching the dashboard
-    * [More data](https://github.com/GoogleCloudPlatform/fourkeys/issues/77)
+    * [More data points](https://github.com/GoogleCloudPlatform/fourkeys/issues/77)
     * New data views for drilling down into the metrics
