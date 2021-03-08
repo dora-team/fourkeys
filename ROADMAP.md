@@ -10,11 +10,12 @@ The vision for this is:
 
 * All discussion of the DORA Four Key metrics center around the key data entities of Changes, Deployments, and Incidents
 * A rich set of tool integrations and data mappings
+* Support for common deployment patterns
 * Clear guidelines on how to adapt the tooling to fit the organization's workflow
 
 Non-goals:
 
-* The DORA research includes predictive analytics, recommendations, and improvement strategies.  The Four Keys dashboard will not provide these resources. It will simply be a reflection of an organization’s software delivery performance.
+* The DORA research includes predictive analytics, recommendations, and improvement strategies. The Four Keys dashboard will not provide these resources. It will simply be a reflection of an organization’s software delivery performance.
 *  Four Keys does not intend to be a one-stop shop for all operational performance metrics. The focus of this project should always be on the predictive metrics identified by the DORA research. 
 
 ## Roadmap
