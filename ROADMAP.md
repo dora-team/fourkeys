@@ -11,7 +11,7 @@ The vision for this is:
 * All discussion of the DORA Four Key metrics center around the key data entities of Changes, Deployments, and Incidents
 * A rich set of tool integrations and data mappings
 * Support for common deployment patterns
-* Clear guidelines on how to adapt the tooling to fit the organization's workflow
+* Clear guidelines on how to instrument your systems to gain continuous insights and drive continuous improvement
 
 Non-goals:
 
