@@ -38,10 +38,10 @@ rm -rf .terraform terraform.tfstate* terraform.tfvars
 
 # build the event-handler container (using parent project) and stash it in the fourkeys project
 echo "building event-handler container"
-gcloud services enable cloudbuild.googleapis.com
+gcloud services enable cloudbuild.googleapis.com --project=${PARENT_PROJECT}
 gcloud services enable containerregistry.googleapis.com --project=${FOURKEYS_PROJECT}
 gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} --member="serviceAccount:${PARENT_PROJECTNUM}@cloudbuild.gserviceaccount.com" --role="roles/storage.admin"
-gcloud builds submit ../../event_handler --tag=gcr.io/${FOURKEYS_PROJECT}/event-handler
+gcloud builds submit ../../event_handler --tag=gcr.io/${FOURKEYS_PROJECT}/event-handler --project=${PARENT_PROJECT}
 
 # create a tfvars file
 cat > terraform.tfvars <<EOF
