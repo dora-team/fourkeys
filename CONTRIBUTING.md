@@ -27,3 +27,7 @@ information on using pull requests.
 
 This project follows
 [Google's Open Source Community Guidelines](https://opensource.google/conduct/).
+
+## Discussion
+
+Feel free to join us on the #fourkeys channel on the [Google Cloud Platform Slack](https://join.slack.com/t/googlecloud-community/shared_invite/zt-m973j990-IMij2Xh8qKPu7SaHfOcCFg)! 
