@@ -1,5 +1,5 @@
 # Four Keys
-[![Four Keys YouTube Video](https://img.youtube.com/vi/2rzvIL29Nz0/0.jpg)](https://www.youtube.com/watch?v=2rzvIL29Nz0 "Measuring Devops: The Four Keys Project")
+[![Four Keys YouTube Video](images/youtube-screenshot.png)](https://www.youtube.com/watch?v=2rzvIL29Nz0 "Measuring Devops: The Four Keys Project")
 
 # Background
 
