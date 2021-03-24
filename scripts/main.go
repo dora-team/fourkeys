@@ -3,8 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	bq "hrbrain/fourkeys/scripts/bigquery"
 	gh "hrbrain/fourkeys/scripts/github"
+	"log"
 	"os"
+	"strconv"
+	"time"
 )
 
 var (
@@ -23,39 +27,56 @@ func main() {
 	//	panic(err)
 	//}
 
-	//repos, err := ghClient.ListAllRepositories(ctx)
-	//if err != nil {
-	//	panic(err)
-	//}
-
-	pulls, err := ghClient.ListPullRequests(ctx, "app", 1)
+	repos, err := ghClient.ListAllRepositories(ctx)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(len(pulls))
-	fmt.Println(pulls[0])
+	page := 1
+	const bqSchemaSource = "test"
 
-	//const source = "github_past"
-	//// bq table row1
-	//fmt.Println("source", source)
-	//fmt.Println("change_id", *pull.Number)
-	//fmt.Println("time_created", *pull.CreatedAt)
-	//fmt.Println("event_type", "pull_request")
-	//// bq table row2
-	//fmt.Println("source", source)
-	//fmt.Println("change_id", *pull.Number)
-	//fmt.Println("time_created", *pull.MergedAt)
-	//fmt.Println("event_type", "pull_request")
-	//// bq table row3
-	//fmt.Println("source", source)
-	//fmt.Println("change_id", *pull.MergeCommitSHA)
-	//fmt.Println("time_created", *pull.MergedAt)
-	//fmt.Println("event_type", "push")
+	for _, repo := range repos {
+		fmt.Println("processing", repo)
+		for {
+			pulls, err := ghClient.ListPullRequests(ctx, repo, page)
+			if err != nil {
+				log.Println(err)
+				break
+			}
+			fmt.Println("pulls size", len(pulls))
+			if len(pulls) == 0 {
+				break
+			}
 
-	//// load to bigquery
-	//rows := []*bigquery.Schema{
-	//	{Source: "hoge", ChangeID: "fuga", TimeCreated: time.Now().Truncate(time.Second), EventType: "test"},
-	//}
-	//bqClient.Upload(ctx, "four_keys", "changes", rows)
+			rows := make([]*bq.Schema, 0, len(pulls)*3)
+			for _, pull := range pulls {
+				fmt.Println("pull number", pull.Number)
+				// row1
+				rows = append(rows, &bq.Schema{
+					Source:      bqSchemaSource,
+					ChangeID:    strconv.Itoa(pull.Number),
+					TimeCreated: pull.CreatedAt.Truncate(time.Second),
+					EventType:   "pull_request",
+				})
+				// row2
+				rows = append(rows, &bq.Schema{
+					Source:      bqSchemaSource,
+					ChangeID:    strconv.Itoa(pull.Number),
+					TimeCreated: pull.MergedAt.Truncate(time.Second),
+					EventType:   "pull_request",
+				})
+				// row3
+				rows = append(rows, &bq.Schema{
+					Source:      bqSchemaSource,
+					ChangeID:    pull.MergeCommitSHA,
+					TimeCreated: pull.MergedAt.Truncate(time.Second),
+					EventType:   "push",
+				})
+			}
+			//bqClient.Upload(ctx, "four_keys", "changes", rows)
+
+			page++
+		}
+	}
+
 }
