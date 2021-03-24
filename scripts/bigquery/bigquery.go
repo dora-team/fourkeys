@@ -28,7 +28,9 @@ type Schema struct {
 	EventType   string    `bigquery:"event_type"`
 }
 
-func (client *client) Upload(ctx context.Context, datasetID, tableID string, rows []*Schema) error {
+func (client *client) Upload(ctx context.Context,
+	datasetID, tableID string, rows []*Schema) error {
+
 	table := client.Dataset(datasetID).Table(tableID)
 
 	u := table.Inserter()

@@ -14,7 +14,7 @@ import (
 var (
 	githubAccessToken = os.Getenv("GITHUB_ACCESS_TOKEN")
 	gcloudKeyFile     = "/Users/yukichi/Downloads/hrb-fourkeys-9fbc5da5546f.json"
-	gcloudProjectID   = "hrb-=fourkeys"
+	gcloudProjectID   = "hrb-fourkeys"
 )
 
 func main() {
@@ -22,18 +22,20 @@ func main() {
 
 	// setup
 	ghClient := gh.NewClient(ctx, githubAccessToken)
-	//bqClient, err := bq.NewClient(ctx, gcloudProjectID, gcloudKeyFile)
-	//if err != nil {
-	//	panic(err)
-	//}
+	bqClient, err := bq.NewClient(ctx, gcloudProjectID, gcloudKeyFile)
+	if err != nil {
+		panic(err)
+	}
 
 	repos, err := ghClient.ListAllRepositories(ctx)
 	if err != nil {
 		panic(err)
 	}
+	//repos = []string{"client"}
 
 	page := 1
-	const bqSchemaSource = "test"
+	const bqSchemaSource = "github"
+	var totalPullsCount int
 
 	for _, repo := range repos {
 		fmt.Println("processing", repo)
@@ -43,14 +45,16 @@ func main() {
 				log.Println(err)
 				break
 			}
-			fmt.Println("pulls size", len(pulls))
-			if len(pulls) == 0 {
+			pullsCount := len(pulls)
+			fmt.Println("page:", page, "filtered pulls size:", pullsCount)
+			if pullsCount == 0 {
 				break
 			}
 
-			rows := make([]*bq.Schema, 0, len(pulls)*3)
+			totalPullsCount += pullsCount
+
+			rows := make([]*bq.Schema, 0, pullsCount*3)
 			for _, pull := range pulls {
-				fmt.Println("pull number", pull.Number)
 				// row1
 				rows = append(rows, &bq.Schema{
 					Source:      bqSchemaSource,
@@ -73,10 +77,16 @@ func main() {
 					EventType:   "push",
 				})
 			}
-			//bqClient.Upload(ctx, "four_keys", "changes", rows)
+
+			err = bqClient.Upload(ctx, "four_keys", "changes", rows)
+			if err != nil {
+				log.Println(err)
+			}
 
 			page++
 		}
+		page = 1
 	}
 
+	fmt.Println(totalPullsCount, "pull requests processed")
 }

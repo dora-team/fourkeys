@@ -10,6 +10,8 @@ import (
 
 const githubOrganization = "hrbrain"
 
+var timeAgo = time.Now().AddDate(0, -3, 0)
+
 type client struct {
 	*github.Client
 }
@@ -66,10 +68,7 @@ type PullRequest struct {
 func (client *client) ListPullRequests(ctx context.Context, repo string, page int) (
 	[]*PullRequest, error) {
 
-	const month = 3
-	timeAgo := time.Now().AddDate(0, -month, 0)
-
-	const size = 50
+	const size = 100
 	pulls, _, err := client.PullRequests.List(ctx, githubOrganization, repo,
 		&github.PullRequestListOptions{
 			State: "closed",
