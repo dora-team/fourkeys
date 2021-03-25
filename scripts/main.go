@@ -27,6 +27,22 @@ func main() {
 		panic(err)
 	}
 
+	// init bq event_raw table for extracting DAY
+	if err := bqClient.UploadEventsRaw(ctx, []*bq.EventsRawSchema{&bq.EventsRawSchema{
+		EventType: "init",
+		ID:        "init",
+		Metadata:  "init",
+		TimeCreated: func() time.Time {
+			t, _ := time.Parse("2006-01-02", "2020-01-01")
+			return t.Truncate(time.Second)
+		}(),
+		Signature: "init",
+		MsgID:     "init",
+		Source:    "init",
+	}}); err != nil {
+		panic(err)
+	}
+
 	repos, err := ghClient.ListAllRepositories(ctx)
 	if err != nil {
 		panic(err)
@@ -53,24 +69,24 @@ func main() {
 
 			totalPullsCount += pullsCount
 
-			rows := make([]*bq.Schema, 0, pullsCount*3)
+			rows := make([]*bq.ChangesSchema, 0, pullsCount*3)
 			for _, pull := range pulls {
 				// row1
-				rows = append(rows, &bq.Schema{
+				rows = append(rows, &bq.ChangesSchema{
 					Source:      bqSchemaSource,
 					ChangeID:    strconv.Itoa(pull.Number),
 					TimeCreated: pull.CreatedAt.Truncate(time.Second),
 					EventType:   "pull_request",
 				})
 				// row2
-				rows = append(rows, &bq.Schema{
+				rows = append(rows, &bq.ChangesSchema{
 					Source:      bqSchemaSource,
 					ChangeID:    strconv.Itoa(pull.Number),
 					TimeCreated: pull.MergedAt.Truncate(time.Second),
 					EventType:   "pull_request",
 				})
 				// row3
-				rows = append(rows, &bq.Schema{
+				rows = append(rows, &bq.ChangesSchema{
 					Source:      bqSchemaSource,
 					ChangeID:    pull.MergeCommitSHA,
 					TimeCreated: pull.MergedAt.Truncate(time.Second),
@@ -78,7 +94,7 @@ func main() {
 				})
 			}
 
-			err = bqClient.Upload(ctx, "four_keys", "changes", rows)
+			err = bqClient.UploadChanges(ctx, rows)
 			if err != nil {
 				log.Println(err)
 			}
