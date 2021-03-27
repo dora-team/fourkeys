@@ -124,7 +124,7 @@ To integrate Four Keys with a live repo, you need to:
 1.  For **Payload URL**, use the Event Handler endpoint.
 1.  Run the following command to get the secret from Google Secrets Manager:
     ```bash
-    gcloud secrets versions access 1 --secret="github-secret"
+    gcloud secrets versions access 1 --secret="event-handler"
     ```
 1.  Put the secret in the box labelled **Secret Token**.
 1.  Select all the checkboxes.
