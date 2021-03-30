@@ -26,6 +26,9 @@ resource "google_bigquery_dataset" "four_keys" {
   dataset_id = "four_keys"
 }
 
+# TODO: these table creation statements might not be necessary.
+# When scheduled queries are implemented, try removing this.
+# (see https://github.com/GoogleCloudPlatform/fourkeys/pull/90#discussion_r604320593)
 resource "google_bigquery_table" "bq_table" {
   for_each = toset(["events_raw","changes","deployments","incidents"])
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
