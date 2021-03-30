@@ -1,3 +1,6 @@
+# This file contains terraform config exported via
+# `gcloud alpha resource-config bulk-export  --resource-format=terraform`
+
 resource "google_bigquery_table" "" {
   dataset_id = "four_keys"
   labels {
@@ -23,7 +26,7 @@ resource "google_bigquery_dataset" "" {
   }
   access {
     role          = "OWNER"
-    user_by_email = "davidstanke@gmail.com"
+    user_by_email = "<email>"
   }
   access {
     role          = "READER"
