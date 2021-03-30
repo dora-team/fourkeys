@@ -4,14 +4,30 @@ This folder contains terraform scripts to provision all of the infrastructure in
 
 **DO NOT USE!** It's very early and very incomplete. (Though: holler if you want to contribute!)
 
+## How to use
+1. run `setup.sh`; this will:
+  * create a project for four keys
+  * purge all terraform state [useful during tf development]
+  * build the event-handler container using Cloud Build
+    * _(this is done outside of Terraform b/c local-exec is a mess)_
+  * create a `terraform.tfvars` file
+  * invoke terraform
+1. run the following commands to retrieve values needed for your SCM:
+  * ```
+    echo `terraform output -raw event-handler-endpoint`
+    echo `terraform output -raw event-handler-secret`
+    ```
+
+
 Current functionality (2021-02-19):
 - Create a GCP project (outside of terraform)
 - Build the event-handler container image and push to GCR [TODO: use AR instead]
 - Deploy the event-handler container as a Cloud Run service
-- Omit the event-handler endpoint as an output
+- Emit the event-handler endpoint as an output
+- Create and store webhook secret
+- Emit the secrfet as an output
 
 TODO:
-- Create and store webhook secret
 - Create pubsub
 - Set up BigQuery
 - Build and deploy bigquery workers
