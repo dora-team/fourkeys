@@ -449,8 +449,7 @@ fourkeys_project_setup
 
 read -p "Would you like to create a separate new project to test deployments for the four key metrics? (y/n):" test_yesno
 if [[ ${test_yesno} == "y" ]]
-then 
-environment
+then environment
 helloworld_project_setup
 fi
 
