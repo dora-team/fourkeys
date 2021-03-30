@@ -9,7 +9,7 @@ This folder contains terraform scripts to provision all of the infrastructure in
   * create a project for four keys
   * purge all terraform state [useful during tf development]
   * build the event-handler container using Cloud Build
-    * _(this is done outside of Terraform b/c local-exec is a mess)_
+    * _(this is done outside of Terraform b/c local-exec is messy)_
   * create a `terraform.tfvars` file
   * invoke terraform
 1. run the following commands to retrieve values needed for your SCM:

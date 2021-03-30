@@ -42,7 +42,7 @@ def github_verification(signature, body):
     expected_signature = "sha1="
     try:
         # Get secret from Cloud Secret Manager
-        secret = get_secret(PROJECT_NAME, "event-handler", "1")
+        secret = get_secret(PROJECT_NAME, "event-handler", "latest")
         # Compute the hashed signature
         hashed = hmac.new(secret, body, sha1)
         expected_signature += hashed.hexdigest()
