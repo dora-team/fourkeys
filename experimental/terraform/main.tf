@@ -54,7 +54,7 @@ resource "google_secret_manager_secret" "event-handler-secret" {
 }
 
 resource "google_secret_manager_secret_version" "event-handler-secret-version" {
-  secret = google_secret_manager_secret.event-handler-secret.id
+  secret      = google_secret_manager_secret.event-handler-secret.id
   secret_data = random_id.event-handler-random-value.hex
 }
 
@@ -65,6 +65,6 @@ resource "google_service_account" "event_handler_service_account" {
 
 resource "google_secret_manager_secret_iam_member" "event-handler" {
   secret_id = google_secret_manager_secret.event-handler-secret.id
-  role = "roles/secretmanager.secretAccessor"
-  member = "serviceAccount:${google_service_account.event_handler_service_account.email}"
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.event_handler_service_account.email}"
 }
