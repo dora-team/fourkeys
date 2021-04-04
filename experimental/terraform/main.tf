@@ -14,17 +14,12 @@ resource "google_project_service" "sm_api" {
   service = "secretmanager.googleapis.com"
 }
 
-# needed in order to fetch the default GCE service account
-# TODO: is there a cleaner way to get this?
-resource "google_project_service" "gce_api" {
-  service = "compute.googleapis.com"
-}
-
 module "event_handler_service" {
   source            = "./cloud_run_service"
   google_project_id = var.google_project_id
   google_region     = var.google_region
   service_name      = "event-handler"
+  service_account   = google_service_account.event_handler_service_account.email
 
   depends_on = [
     google_project_service.run_api,
@@ -63,12 +58,13 @@ resource "google_secret_manager_secret_version" "event-handler-secret-version" {
   secret_data = random_id.event-handler-random-value.hex
 }
 
-data "google_compute_default_service_account" "default" {
-  depends_on = [google_project_service.gce_api]
+resource "google_service_account" "event_handler_service_account" {
+  account_id   = "event-handler"
+  display_name = "Service Account for Event Handler Cloud Run Service"
 }
 
 resource "google_secret_manager_secret_iam_member" "event-handler" {
   secret_id = google_secret_manager_secret.event-handler-secret.id
   role = "roles/secretmanager.secretAccessor"
-  member = "serviceAccount:${data.google_compute_default_service_account.default.email}"
+  member = "serviceAccount:${google_service_account.event_handler_service_account.email}"
 }

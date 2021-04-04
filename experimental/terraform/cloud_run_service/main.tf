@@ -28,6 +28,7 @@ resource "google_cloud_run_service" "cloud_run_service" {
           value = var.google_project_id
         }
       }
+      service_account_name = var.service_account
     }
   }
 
