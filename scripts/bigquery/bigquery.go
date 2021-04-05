@@ -51,3 +51,16 @@ func (client *client) UploadChanges(ctx context.Context, rows []*ChangesSchema) 
 	u := table.Inserter()
 	return u.Put(ctx, rows)
 }
+
+type DeploymentsSchema struct {
+	Source      string    `bigquery:"source"`
+	DeployID    string    `bigquery:"deploy_id"`
+	TimeCreated time.Time `bigquery:"time_created"`
+	EventType   []string  `bigquery:"changes"`
+}
+
+func (client *client) UploadDeployments(ctx context.Context, rows []*DeploymentsSchema) error {
+	table := client.Dataset(datasetID).Table("deployments")
+	u := table.Inserter()
+	return u.Put(ctx, rows)
+}

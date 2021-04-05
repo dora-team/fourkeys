@@ -15,6 +15,7 @@ var (
 	githubAccessToken = os.Getenv("GITHUB_ACCESS_TOKEN")
 	gcloudKeyFile     = "/Users/yukichi/Downloads/hrb-fourkeys-9fbc5da5546f.json"
 	gcloudProjectID   = "hrb-fourkeys"
+	bqSchemaSource    = "script"
 )
 
 func main() {
@@ -28,7 +29,7 @@ func main() {
 	}
 
 	// init bq event_raw table for extracting DAY
-	if err := bqClient.UploadEventsRaw(ctx, []*bq.EventsRawSchema{&bq.EventsRawSchema{
+	if err := bqClient.UploadEventsRaw(ctx, []*bq.EventsRawSchema{{
 		EventType: "init",
 		ID:        "init",
 		Metadata:  "init",
@@ -38,7 +39,7 @@ func main() {
 		}(),
 		Signature: "init",
 		MsgID:     "init",
-		Source:    "init",
+		Source:    bqSchemaSource,
 	}}); err != nil {
 		panic(err)
 	}
@@ -47,13 +48,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	//repos = []string{"client"}
 
-	page := 1
-	const bqSchemaSource = "github"
 	var totalPullsCount int
 
 	for _, repo := range repos {
+		page := 1
 		fmt.Println("processing", repo)
 		for {
 			pulls, err := ghClient.ListPullRequests(ctx, repo, page)
@@ -69,39 +68,56 @@ func main() {
 
 			totalPullsCount += pullsCount
 
-			rows := make([]*bq.ChangesSchema, 0, pullsCount*3)
+			rowsChanges := make([]*bq.ChangesSchema, 0, pullsCount*4)
+			rowsDeployments := make([]*bq.DeploymentsSchema, 0, pullsCount)
 			for _, pull := range pulls {
-				// row1
-				rows = append(rows, &bq.ChangesSchema{
+				mergedSHA := pull.MergeCommitSHA
+				createdSHA := fmt.Sprintf("%s-created", mergedSHA)
+
+				// changes schema
+				rowsChanges = append(rowsChanges, &bq.ChangesSchema{
 					Source:      bqSchemaSource,
 					ChangeID:    strconv.Itoa(pull.Number),
-					TimeCreated: pull.CreatedAt.Truncate(time.Second),
+					TimeCreated: pull.CreatedAt,
 					EventType:   "pull_request",
 				})
-				// row2
-				rows = append(rows, &bq.ChangesSchema{
+				rowsChanges = append(rowsChanges, &bq.ChangesSchema{
 					Source:      bqSchemaSource,
-					ChangeID:    strconv.Itoa(pull.Number),
-					TimeCreated: pull.MergedAt.Truncate(time.Second),
-					EventType:   "pull_request",
-				})
-				// row3
-				rows = append(rows, &bq.ChangesSchema{
-					Source:      bqSchemaSource,
-					ChangeID:    pull.MergeCommitSHA,
-					TimeCreated: pull.MergedAt.Truncate(time.Second),
+					ChangeID:    createdSHA,
+					TimeCreated: pull.CreatedAt,
 					EventType:   "push",
+				})
+				rowsChanges = append(rowsChanges, &bq.ChangesSchema{
+					Source:      bqSchemaSource,
+					ChangeID:    strconv.Itoa(pull.Number),
+					TimeCreated: pull.MergedAt,
+					EventType:   "pull_request",
+				})
+				rowsChanges = append(rowsChanges, &bq.ChangesSchema{
+					Source:      bqSchemaSource,
+					ChangeID:    mergedSHA,
+					TimeCreated: pull.MergedAt,
+					EventType:   "push",
+				})
+
+				// deployments schema
+				rowsDeployments = append(rowsDeployments, &bq.DeploymentsSchema{
+					Source:      bqSchemaSource,
+					DeployID:    pull.MergeCommitSHA,
+					TimeCreated: pull.MergedAt,
+					EventType:   []string{createdSHA, mergedSHA},
 				})
 			}
 
-			err = bqClient.UploadChanges(ctx, rows)
-			if err != nil {
+			if err := bqClient.UploadChanges(ctx, rowsChanges); err != nil {
+				log.Println(err)
+			}
+			if err := bqClient.UploadDeployments(ctx, rowsDeployments); err != nil {
 				log.Println(err)
 			}
 
 			page++
 		}
-		page = 1
 	}
 
 	fmt.Println(totalPullsCount, "pull requests processed")
