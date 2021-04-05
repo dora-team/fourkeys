@@ -34,7 +34,8 @@ FROM(
            ELSE [] end as additional_commits
       FROM four_keys.events_raw 
       WHERE ((source = "cloud_build"
-      AND JSON_EXTRACT_SCALAR(metadata, '$.status') = "SUCCESS")
+      AND JSON_EXTRACT_SCALAR(metadata, '$.status') = "SUCCESS"
+      AND JSON_EXTRACT_SCALAR(metadata, '$.substitutions.BRANCH_NAME') IN ('master', 'main'))
       OR (source LIKE "github%" and event_type = "deployment_status" and JSON_EXTRACT_SCALAR(metadata, '$.deployment_status.state') = "success")
       OR (source LIKE "gitlab%" and event_type = "pipeline" and JSON_EXTRACT_SCALAR(metadata, '$.object_attributes.status') = "success"))
     ) 
