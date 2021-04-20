@@ -40,7 +40,7 @@ This guide describes how to set up Four Keys with your GitHub or GitLab project.
 
 ### New Google Cloud projects
 
-If you've chosen to create new Google Cloud projects, after the script finishes you will have two new projects named in the `env.sh` file of the form `fourkeys-XXXX` and `helloworld-XXXXX`.  The `fourkeys-XXXX` project is home to all the services that collect data from your deployments, while `helloworld-XXXX` is the staging and prod deployments for your application.
+If you've chosen to create new Google Cloud projects, after the script finishes you will have an `env.sh` file specifying two new project-id's in the form of `fourkeys-XXXX` and `helloworld-XXXXX`.  The `fourkeys-XXXX` project is home to all the services that collect data from your deployments, while `helloworld-XXXX` is the staging and prod deployments for your example application.
 
 If you ever want to remove the newly created projects and all associated data, you can run `cleanup.sh`.  **Only do this when you are done experimenting with Four Keys entirely, or want to start over. Running `cleanup.sh` will remove the projects and all the collected data.**
 
@@ -52,7 +52,7 @@ The setup script does many things to help create the service architecture descri
 
 The steps are:
 - Create randomly generated project names
-- Save project names in `env.sh`
+- Creates an `env.sh` and saves the project values in it
 - Set up Four Keys project
   - Create project
   - Link billing to parent project
