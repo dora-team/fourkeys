@@ -99,7 +99,7 @@ To integrate Four Keys with a live repo, you need to:
     ```bash
     . ./env.sh
     gcloud config set project ${FOURKEYS_PROJECT}
-    gcloud run --platform managed --region ${FOURKEYS_REGION} services describe event-handler --format=yaml | grep url | head -1 | sed -e 's/  *url: //g'
+    gcloud run services describe event-handler --platform managed --region ${FOURKEYS_REGION} --format=yaml | grep url | head -1 | sed -e 's/  *url: //g'
     ```
 1.  In the **Add Webhook** interface use the Event Handler endpoint for **Payload URL**.
 1.  Run the following command to get the secret from Google Secrets Manager:
@@ -119,7 +119,7 @@ To integrate Four Keys with a live repo, you need to:
     ```bash
     . ./env.sh
     gcloud config set project ${FOURKEYS_PROJECT}
-    gcloud run --platform managed --region ${FOURKEYS_REGION} services describe event-handler --format=yaml | grep url | head -1 | sed -e 's/  *url: //g'
+    gcloud run services describe event-handler --platform managed --region ${FOURKEYS_REGION} --format=yaml | grep url | head -1 | sed -e 's/  *url: //g'
     ```
 1.  For **Payload URL**, use the Event Handler endpoint.
 1.  Run the following command to get the secret from Google Secrets Manager:
