@@ -25,12 +25,12 @@ Current functionality (GitHub + Cloud Build only):
 - Deploy the event-handler container as a Cloud Run service
 - Emit the event-handler endpoint as an output
 - Create and store webhook secret
-- Emit the secret as an output
-
-TODO:
 - Create pubsub
 - Set up BigQuery
 - Build and deploy bigquery workers
+- Emit the secret as an output
+
+TODO:
 - Establish BigQuery data transfer
 - Populate Data Studio dashboard
 - (much else)
