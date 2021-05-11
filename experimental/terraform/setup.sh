@@ -36,12 +36,13 @@ export PARENT_PROJECTNUM=$(gcloud projects describe ${PARENT_PROJECT} --format='
 echo "Purging TF state [FOR DEVELOPMENT ONLY]"
 rm -rf .terraform terraform.tfstate* terraform.tfvars
 
-# build the event-handler container (using parent project) and stash it in the fourkeys project
+# build service containers (using parent project) and store them in the fourkeys project
 echo "building event-handler container"
 gcloud services enable cloudbuild.googleapis.com --project=${PARENT_PROJECT}
 gcloud services enable containerregistry.googleapis.com --project=${FOURKEYS_PROJECT}
 gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} --member="serviceAccount:${PARENT_PROJECTNUM}@cloudbuild.gserviceaccount.com" --role="roles/storage.admin"
 gcloud builds submit ../../event_handler --tag=gcr.io/${FOURKEYS_PROJECT}/event-handler --project=${PARENT_PROJECT}
+gcloud builds submit ../../bq_workers/github_parser --tag=gcr.io/${FOURKEYS_PROJECT}/github-parser --project=${PARENT_PROJECT}
 
 # create a tfvars file
 cat > terraform.tfvars <<EOF
@@ -52,3 +53,5 @@ EOF
 echo "Invoking Terraform on project ${FOURKEYS_PROJECT}..."
 terraform init
 terraform apply --auto-approve
+
+echo "Terraform resource creation complete. To retrieve the webhook secret, run 'echo `terraform output -raw event-handler-secret`'"
