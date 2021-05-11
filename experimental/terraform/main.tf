@@ -98,8 +98,8 @@ resource "google_pubsub_topic_iam_member" "event_handler_pubsub_write_iam" {
 }
 
 resource "google_bigquery_dataset_iam_member" "github_bq_write_iam" {
-	dataset_id = google_bigquery_dataset.four_keys.id
-	role = "roles/bigquery.dataEditor"
+	dataset_id = "four_keys"
+	role = "roles/bigquery.user"
 	member = "serviceAccount:${google_service_account.github_parser_service_account.email}"
 }
 
