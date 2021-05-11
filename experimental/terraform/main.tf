@@ -97,19 +97,24 @@ resource "google_pubsub_topic_iam_member" "event_handler_pubsub_write_iam" {
 	member = "serviceAccount:${google_service_account.event_handler_service_account.email}"
 }
 
-resource "google_project_iam_member" "github_parser_bq_user" {
-	role = "roles/bigquery.admin"
+resource "google_project_iam_member" "github_parser_bq_project_access" {
+	role = "roles/bigquery.user"
 	member = "serviceAccount:${google_service_account.github_parser_service_account.email}"
 }
 
-resource "google_service_account" "cloud_run_pubsub_invoker_service_account" {
-  account_id   = "cloud-run-pubsub-invoker"
+resource "google_bigquery_dataset_iam_member" "github_parser_bq_dataset_access" {
+  dataset_id = "four_keys"
+  role       = "roles/bigquery.dataEditor"
+  member = "serviceAccount:${google_service_account.github_parser_service_account.email}"
+}
+
+resource "google_service_account" "pubsub_cloudrun_invoker" {
+  account_id   = "pubsub-cloudrun-invoker"
   display_name = "Service Account for PubSub --> Cloud Run"
 }
 
-# Is this confusingly named? This service account doesn't invoke pubsub, it invokes Cloud Run
-resource "google_project_iam_member" "cloud_run_pubsub_invoker_iam" {
-	member = "serviceAccount:${google_service_account.cloud_run_pubsub_invoker_service_account.email}"
+resource "google_project_iam_member" "pubsub_cloudrun_invoker_iam" {
+	member = "serviceAccount:${google_service_account.pubsub_cloudrun_invoker.email}"
 	role="roles/run.invoker"
 }
 
@@ -121,7 +126,7 @@ resource "google_pubsub_subscription" "github_subscription" {
 	  push_endpoint=module.github_parser_service.cloud_run_endpoint
 
 		oidc_token {
-			service_account_email=google_service_account.cloud_run_pubsub_invoker_service_account.email
+			service_account_email=google_service_account.pubsub_cloudrun_invoker.email
 		}
 
 	}
