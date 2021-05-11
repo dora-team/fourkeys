@@ -88,24 +88,24 @@ module "github_parser_service" {
 }
 
 resource "google_pubsub_topic" "github" {
-	name="GitHub-Hookshot"
+  name = "GitHub-Hookshot"
 }
 
 resource "google_pubsub_topic_iam_member" "event_handler_pubsub_write_iam" {
-	topic = google_pubsub_topic.github.id
-	role = "roles/editor"
-	member = "serviceAccount:${google_service_account.event_handler_service_account.email}"
+  topic  = google_pubsub_topic.github.id
+  role   = "roles/editor"
+  member = "serviceAccount:${google_service_account.event_handler_service_account.email}"
 }
 
 resource "google_project_iam_member" "github_parser_bq_project_access" {
-	role = "roles/bigquery.user"
-	member = "serviceAccount:${google_service_account.github_parser_service_account.email}"
+  role   = "roles/bigquery.user"
+  member = "serviceAccount:${google_service_account.github_parser_service_account.email}"
 }
 
 resource "google_bigquery_dataset_iam_member" "github_parser_bq_dataset_access" {
   dataset_id = "four_keys"
   role       = "roles/bigquery.dataEditor"
-  member = "serviceAccount:${google_service_account.github_parser_service_account.email}"
+  member     = "serviceAccount:${google_service_account.github_parser_service_account.email}"
 }
 
 resource "google_service_account" "pubsub_cloudrun_invoker" {
@@ -114,21 +114,21 @@ resource "google_service_account" "pubsub_cloudrun_invoker" {
 }
 
 resource "google_project_iam_member" "pubsub_cloudrun_invoker_iam" {
-	member = "serviceAccount:${google_service_account.pubsub_cloudrun_invoker.email}"
-	role="roles/run.invoker"
+  member = "serviceAccount:${google_service_account.pubsub_cloudrun_invoker.email}"
+  role   = "roles/run.invoker"
 }
 
 resource "google_pubsub_subscription" "github_subscription" {
-	name="github-subscription"
-	topic=google_pubsub_topic.github.id
+  name  = "github-subscription"
+  topic = google_pubsub_topic.github.id
 
-	push_config {
-	  push_endpoint=module.github_parser_service.cloud_run_endpoint
+  push_config {
+    push_endpoint = module.github_parser_service.cloud_run_endpoint
 
-		oidc_token {
-			service_account_email=google_service_account.pubsub_cloudrun_invoker.email
-		}
+    oidc_token {
+      service_account_email = google_service_account.pubsub_cloudrun_invoker.email
+    }
 
-	}
+  }
 
 }
