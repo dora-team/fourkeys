@@ -85,6 +85,11 @@ setup_pubsub_topic_subscription(){
 	set +x; echo
 }
 
+echo "Setting Cloud Run options"; set -x
+gcloud config set run/platform managed
+gcloud config set run/region ${FOURKEYS_REGION}
+set +x; echo
+
 environment
 project_prompt
 source_prompt
