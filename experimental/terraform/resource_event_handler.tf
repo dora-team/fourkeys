@@ -1,17 +1,3 @@
-resource "google_bigquery_dataset" "four_keys" {
-  dataset_id = "four_keys"
-}
-
-# TODO: these table creation statements might not be necessary.
-# When scheduled queries are implemented, try removing this.
-# (see https://github.com/GoogleCloudPlatform/fourkeys/pull/90#discussion_r604320593)
-resource "google_bigquery_table" "bq_table" {
-  for_each   = toset(["events_raw", "changes", "deployments", "incidents"])
-  dataset_id = google_bigquery_dataset.four_keys.dataset_id
-  table_id   = each.key
-  schema     = file("../../setup/${each.key}_schema.json")
-}
-
 resource "google_service_account" "event_handler_service_account" {
   account_id   = "event-handler"
   display_name = "Service Account for Event Handler Cloud Run Service"
@@ -51,4 +37,14 @@ resource "google_secret_manager_secret_iam_member" "event-handler" {
   secret_id = google_secret_manager_secret.event-handler-secret.id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.event_handler_service_account.email}"
+}
+
+resource "google_service_account" "pubsub_cloudrun_invoker" {
+  account_id   = "pubsub-cloudrun-invoker"
+  display_name = "Service Account for PubSub --> Cloud Run"
+}
+
+resource "google_project_iam_member" "pubsub_cloudrun_invoker_iam" {
+  member = "serviceAccount:${google_service_account.pubsub_cloudrun_invoker.email}"
+  role   = "roles/run.invoker"
 }
