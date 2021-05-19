@@ -27,6 +27,8 @@ export FOURKEYS_REGION=us-central1
 # export HELLOWORLD_ZONE=${HELLOWORLD_REGION}1-a
 export PARENT_FOLDER=$(gcloud projects describe ${PARENT_PROJECT} --format="value(parent.id)")
 export BILLING_ACCOUNT=$(gcloud beta billing projects describe ${PARENT_PROJECT} --format="value(billingAccountName)" || sed -e 's/.*\///g')
+# TODO: support user-specified location
+export BIGQUERY_REGION='US'
 
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
 echo "Preparing environment…"
@@ -62,6 +64,7 @@ echo "Invoking Terraform on project ${FOURKEYS_PROJECT}…"
 cat > terraform.tfvars <<EOF
 google_project_id = "${FOURKEYS_PROJECT}"
 google_region = "${FOURKEYS_REGION}"
+bigquery_region = "${BIGQUERY_REGION}"
 EOF
 
 terraform init
@@ -76,6 +79,12 @@ echo "generating data…"
 export WEBHOOK=$(terraform output -raw event-handler-endpoint)
 export SECRET=$(terraform output -raw event-handler-secret)
 python3 ../../data_generator/generate_data.py --vc_system=github
+
+echo "refreshing derived tables…"
+for table in changes deployments incidents; do
+    scheduled_query=$(bq ls --transfer_config --transfer_location=${BIGQUERY_REGION} | grep "four_keys_${table}" -m 1 | awk '{print $1;}')
+    bq mk --transfer_run --run_time "$(date --iso-8601=seconds)" ${scheduled_query}
+done
 
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
 echo "configuring Data Studio dashboard…"

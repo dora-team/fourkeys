@@ -1,5 +1,6 @@
 resource "google_bigquery_dataset" "four_keys" {
   dataset_id = "four_keys"
+  location   = var.bigquery_region
 }
 
 # TODO remove "for_each" and hardcode
@@ -24,6 +25,7 @@ resource "google_bigquery_data_transfer_config" "scheduled_query1" {
   data_source_id         = "scheduled_query"
   schedule               = "every 24 hours"
   destination_dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  location               = var.bigquery_region
   params = {
     destination_table_name_template = each.key
     write_disposition               = "WRITE_TRUNCATE"
