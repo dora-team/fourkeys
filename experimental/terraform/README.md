@@ -19,18 +19,18 @@ This folder contains terraform scripts to provision all of the infrastructure in
     ```
 
 
-Current functionality (2021-02-19):
+Current functionality (GitHub + Cloud Build only):
 - Create a GCP project (outside of terraform)
 - Build the event-handler container image and push to GCR [TODO: use AR instead]
 - Deploy the event-handler container as a Cloud Run service
 - Emit the event-handler endpoint as an output
 - Create and store webhook secret
-- Emit the secrfet as an output
-
-TODO:
 - Create pubsub
 - Set up BigQuery
 - Build and deploy bigquery workers
+- Emit the secret as an output
+
+TODO:
 - Establish BigQuery data transfer
 - Populate Data Studio dashboard
 - (much else)

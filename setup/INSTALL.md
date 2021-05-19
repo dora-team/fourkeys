@@ -40,7 +40,7 @@ This guide describes how to set up Four Keys with your GitHub or GitLab project.
 
 ### New Google Cloud projects
 
-If you've chosen to create new Google Cloud projects, after the script finishes you will have two new projects named in the `env.sh` file of the form `fourkeys-XXXX` and `helloworld-XXXXX`.  The `fourkeys-XXXX` project is home to all the services that collect data from your deployments, while `helloworld-XXXX` is the staging and prod deployments for your application.
+If you've chosen to create new Google Cloud projects, after the script finishes you will have an `env.sh` file specifying two new project-id's in the form of `fourkeys-XXXX` and `helloworld-XXXXX`.  The `fourkeys-XXXX` project is home to all the services that collect data from your deployments, while `helloworld-XXXX` is the staging and prod deployments for your example application.
 
 If you ever want to remove the newly created projects and all associated data, you can run `cleanup.sh`.  **Only do this when you are done experimenting with Four Keys entirely, or want to start over. Running `cleanup.sh` will remove the projects and all the collected data.**
 
@@ -52,7 +52,7 @@ The setup script does many things to help create the service architecture descri
 
 The steps are:
 - Create randomly generated project names
-- Save project names in `env.sh`
+- Creates an `env.sh` and saves the project values in it
 - Set up Four Keys project
   - Create project
   - Link billing to parent project
@@ -99,7 +99,7 @@ To integrate Four Keys with a live repo, you need to:
     ```bash
     . ./env.sh
     gcloud config set project ${FOURKEYS_PROJECT}
-    gcloud run --platform managed --region ${FOURKEYS_REGION} services describe event-handler --format=yaml | grep url | head -1 | sed -e 's/  *url: //g'
+    gcloud run services describe event-handler --platform managed --region ${FOURKEYS_REGION} --format=yaml | grep url | head -1 | sed -e 's/  *url: //g'
     ```
 1.  In the **Add Webhook** interface use the Event Handler endpoint for **Payload URL**.
 1.  Run the following command to get the secret from Google Secrets Manager:
@@ -119,7 +119,7 @@ To integrate Four Keys with a live repo, you need to:
     ```bash
     . ./env.sh
     gcloud config set project ${FOURKEYS_PROJECT}
-    gcloud run --platform managed --region ${FOURKEYS_REGION} services describe event-handler --format=yaml | grep url | head -1 | sed -e 's/  *url: //g'
+    gcloud run services describe event-handler --platform managed --region ${FOURKEYS_REGION} --format=yaml | grep url | head -1 | sed -e 's/  *url: //g'
     ```
 1.  For **Payload URL**, use the Event Handler endpoint.
 1.  Run the following command to get the secret from Google Secrets Manager:
