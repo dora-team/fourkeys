@@ -35,6 +35,7 @@ resource "google_bigquery_dataset_iam_member" "cloud_build_parser_bq_dataset_acc
   dataset_id = "four_keys"
   role       = "roles/bigquery.dataEditor"
   member     = "serviceAccount:${google_service_account.cloud_build_parser_service_account.email}"
+  depends_on = [google_bigquery_dataset.four_keys]
 }
 
 resource "google_pubsub_subscription" "cloud_build_subscription" {

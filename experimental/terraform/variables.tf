@@ -7,11 +7,11 @@ variable "google_region" {
 }
 
 variable "bigquery_region" {
-    type=string
-    validation {
-        condition = (
-            contains(["US","EU"], var.bigquery_region)
-        )
-        error_message = "The value for 'bigquery_region' must be one of: 'US','EU'."
-    }
+  type = string
+  validation {
+    condition = (
+      contains(["US", "EU"], var.bigquery_region)
+    )
+    error_message = "The value for 'bigquery_region' must be one of: 'US','EU'."
+  }
 }
