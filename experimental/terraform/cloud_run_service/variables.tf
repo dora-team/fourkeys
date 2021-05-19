@@ -9,3 +9,7 @@ variable "google_region" {
 variable "service_name" {
   type = string
 }
+
+variable "service_account" {
+  type = string
+}
