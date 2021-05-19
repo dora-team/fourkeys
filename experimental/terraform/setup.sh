@@ -15,7 +15,7 @@
 
 set -eEuo pipefail
 
-echo "••••••••🔑🔑🔑🔑••••••••"
+echo "••••••••🔑••🔑••🔑••🔑••••••••"
 echo "starting Four Keys setup…"
 
 RANDOM_IDENTIFIER=$((RANDOM%999999))
@@ -28,7 +28,7 @@ export FOURKEYS_REGION=us-central1
 export PARENT_FOLDER=$(gcloud projects describe ${PARENT_PROJECT} --format="value(parent.id)")
 export BILLING_ACCOUNT=$(gcloud beta billing projects describe ${PARENT_PROJECT} --format="value(billingAccountName)" || sed -e 's/.*\///g')
 
-echo "••••••••🔑🔑🔑🔑••••••••"
+echo "••••••••🔑••🔑••🔑••🔑••••••••"
 echo "Preparing environment…"
 
 # TODO: Allow user to specify project name (or choose current)
@@ -42,7 +42,7 @@ echo "Purging TF state [FOR DEVELOPMENT ONLY]"
 rm -rf .terraform terraform.tfstate* terraform.tfvars
 
 # build service containers (using parent project) and store them in the fourkeys project
-echo "••••••••🔑🔑🔑🔑••••••••"
+echo "••••••••🔑••🔑••🔑••🔑••••••••"
 echo "Building containers…"
 gcloud services enable cloudbuild.googleapis.com --project=${PARENT_PROJECT}
 gcloud services enable containerregistry.googleapis.com --project=${FOURKEYS_PROJECT}
@@ -55,7 +55,7 @@ gcloud builds submit ../../bq_workers/cloud_build_parser --tag=gcr.io/${FOURKEYS
 
 # wait for containers to be built, then continue
 wait
-echo "••••••••🔑🔑🔑🔑••••••••"
+echo "••••••••🔑••🔑••🔑••🔑••••••••"
 echo "Invoking Terraform on project ${FOURKEYS_PROJECT}…"
 
 # create a tfvars file
@@ -68,7 +68,7 @@ terraform init
 terraform apply --auto-approve
 
 echo "Terraform resource creation complete."
-echo "••••••••🔑🔑🔑🔑••••••••"
+echo "••••••••🔑••🔑••🔑••🔑••••••••"
 
 # TODO: make data generation optional
 echo "generating data…"
@@ -77,7 +77,13 @@ export WEBHOOK=$(terraform output -raw event-handler-endpoint)
 export SECRET=$(terraform output -raw event-handler-secret)
 python3 ../../data_generator/generate_data.py --vc_system=github
 
-echo "••••••••🔑🔑🔑🔑••••••••"
+echo "••••••••🔑••🔑••🔑••🔑••••••••"
+echo "configuring Data Studio dashboard…"
+DATASTUDIO_URL="https://datastudio.google.com/datasources/create?connectorId=AKfycbxCOPCqhVOJQlRpOPgJ47dPZNdDu44MXbjsgKw_2-s"
+python3 -m webbrowser ${DATASTUDIO_URL}
+echo "Please visit $DATASTUDIO_URL to connect your data to the dashboard template."
+
+echo "••••••••🔑••🔑••🔑••🔑••••••••"
 echo 'Setup complete. Run the following commands to get values needed for GitHub webhook config:'
 echo 'Webhook URL: `echo $(terraform output -raw event-handler-endpoint)`'
 echo 'Secret: `echo $(terraform output -raw event-handler-secret)`'
