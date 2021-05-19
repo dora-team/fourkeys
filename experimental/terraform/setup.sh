@@ -65,10 +65,6 @@ google_region = "${FOURKEYS_REGION}"
 EOF
 
 terraform init
-
-#DEBUG
-exit 0
-
 terraform apply --auto-approve
 
 echo "Terraform resource creation complete."
