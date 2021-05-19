@@ -49,9 +49,9 @@ gcloud services enable containerregistry.googleapis.com --project=${FOURKEYS_PRO
 gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} --member="serviceAccount:${PARENT_PROJECTNUM}@cloudbuild.gserviceaccount.com" --role="roles/storage.admin"
 
 # launch container builds in background/parallel
-gcloud builds submit ../../event_handler --tag=gcr.io/${FOURKEYS_PROJECT}/event-handler --project=${PARENT_PROJECT} & 
-gcloud builds submit ../../bq_workers/github_parser --tag=gcr.io/${FOURKEYS_PROJECT}/github-parser --project=${PARENT_PROJECT} & 
-gcloud builds submit ../../bq_workers/cloud_build_parser --tag=gcr.io/${FOURKEYS_PROJECT}/cloud-build-parser --project=${PARENT_PROJECT} &
+gcloud builds submit ../../event_handler --tag=gcr.io/${FOURKEYS_PROJECT}/event-handler --project=${PARENT_PROJECT} > event_handler.containerbuild.log & 
+gcloud builds submit ../../bq_workers/github_parser --tag=gcr.io/${FOURKEYS_PROJECT}/github-parser --project=${PARENT_PROJECT} > github_parser.containerbuild.log & 
+gcloud builds submit ../../bq_workers/cloud_build_parser --tag=gcr.io/${FOURKEYS_PROJECT}/cloud-build-parser --project=${PARENT_PROJECT} > cloud_build_parser.containerbuild.log &
 
 # wait for containers to be built, then continue
 wait
@@ -65,6 +65,10 @@ google_region = "${FOURKEYS_REGION}"
 EOF
 
 terraform init
+
+#DEBUG
+exit 0
+
 terraform apply --auto-approve
 
 echo "Terraform resource creation complete."

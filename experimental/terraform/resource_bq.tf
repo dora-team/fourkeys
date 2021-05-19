@@ -11,7 +11,7 @@ resource "google_bigquery_table" "bq_table" {
 
 resource "google_bigquery_data_transfer_config" "scheduled_query" {
 
-  for_each = toset( ["changes","deployments","incidents"] )
+  for_each = toset(["changes", "deployments", "incidents"])
 
   display_name           = "four_keys_${each.key}"
   data_source_id         = "scheduled_query"
