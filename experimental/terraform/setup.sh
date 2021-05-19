@@ -82,8 +82,8 @@ python3 ../../data_generator/generate_data.py --vc_system=github
 
 echo "refreshing derived tables…"
 for table in changes deployments incidents; do
-    scheduled_query=$(bq ls --transfer_config --transfer_location=${BIGQUERY_REGION} | grep "four_keys_${table}" -m 1 | awk '{print $1;}')
-    bq mk --transfer_run --run_time "$(date --iso-8601=seconds)" ${scheduled_query}
+    scheduled_query=$(bq ls --transfer_config --project_id=${FOURKEYS_PROJECT} --transfer_location=${BIGQUERY_REGION} | grep "four_keys_${table}" -m 1 | awk '{print $1;}')
+    bq mk --transfer_run --project_id=${FOURKEYS_PROJECT} --run_time "$(date --iso-8601=seconds)" ${scheduled_query}
 done
 
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
