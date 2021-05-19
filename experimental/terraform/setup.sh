@@ -77,8 +77,7 @@ export WEBHOOK=$(terraform output -raw event-handler-endpoint)
 export SECRET=$(terraform output -raw event-handler-secret)
 python3 ../../data_generator/generate_data.py --vc_system=github
 
-# TODO: at completion of script, add instructions/outputs for configuring webhooks
 echo "••••••••🔑🔑🔑🔑••••••••"
-echo 'Setup complete. To get the values needed to configure GitHub, run the following commands:'
-echo 'To get the webhook URL, run: "echo $(terraform output -raw event-handler-endpoint)"'
-echo 'To get the webhook secret, run: "echo $(terraform output -raw event-handler-secret)"'
+echo 'Setup complete. Run the following commands to get values needed for GitHub webhook config:'
+echo 'Webhook URL: `echo $(terraform output -raw event-handler-endpoint)`'
+echo 'Secret: `echo $(terraform output -raw event-handler-secret)`'
