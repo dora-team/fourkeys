@@ -28,11 +28,11 @@ Current functionality (GitHub + Cloud Build only):
 - Set up BigQuery
 - Build and deploy bigquery workers
 - Emit the secret as an output
-- Establish BigQuery data transfer
+- Establish BigQuery scheduled queries
 - Generate test data
+- Launch Data Studio connector flow
 
 TODO:
-- Populate Data Studio dashboard
 - Deploy Hello World app
 - Support other VCSes and CICDs
 - Support using an existing project
