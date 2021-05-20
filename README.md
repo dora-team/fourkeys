@@ -74,7 +74,7 @@ _The project uses Python 3 and supports data extraction for Cloud Build and GitH
 1.  Set up your development environment to send events to the webhook created in the second step.
     1.  Add the secret to your GitHub webhook.
 
-_NOTE: Make sure you don't use "Squash Merging" in Git when merging back into trunk. This breaks the link between the commit into trunk and the commits from the branch you developed on and as thus it is not possible to measure "Time to Change" on these commits. It is possible to disable this feature in the settings of you're repo_
+_NOTE: Make sure you don't use "Squash Merging" in Git when merging back into trunk. This breaks the link between the commit into trunk and the commits from the branch you developed on and as thus it is not possible to measure "Time to Change" on these commits. It is possible to disable this feature in the settings of your repo_
 ## Generating mock data
 
 The setup script includes an option to generate mock data. Generate mock data to play with and test the Four Keys project.
