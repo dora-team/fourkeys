@@ -6,10 +6,9 @@ This folder contains terraform scripts to provision all of the infrastructure in
 
 ## How to use
 1. run `setup.sh`; this will:
-  * create a project for four keys
+  * create a project for Four Keys
   * purge all terraform state [useful during tf development]
-  * build the event-handler container using Cloud Build
-    * _(this is done outside of Terraform b/c local-exec is messy)_
+  * build containers using Cloud Build
   * create a `terraform.tfvars` file
   * invoke terraform
 1. run the following commands to retrieve values needed for your SCM:
@@ -29,14 +28,16 @@ Current functionality (GitHub + Cloud Build only):
 - Set up BigQuery
 - Build and deploy bigquery workers
 - Emit the secret as an output
+- Establish BigQuery scheduled queries
+- Generate test data
+- Launch Data Studio connector flow
 
 TODO:
-- Establish BigQuery data transfer
-- Populate Data Studio dashboard
-- (much else)
-
-ALSO:
-- provide user inputs for VCS system, CI/CD system, and GCP project settings
+- Deploy Hello World app
+- Support other VCSes and CICDs
+- Support using an existing project
+- Allow user to choose whether to create helloworld app
+- Allow user to choose whether to generate test data
 
 Open questions:
 - What's an elegant way to support those user inputs (VCS, CI/CD) as conditionals in the TF?
