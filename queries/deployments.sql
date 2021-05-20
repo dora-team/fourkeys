@@ -5,22 +5,7 @@ LANGUAGE js AS """
   return JSON.parse(json).map(x=>JSON.stringify(x));
 """; 
 
-
-SELECT
-source,
-deploy_id,
-time_created,
-ARRAY_AGG(DISTINCT JSON_EXTRACT_SCALAR(changes, '$.id')) changes
-FROM(
-  SELECT 
-  source,
-  deploy_id,
-  deploys.time_created time_created,
-  change_metadata,
-  json2array(JSON_EXTRACT(change_metadata, '$.commits')) array_commits
-  FROM
-  (
-    (# Cloud Build, Github, Gitlab pipelines
+WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipelines
       SELECT 
       source,
       id as deploy_id,
@@ -31,21 +16,20 @@ FROM(
       CASE WHEN source LIKE "github%" THEN ARRAY(
                 SELECT JSON_EXTRACT_SCALAR(string_element, '$')
                 FROM UNNEST(JSON_EXTRACT_ARRAY(metadata, '$.deployment.additional_sha')) AS string_element)
-           ELSE [] end as additional_commits
+           ELSE ARRAY<string>[] end as additional_commits
       FROM four_keys.events_raw 
       WHERE ((source = "cloud_build"
       AND JSON_EXTRACT_SCALAR(metadata, '$.status') = "SUCCESS")
       OR (source LIKE "github%" and event_type = "deployment_status" and JSON_EXTRACT_SCALAR(metadata, '$.deployment_status.state') = "success")
       OR (source LIKE "gitlab%" and event_type = "pipeline" and JSON_EXTRACT_SCALAR(metadata, '$.object_attributes.status') = "success"))
-    ) 
-    UNION ALL
-    (# Tekton Pipelines
+    ),
+    deploys_tekton AS (# Tekton Pipelines
       SELECT
       source,
       id as deploy_id,
       time_created,
       IF(JSON_EXTRACT_SCALAR(param, '$.name') = "gitrevision", JSON_EXTRACT_SCALAR(param, '$.value'), Null) as main_commit,
-      [] AS additional_commits
+      ARRAY<string>[] AS additional_commits
       FROM (
       SELECT 
       id,
@@ -55,16 +39,41 @@ FROM(
       FROM four_keys.events_raw
       WHERE event_type = "dev.tekton.event.pipelinerun.successful.v1" 
       AND metadata like "%gitrevision%") e, e.params as param
-    )  
-  ) deploys
-  JOIN 
-    (SELECT
-    id,
-    metadata as change_metadata
-    FROM four_keys.events_raw) 
-    changes on (
-        changes.id = deploys.main_commit
-        or changes.id in unnest(deploys.additional_commits)
-      )) d, d.array_commits changes
-GROUP BY 1,2,3
-;
+    ),
+    deploys AS (
+        SELECT * FROM
+        deploys_cloudbuild_github_gitlab
+        UNION ALL 
+        SELECT * FROM deploys_tekton        
+    ),
+    changes_raw AS (
+        SELECT
+        id,
+        metadata as change_metadata
+        FROM four_keys.events_raw        
+    ),
+    changes as (
+        SELECT
+        source,
+        deploy_id,
+        deploys.time_created time_created,
+        change_metadata,        
+        json2array(JSON_EXTRACT(change_metadata, '$.commits')) as array_commits,
+        main_commit
+        FROM deploys 
+        JOIN
+        changes_raw on (
+        changes_raw.id = deploys.main_commit
+        or changes_raw.id in unnest(deploys.additional_commits)
+      )
+    )
+
+    SELECT 
+    source,
+    deploy_id,
+    time_created,
+    main_commit,   
+    ARRAY_AGG(DISTINCT JSON_EXTRACT_SCALAR(array_commits, '$.id')) changes,    
+    FROM changes
+    CROSS JOIN changes.array_commits
+    GROUP BY 1,2,3,4
