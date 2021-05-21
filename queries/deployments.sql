@@ -76,4 +76,4 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
     ARRAY_AGG(DISTINCT JSON_EXTRACT_SCALAR(array_commits, '$.id')) changes,    
     FROM changes
     CROSS JOIN changes.array_commits
-    GROUP BY 1,2,3,4
+    GROUP BY 1,2,3,4;
