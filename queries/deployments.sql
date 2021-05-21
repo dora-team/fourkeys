@@ -41,31 +41,31 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
       AND metadata like "%gitrevision%") e, e.params as param
     ),
     deploys AS (
-        SELECT * FROM
-        deploys_cloudbuild_github_gitlab
-        UNION ALL 
-        SELECT * FROM deploys_tekton        
+      SELECT * FROM
+      deploys_cloudbuild_github_gitlab
+      UNION ALL
+      SELECT * FROM deploys_tekton
     ),
     changes_raw AS (
-        SELECT
-        id,
-        metadata as change_metadata
-        FROM four_keys.events_raw        
+      SELECT
+      id,
+      metadata as change_metadata
+      FROM four_keys.events_raw
     ),
-    changes as (
-        SELECT
-        source,
-        deploy_id,
-        deploys.time_created time_created,
-        change_metadata,        
-        json2array(JSON_EXTRACT(change_metadata, '$.commits')) as array_commits,
-        main_commit
-        FROM deploys 
-        JOIN
+    deployment_changes as (
+      SELECT
+      source,
+      deploy_id,
+      deploys.time_created time_created,
+      change_metadata,
+      json2array(JSON_EXTRACT(change_metadata, '$.commits')) as array_commits,
+      main_commit
+      FROM deploys
+      JOIN
         changes_raw on (
-        changes_raw.id = deploys.main_commit
-        or changes_raw.id in unnest(deploys.additional_commits)
-      )
+          changes_raw.id = deploys.main_commit
+          or changes_raw.id in unnest(deploys.additional_commits)
+        )
     )
 
     SELECT 
@@ -74,6 +74,6 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
     time_created,
     main_commit,   
     ARRAY_AGG(DISTINCT JSON_EXTRACT_SCALAR(array_commits, '$.id')) changes,    
-    FROM changes
-    CROSS JOIN changes.array_commits
+    FROM deployment_changes
+    CROSS JOIN deployment_changes.array_commits
     GROUP BY 1,2,3,4
