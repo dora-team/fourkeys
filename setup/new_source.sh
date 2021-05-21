@@ -61,16 +61,16 @@ build_deploy_cloud_run(){
 set_permissions(){
 	gcloud iam service-accounts create cloud-run-pubsub-invoker \
        --display-name "Cloud Run Pub/Sub Invoker" --project ${FOURKEYS_PROJECT}
-  	gcloud run  --platform managed services add-iam-policy-binding ${nickname}-worker \
+  	gcloud run services add-iam-policy-binding ${nickname}-worker \
 	   --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
-	   --role=roles/run.invoker --project ${FOURKEYS_PROJECT}
+	   --role=roles/run.invoker --project ${FOURKEYS_PROJECT} --platform managed --region us-central1
 }
 
 setup_pubsub_topic_subscription(){
 	# Get push endpoint for new service
-	export PUSH_ENDPOINT_URL=$(gcloud run --platform managed \
-	--region us-central1 services describe ${nickname}-worker \
-	--format="value(status.url)" --project ${FOURKEYS_PROJECT})
+	export PUSH_ENDPOINT_URL=$(gcloud run services describe ${nickname}-worker \
+	--format="value(status.url)" --project ${FOURKEYS_PROJECT} \
+	--platform managed --region us-central1) 
 
 	# Create topic
 	echo "Creating event handler Pub/Sub topic..."; set -x
@@ -85,10 +85,6 @@ setup_pubsub_topic_subscription(){
 	set +x; echo
 }
 
-echo "Setting Cloud Run options"; set -x
-gcloud config set run/platform managed
-gcloud config set run/region ${FOURKEYS_REGION}
-set +x; echo
 
 environment
 project_prompt
