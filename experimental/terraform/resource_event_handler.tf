@@ -38,13 +38,3 @@ resource "google_secret_manager_secret_iam_member" "event-handler" {
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.event_handler_service_account.email}"
 }
-
-resource "google_service_account" "pubsub_cloudrun_invoker" {
-  account_id   = "pubsub-cloudrun-invoker"
-  display_name = "Service Account for PubSub --> Cloud Run"
-}
-
-resource "google_project_iam_member" "pubsub_cloudrun_invoker_iam" {
-  member = "serviceAccount:${google_service_account.pubsub_cloudrun_invoker.email}"
-  role   = "roles/run.invoker"
-}
