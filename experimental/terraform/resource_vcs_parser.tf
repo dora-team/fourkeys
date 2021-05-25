@@ -38,6 +38,16 @@ resource "google_bigquery_dataset_iam_member" "github_parser_bq_dataset_access" 
   depends_on = [google_bigquery_dataset.four_keys]
 }
 
+resource "google_service_account" "github_pubsub_cloudrun_invoker" {
+  account_id   = "github-pubsub-cloudrun-invoker"
+  display_name = "Service Account for PubSub --> Cloud Run"
+}
+
+resource "google_project_iam_member" "github_pubsub_cloudrun_invoker_iam" {
+  member = "serviceAccount:${google_service_account.github_pubsub_cloudrun_invoker.email}"
+  role   = "roles/run.invoker"
+}
+
 resource "google_pubsub_subscription" "github_subscription" {
   name  = "github-subscription"
   topic = google_pubsub_topic.github.id
@@ -46,7 +56,7 @@ resource "google_pubsub_subscription" "github_subscription" {
     push_endpoint = module.github_parser_service.cloud_run_endpoint
 
     oidc_token {
-      service_account_email = google_service_account.pubsub_cloudrun_invoker.email
+      service_account_email = google_service_account.github_pubsub_cloudrun_invoker.email
     }
 
   }

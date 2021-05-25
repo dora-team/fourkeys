@@ -38,6 +38,16 @@ resource "google_bigquery_dataset_iam_member" "cloud_build_parser_bq_dataset_acc
   depends_on = [google_bigquery_dataset.four_keys]
 }
 
+resource "google_service_account" "cloudbuild_pubsub_cloudrun_invoker" {
+  account_id   = "gcb-pubsub-cloudrun-invoker"
+  display_name = "Service Account for PubSub --> Cloud Run"
+}
+
+resource "google_project_iam_member" "cloudbuild_pubsub_cloudrun_invoker_iam" {
+  member = "serviceAccount:${google_service_account.cloudbuild_pubsub_cloudrun_invoker.email}"
+  role   = "roles/run.invoker"
+}
+
 resource "google_pubsub_subscription" "cloud_build_subscription" {
   name  = "cloud-build-subscription"
   topic = google_pubsub_topic.cloud-builds.id
@@ -46,7 +56,7 @@ resource "google_pubsub_subscription" "cloud_build_subscription" {
     push_endpoint = module.cloud_build_parser_service.cloud_run_endpoint
 
     oidc_token {
-      service_account_email = google_service_account.pubsub_cloudrun_invoker.email
+      service_account_email = google_service_account.cloudbuild_pubsub_cloudrun_invoker.email
     }
 
   }
