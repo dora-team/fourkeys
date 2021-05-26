@@ -1,16 +1,16 @@
 resource "google_service_account" "parser_service_account" {
-    account_id = var.parser_service
-    display_name = "Service Account for ${var.parser_service} Parser Cloud Run Service"
+    account_id = var.parser_service_name
+    display_name = "Service Account for ${var.parser_service_name} Parser Cloud Run Service"
 }
 
 resource "google_cloud_run_service" "parser_service" {
-  name     = var.parser_service
+  name     = var.parser_service_name
   location = var.google_region
 
   template {
     spec {
       containers {
-        image = "gcr.io/${var.google_project_id}/${var.parser_service}-parser"
+        image = "gcr.io/${var.google_project_id}/${var.parser_service_name}-parser"
         env {
           name  = "PROJECT_NAME"
           value = var.google_project_id
@@ -30,7 +30,7 @@ resource "google_cloud_run_service" "parser_service" {
 }
 
 resource "google_pubsub_topic" "parser_pubsub" {
-  name = var.parser_service
+  name = var.parser_service_name
 }
 
 resource "google_pubsub_topic_iam_member" "event_handler_pubsub_write_iam" {
@@ -51,7 +51,7 @@ resource "google_bigquery_dataset_iam_member" "parser_bq_dataset_access" {
 }
 
 resource "google_service_account" "pubsub_cloudrun_invoker" {
-  account_id   = "${var.parser_service}-cloudrun-invoker"
+  account_id   = "${var.parser_service_name}-cloudrun-invoker"
   display_name = "Service Account for PubSub --> Cloud Run"
 }
 
@@ -61,7 +61,7 @@ resource "google_project_iam_member" "pubsub_cloudrun_invoker_iam" {
 }
 
 resource "google_pubsub_subscription" "parser_subscription" {
-  name  = "${var.parser_service}-subscription"
+  name  = "${var.parser_service_name}-subscription"
   topic = google_pubsub_topic.parser_pubsub.id
 
   push_config {

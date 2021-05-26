@@ -12,32 +12,27 @@ data "google_project" "project" {
 
 resource "google_project_service" "run_api" {
   service = "run.googleapis.com"
+  disable_dependent_services=true
 }
 
 resource "google_project_service" "bq_api" {
   service = "bigquery.googleapis.com"
+  disable_dependent_services=true
 }
 
 resource "google_project_service" "bq_dt_api" {
   service = "bigquerydatatransfer.googleapis.com"
+  disable_dependent_services=true
 }
 
 resource "google_project_service" "sm_api" {
   service = "secretmanager.googleapis.com"
+  disable_dependent_services=true
 }
 
 resource "google_service_account" "event_handler_service_account" {
   account_id   = "event-handler"
   display_name = "Service Account for Event Handler Cloud Run Service"
-}
-
-resource "google_cloud_run_service_iam_binding" "noauth" {
-  location = var.google_region
-  project  = var.google_project_id
-  service  = google_cloud_run_service.event_handler.name
-
-  role    = "roles/run.invoker"
-  members = ["allUsers"]
 }
 
 resource "google_cloud_run_service" "event_handler" {
@@ -68,6 +63,16 @@ resource "google_cloud_run_service" "event_handler" {
     google_project_service.run_api,
   ]
 
+}
+
+resource "google_cloud_run_service_iam_binding" "noauth" {
+  location = var.google_region
+  project  = var.google_project_id
+  service  = "event-handler"
+
+  role    = "roles/run.invoker"
+  members = ["allUsers"]
+  depends_on = [google_cloud_run_service.event_handler]
 }
 
 resource "google_secret_manager_secret" "event-handler-secret" {
@@ -130,7 +135,7 @@ resource "google_bigquery_data_transfer_config" "scheduled_query" {
 module "data_parser_service" {
     for_each = toset(["cloud-build", "github"])
     source = "./data_parser"
-    parser_service = each.key
+    parser_service_name = each.key
     google_project_id = var.google_project_id
     google_region = var.google_region
     event_handler_service_account_email = google_service_account.event_handler_service_account.email
