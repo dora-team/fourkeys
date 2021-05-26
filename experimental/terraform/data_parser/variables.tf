@@ -1,4 +1,4 @@
-variable "parser_service" {
+variable "parser_service_name" {
     type = string
 }
 
