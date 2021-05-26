@@ -1,5 +1,10 @@
 terraform {
   required_version = ">= 0.14"
+  required_providers {
+      google = {
+          version = "~> 3.69.0"
+      }
+  }
 }
 
 data "google_project" "project" {
@@ -26,12 +31,38 @@ resource "google_service_account" "event_handler_service_account" {
   display_name = "Service Account for Event Handler Cloud Run Service"
 }
 
-module "event_handler_service" {
-  source            = "./cloud_run_service"
-  google_project_id = var.google_project_id
-  google_region     = var.google_region
-  service_name      = "event-handler"
-  service_account   = google_service_account.event_handler_service_account.email
+resource "google_cloud_run_service_iam_binding" "noauth" {
+  location = var.google_region
+  project  = var.google_project_id
+  service  = google_cloud_run_service.event_handler.name
+
+  role    = "roles/run.invoker"
+  members = ["allUsers"]
+}
+
+resource "google_cloud_run_service" "event_handler" {
+  name     = "event-handler"
+  location = var.google_region
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/${var.google_project_id}/event-handler"
+        env {
+          name  = "PROJECT_NAME"
+          value = var.google_project_id
+        }
+      }
+      service_account_name = google_service_account.event_handler_service_account.email
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+
+  autogenerate_revision_name = true
 
   depends_on = [
     google_project_service.run_api,

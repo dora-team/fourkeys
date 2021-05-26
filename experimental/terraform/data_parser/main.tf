@@ -3,12 +3,30 @@ resource "google_service_account" "parser_service_account" {
     display_name = "Service Account for ${var.parser_service} Parser Cloud Run Service"
 }
 
-module "parser_service" {
-  source            = "../cloud_run_service"
-  google_project_id = var.google_project_id
-  google_region     = var.google_region
-  service_name      = "${var.parser_service}-parser"
-  service_account   = google_service_account.parser_service_account.email
+resource "google_cloud_run_service" "parser_service" {
+  name     = var.parser_service
+  location = var.google_region
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/${var.google_project_id}/${var.parser_service}-parser"
+        env {
+          name  = "PROJECT_NAME"
+          value = var.google_project_id
+        }
+      }
+      service_account_name = google_service_account.parser_service_account.email
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+
+  autogenerate_revision_name = true
+
 }
 
 resource "google_pubsub_topic" "parser_pubsub" {
@@ -47,7 +65,7 @@ resource "google_pubsub_subscription" "parser_subscription" {
   topic = google_pubsub_topic.parser_pubsub.id
 
   push_config {
-    push_endpoint = module.parser_service.cloud_run_endpoint
+    push_endpoint = google_cloud_run_service.parser_service.status[0]["url"]
 
     oidc_token {
       service_account_email = google_service_account.pubsub_cloudrun_invoker.email
