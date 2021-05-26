@@ -1,5 +1,5 @@
 output "event-handler-endpoint" {
-  value = module.event_handler_service.cloud_run_endpoint
+  value = google_cloud_run_service.event_handler.status[0]["url"]
 }
 
 output "event-handler-secret" {
