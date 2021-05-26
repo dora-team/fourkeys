@@ -88,9 +88,9 @@ def get_source(headers):
     if "tekton" in headers.get("Ce-Type", ""):
         return "tekton"
 
-    if "GitHub" in headers.get("User-Agent", ""):
+    if "GitHub-Hookshot" in headers.get("User-Agent", ""):
         return "github"
-    
+
     return headers.get("User-Agent")
 
 
