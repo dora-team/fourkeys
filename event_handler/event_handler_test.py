@@ -83,6 +83,6 @@ def test_data_sent_to_pubsub(client):
     r = client.post("/", data="Hello", headers=headers)
 
     event_handler.publish_to_pubsub.assert_called_with(
-        "GitHub-Hookshot", b"Hello", headers
+        "github", b"Hello", headers
     )
     assert r.status_code == 204
