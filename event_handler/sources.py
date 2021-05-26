@@ -86,17 +86,13 @@ def get_source(headers):
     if "X-Gitlab-Event" in headers:
         return "gitlab"
 
-    if "Ce-Type" in headers and "tekton" in headers["Ce-Type"]:
+    if "tekton" in headers.get("Ce-Type", ""):
         return "tekton"
 
-    if "User-Agent" in headers:
-        if "GitHub" in headers["User-Agent"]:
-            return "github"
-        elif "/" in headers["User-Agent"]:
-            return headers["User-Agent"].split("/")[0]
-        return headers["User-Agent"]
-
-    return None
+    if "GitHub" in headers.get("User-Agent", ""):
+        return "github"
+    
+    return "ERROR: UNKNOWN EVENT SOURCE"
 
 
 AUTHORIZED_SOURCES = {
