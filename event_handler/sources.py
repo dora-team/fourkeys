@@ -26,8 +26,7 @@ class EventSource(object):
     A source of event data being delivered to the webhook
     """
 
-    def __init__(self, name, signature_header, verification_func):
-        self.name = name
+    def __init__(self, signature_header, verification_func):
         self.signature = signature_header
         self.verification = verification_func
 
@@ -92,17 +91,17 @@ def get_source(headers):
     if "GitHub" in headers.get("User-Agent", ""):
         return "github"
     
-    return "ERROR: UNKNOWN EVENT SOURCE"
+    return headers.get("User-Agent")
 
 
 AUTHORIZED_SOURCES = {
     "github": EventSource(
-        "github", "X-Hub-Signature", github_verification
+        "X-Hub-Signature", github_verification
         ),
     "gitlab": EventSource(
-        "gitlab", "X-Gitlab-Token", simple_token_verification
+        "X-Gitlab-Token", simple_token_verification
         ),
     "tekton": EventSource(
-        "tekton", "tekton-secret", simple_token_verification
+        "tekton-secret", simple_token_verification
         )
 }
