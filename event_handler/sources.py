@@ -84,7 +84,7 @@ def get_source(headers):
     Gets the source from the User-Agent header
     """
     if "X-Gitlab-Event" in headers:
-        return "hitlab"
+        return "gitlab"
 
     if "Ce-Type" in headers and "tekton" in headers["Ce-Type"]:
         return "tekton"
