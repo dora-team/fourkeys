@@ -43,9 +43,7 @@ project_prompt(){
 }
 
 source_prompt(){
-	# The user-agent value will be used as the pub/sub topic name.  Capitalization matters.
-	read -p "What's the user-agent of your new source?  Eg GitHub-Hookshot:  " user_agent
-	# Will be used to name the Cloud Run service. Should be lowercase.
+	# Will be used to name the Cloud Run service and pubsub topic. Should be lowercase.
 	read -p "What is the nickname of your source?  Eg github (lowercase):  " nickname
 }
 
