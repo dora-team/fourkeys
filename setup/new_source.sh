@@ -72,11 +72,11 @@ setup_pubsub_topic_subscription(){
 
 	# Create topic
 	echo "Creating event handler Pub/Sub topic..."; set -x
-	gcloud pubsub topics create ${user_agent} --project ${FOURKEYS_PROJECT}
+	gcloud pubsub topics create ${nickname} --project ${FOURKEYS_PROJECT}
 
 	# configure the subscription push identity
 	gcloud pubsub subscriptions create ${nickname}Subscription \
-	--topic=${user_agent} \
+	--topic=${nickname} \
 	--push-endpoint=${PUSH_ENDPOINT_URL} \
 	--push-auth-service-account=cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com \
 	--project ${FOURKEYS_PROJECT}
