@@ -104,7 +104,7 @@ To integrate Four Keys with a live repo, you need to:
 1.  In the **Add Webhook** interface use the Event Handler endpoint for **Payload URL**.
 1.  Run the following command to get the secret from Google Secrets Manager:
     ```bash
-    gcloud secrets versions access 1 --secret="github-secret"
+    gcloud secrets versions access 1 --secret="event-handler"
     ```
 1.  Put the secret in the box labelled **Secret**.
 1.  For **Content Type**, select **application/json**.
