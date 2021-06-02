@@ -1,8 +1,8 @@
 terraform {
-  required_version = ">= 0.14"
+  required_version = ">= 0.15"
   required_providers {
       google = {
-          version = "~> 3.69.0"
+          version = "~> 3.70.0"
       }
   }
 }
@@ -30,9 +30,9 @@ resource "google_project_service" "sm_api" {
   disable_dependent_services=true
 }
 
-resource "google_service_account" "event_handler_service_account" {
+resource "google_service_account" "fourkeys_service_account" {
   account_id   = "event-handler"
-  display_name = "Service Account for Event Handler Cloud Run Service"
+  display_name = "Service Account for Four Keys resources"
 }
 
 resource "google_cloud_run_service" "event_handler" {
@@ -48,7 +48,7 @@ resource "google_cloud_run_service" "event_handler" {
           value = var.google_project_id
         }
       }
-      service_account_name = google_service_account.event_handler_service_account.email
+      service_account_name = google_service_account.fourkeys_service_account.email
     }
   }
 
@@ -95,7 +95,7 @@ resource "google_secret_manager_secret_version" "event-handler-secret-version" {
 resource "google_secret_manager_secret_iam_member" "event-handler" {
   secret_id = google_secret_manager_secret.event-handler-secret.id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.event_handler_service_account.email}"
+  member    = "serviceAccount:${google_service_account.fourkeys_service_account.email}"
 }
 
 resource "google_bigquery_dataset" "four_keys" {
@@ -132,14 +132,34 @@ resource "google_bigquery_data_transfer_config" "scheduled_query" {
   depends_on = [google_project_service.bq_dt_api, google_bigquery_table.bq_table_events_raw, google_bigquery_table.bq_tables_derived]
 }
 
+resource "google_service_account" "parser_service_account" {
+    account_id = "parser-service"
+    display_name = "Service Account for data parser Cloud Run services"
+}
+
+resource "google_project_iam_member" "parser_bq_project_access" {
+  role   = "roles/bigquery.user"
+  member = "serviceAccount:${google_service_account.fourkeys_service_account.email}"
+}
+
+resource "google_bigquery_dataset_iam_member" "parser_bq_dataset_access" {
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  role       = "roles/bigquery.dataEditor"
+  member     = "serviceAccount:${google_service_account.fourkeys_service_account.email}"
+}
+
+resource "google_project_iam_member" "parser_service_account_run_invoker" {
+  member = "serviceAccount:${google_service_account.fourkeys_service_account.email}"
+  role   = "roles/run.invoker"
+}
+
 module "data_parser_service" {
     for_each = toset(["cloud-build", "github"])
     source = "./data_parser"
     parser_service_name = each.key
     google_project_id = var.google_project_id
     google_region = var.google_region
-    event_handler_service_account_email = google_service_account.event_handler_service_account.email
-    bq_dataset = google_bigquery_dataset.four_keys.dataset_id
+    fourkeys_service_account_email = google_service_account.fourkeys_service_account.email
 
     depends_on = [
         google_project_service.run_api

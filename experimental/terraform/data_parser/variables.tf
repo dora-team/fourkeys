@@ -10,10 +10,6 @@ variable "google_region" {
     type = string
 }
 
-variable "event_handler_service_account_email" {
-    type = string
-}
-
-variable "bq_dataset" {
+variable "fourkeys_service_account_email" {
     type = string
 }
