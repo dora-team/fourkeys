@@ -216,7 +216,7 @@ github_pipeline(){
   echo "Creating Github Data Pipeline..."
 
   echo "Deploying BQ github worker..."; set -x
-  cd $DIR/../bq_workers/github_parser
+  cd $DIR/../bq_workers/github-parser
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
   set +x; echo
 
@@ -242,7 +242,7 @@ gitlab_pipeline(){
   echo "Creating Gitlab Data Pipeline..."
 
   echo "Deploying BQ gitlab worker..."; set -x
-  cd $DIR/../bq_workers/gitlab_parser
+  cd $DIR/../bq_workers/gitlab-parser
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
   set +x; echo
 
@@ -269,7 +269,7 @@ cloud_build_pipeline(){
   echo "Creating Cloud Build Data Pipeline..."
 
   echo "Deploying BQ cloud build worker..."; set -x
-  cd $DIR/../bq_workers/cloud_build_parser
+  cd $DIR/../bq_workers/cloud-build-parser
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} . 
   set +x; echo
 
@@ -297,7 +297,7 @@ tekton_pipeline(){
   echo "Creating Tekton Data Pipeline..."
 
   echo "Deploying BQ tekton worker..."; set -x
-  cd $DIR/../bq_workers/tekton_parser
+  cd $DIR/../bq_workers/tekton-parser
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
   set +x; echo
 
