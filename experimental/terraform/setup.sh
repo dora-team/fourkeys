@@ -50,20 +50,29 @@ case $cicd_system_id in
     *) echo "Please see the documentation to learn how to extend to CI/CD sources other than Cloud Build, Tekton, GitLab, or GitHub."
 esac
 
-# make list of parsers to set up
-if [[ $git_system == "gitlab" && $cicd_system == "gitlab" ]]; then
-    parsers='"gitlab"'
-elif [[ $git_system != "" && $cicd_system != "" ]] ; then
-    parsers="\"${git_system}\",\"${cicd_system}\""
-elif [[ $git_system != "" ]]; then
-    parsers="\"${git_system}\""
-elif [[ $cicd_system != "" ]]; then
-    parsers="\"${cicd_system}\""
+parsers=()
+if [ $git_system == $cicd_system ]; then
+    parsers+=("${git_system}")
 else
-    parsers=""
+    if [ ! -z "${git_system}" ]; then 
+        parsers+=("${git_system}")
+    fi
+    if [ ! -z "${cicd_system}" ]; then
+        parsers+=("${cicd_system}")
+    fi
 fi
 
 echo $parsers
+
+joined=""
+
+for parser in "${parsers[@]}"; do
+    joined="${joined},${parser}"
+done
+
+echo ${joined}
+
+exit 0
 
 RANDOM_IDENTIFIER=$((RANDOM%999999))
 export PARENT_PROJECT=$(gcloud config get-value project)
@@ -96,6 +105,8 @@ gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} --member="serviceAcco
 
 # launch container builds in background/parallel
 gcloud builds submit ../../event_handler --tag=gcr.io/${FOURKEYS_PROJECT}/event-handler --project=${PARENT_PROJECT} > event_handler.containerbuild.log & 
+
+for parser in 
 gcloud builds submit ../../bq_workers/github_parser --tag=gcr.io/${FOURKEYS_PROJECT}/github-parser --project=${PARENT_PROJECT} > github_parser.containerbuild.log & 
 gcloud builds submit ../../bq_workers/cloud_build_parser --tag=gcr.io/${FOURKEYS_PROJECT}/cloud-build-parser --project=${PARENT_PROJECT} > cloud_build_parser.containerbuild.log &
 
