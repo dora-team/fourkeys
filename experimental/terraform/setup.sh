@@ -76,8 +76,8 @@ echo "••••••••🔑••🔑••🔑••🔑•••••�
 # TODO: make data generation optional
 echo "generating data…"
 WEBHOOK=$(terraform output -raw event-handler-endpoint) \
-SECRET=$(terraform output -raw event-handler-secret) \
-python3 ../../data_generator/generate_data.py --vc_system=github
+    SECRET=$(terraform output -raw event-handler-secret) \
+    python3 ../../data_generator/generate_data.py --vc_system=github
 
 echo "refreshing derived tables…"
 for table in changes deployments incidents; do
