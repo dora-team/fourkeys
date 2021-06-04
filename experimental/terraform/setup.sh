@@ -16,15 +16,59 @@
 set -eEuo pipefail
 
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
-echo "starting Four Keys setup…"
+printf "starting Four Keys setup…\n\n"
+
+read -p "Which version control system are you using? 
+(1) GitLab
+(2) GitHub
+(3) Other
+
+Enter a selection (1 - 3): " git_system_id
+
+read -p "
+Which CI/CD system are you using? 
+(1) Cloud Build
+(2) Tekton
+(3) GitLab
+(4) Other
+
+Enter a selection (1 - 4): " cicd_system_id
+
+git_system=""
+cicd_system=""
+
+case $git_system_id in
+    1) git_system="gitlab" ;;
+    2) git_system="github" ;;
+    *) echo "Please see the documentation to learn how to extend to VCS sources other than GitHub or GitLab"
+esac
+
+case $cicd_system_id in
+    1) cicd_system="cloud-build" ;;
+    2) cicd_system="tekton" ;;
+    3) cicd_system="gitlab" ;;
+    *) echo "Please see the documentation to learn how to extend to CI/CD sources other than Cloud Build, Tekton, GitLab, or GitHub."
+esac
+
+# make list of parsers to set up
+if [[ $git_system == "gitlab" && $cicd_system == "gitlab" ]]; then
+    parsers='"gitlab"'
+elif [[ $git_system != "" && $cicd_system != "" ]] ; then
+    parsers="\"${git_system}\",\"${cicd_system}\""
+elif [[ $git_system != "" ]]; then
+    parsers="\"${git_system}\""
+elif [[ $cicd_system != "" ]]; then
+    parsers="\"${cicd_system}\""
+else
+    parsers=""
+fi
+
+echo $parsers
 
 RANDOM_IDENTIFIER=$((RANDOM%999999))
 export PARENT_PROJECT=$(gcloud config get-value project)
 export FOURKEYS_PROJECT=$(printf "fourkeys-%06d" $RANDOM_IDENTIFIER)
 export FOURKEYS_REGION=us-central1
-# export HELLOWORLD_PROJECT=$(printf "helloworld-%06d" $RANDOM_IDENTIFIER)
-# export HELLOWORLD_REGION=us-central
-# export HELLOWORLD_ZONE=${HELLOWORLD_REGION}1-a
 export PARENT_FOLDER=$(gcloud projects describe ${PARENT_PROJECT} --format="value(parent.id)")
 export BILLING_ACCOUNT=$(gcloud beta billing projects describe ${PARENT_PROJECT} --format="value(billingAccountName)" || sed -e 's/.*\///g')
 # TODO: support user-specified location
@@ -65,6 +109,7 @@ cat > terraform.tfvars <<EOF
 google_project_id = "${FOURKEYS_PROJECT}"
 google_region = "${FOURKEYS_REGION}"
 bigquery_region = "${BIGQUERY_REGION}"
+parsers = [${parsers}]
 EOF
 
 terraform init

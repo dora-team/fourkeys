@@ -154,7 +154,7 @@ resource "google_project_iam_member" "parser_service_account_run_invoker" {
 }
 
 module "data_parser_service" {
-    for_each = toset(["cloud-build", "github"])
+    for_each = toset(var.parsers)
     source = "./data_parser"
     parser_service_name = each.key
     google_project_id = var.google_project_id

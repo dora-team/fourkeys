@@ -15,3 +15,8 @@ variable "bigquery_region" {
     error_message = "The value for 'bigquery_region' must be one of: 'US','EU'."
   }
 }
+
+variable "parsers" {
+    type = list
+    description = "list of data parsers to configure (e.g. 'gitlab','tekton')"
+}
