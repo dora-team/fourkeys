@@ -1,3 +1,3 @@
 output "cloud_run_endpoint" {
-    value = "TODO____MAKE_ME_HAPPEN"
+    value = google_cloud_run_service.parser_service.status[0]["url"]
 }
