@@ -33,15 +33,14 @@ Current functionality (GitHub + Cloud Build only):
 - Launch Data Studio connector flow
 
 TODO:
-- Deploy Hello World app
-- Support other VCSes and CICDs
 - Support using an existing project
-- Allow user to choose whether to create helloworld app
 - Allow user to choose whether to generate test data
+- Deploy Hello World app
+- Allow user to choose whether to create helloworld app
 
 Open questions:
-- What's an elegant way to support those user inputs (VCS, CI/CD) as conditionals in the TF?
 - Should we create a service account and run TF as that, or keep the current process of using application default credentials of the user who invokes the script?
 
 Answered questions:
+- What's an elegant way to support those user inputs (VCS, CI/CD) as conditionals in the TF? (see implementation: generate a list of parsers to create)
 - Should we create the GCP project in terraform? No. The auth gets really complicated, especially when considering that the project may or may not be in an organization and/or folder

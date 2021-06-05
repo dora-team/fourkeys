@@ -50,29 +50,14 @@ case $cicd_system_id in
     *) echo "Please see the documentation to learn how to extend to CI/CD sources other than Cloud Build, Tekton, GitLab, or GitHub."
 esac
 
-parsers=()
+parsers=""
 if [ $git_system == $cicd_system ]; then
-    parsers+=("${git_system}")
+    parsers="${git_system}"
+elif [ ! -z "${git_system}" ] && [ ! -z "${cicd_system}" ]; then
+    parsers="${git_system} ${cicd_system}"
 else
-    if [ ! -z "${git_system}" ]; then 
-        parsers+=("${git_system}")
-    fi
-    if [ ! -z "${cicd_system}" ]; then
-        parsers+=("${cicd_system}")
-    fi
+    parsers="${git_system}${cicd_system}"
 fi
-
-echo $parsers
-
-joined=""
-
-for parser in "${parsers[@]}"; do
-    joined="${joined},${parser}"
-done
-
-echo ${joined}
-
-exit 0
 
 RANDOM_IDENTIFIER=$((RANDOM%999999))
 export PARENT_PROJECT=$(gcloud config get-value project)
@@ -106,9 +91,9 @@ gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} --member="serviceAcco
 # launch container builds in background/parallel
 gcloud builds submit ../../event_handler --tag=gcr.io/${FOURKEYS_PROJECT}/event-handler --project=${PARENT_PROJECT} > event_handler.containerbuild.log & 
 
-for parser in 
-gcloud builds submit ../../bq_workers/github_parser --tag=gcr.io/${FOURKEYS_PROJECT}/github-parser --project=${PARENT_PROJECT} > github_parser.containerbuild.log & 
-gcloud builds submit ../../bq_workers/cloud_build_parser --tag=gcr.io/${FOURKEYS_PROJECT}/cloud-build-parser --project=${PARENT_PROJECT} > cloud_build_parser.containerbuild.log &
+for parser in ${parsers}; do
+    gcloud builds submit ../../bq_workers/${parser}-parser --tag=gcr.io/${FOURKEYS_PROJECT}/${parser}-parser --project=${PARENT_PROJECT} > ${parser}.containerbuild.log & 
+done
 
 # wait for containers to be built, then continue
 wait
@@ -120,7 +105,7 @@ cat > terraform.tfvars <<EOF
 google_project_id = "${FOURKEYS_PROJECT}"
 google_region = "${FOURKEYS_REGION}"
 bigquery_region = "${BIGQUERY_REGION}"
-parsers = [${parsers}]
+parsers = [$(printf '"%b",' $parsers)]
 EOF
 
 terraform init
@@ -133,7 +118,7 @@ echo "••••••••🔑••🔑••🔑••🔑•••••�
 echo "generating data…"
 WEBHOOK=$(terraform output -raw event-handler-endpoint) \
     SECRET=$(terraform output -raw event-handler-secret) \
-    python3 ../../data_generator/generate_data.py --vc_system=github
+    python3 ../../data_generator/generate_data.py --vc_system=${git_system}
 
 echo "refreshing derived tables…"
 for table in changes deployments incidents; do
