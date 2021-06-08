@@ -17,35 +17,26 @@
 # variables and terraform variables to be set; to set them interactively 
 # and then launch installation, run `setup.sh`.
 
-# REQUIRED ENVIRONMENT VARIABLES
-# GIT_SYSTEM (e.g. "github")
-# CICD_SYSTEM (e.g. "cloud-build")
-# PARENT_PROJECT (the project that will orchestrate the install)
-# FOURKEYS_PROJECT (the project to install Four Keys to)
-# FOURKEYS_REGION (GCP region for cloud resources)
-# BIGQUERY_REGION (location for BigQuery resources)
-# GENERATE_DATA ["yes"|"no"]
+    # REQUIRED ENVIRONMENT VARIABLES
+    # GIT_SYSTEM (e.g. "github")
+    # CICD_SYSTEM (e.g. "cloud-build")
+    # PARENT_PROJECT (the project that will orchestrate the install)
+    # FOURKEYS_PROJECT (the project to install Four Keys to)
+    # FOURKEYS_REGION (GCP region for cloud resources)
+    # BIGQUERY_REGION (location for BigQuery resources)
+    # GENERATE_DATA ["yes"|"no"]
 
-# REQUIRED TERRAFORM VARIABLES
-# google_project_id (FOURKEYS_PROJECT)
-# google_region = (FOURKEYS_REGION)
-# bigquery_region = (BIGQUERY_REGION)
-# parsers = [(list of VCS and CICD parsers to install)]
+    # REQUIRED TERRAFORM VARIABLES
+    # google_project_id (FOURKEYS_PROJECT)
+    # google_region (FOURKEYS_REGION)
+    # bigquery_region (BIGQUERY_REGION)
+    # parsers [(list of VCS and CICD parsers to install)]
 
 set -eEuo pipefail
 
 # color formatting shortcuts
 export GREEN="\033[0;32m"
 export NOCOLOR="\033[0m"
-
-PARSERS=""
-if [ $GIT_SYSTEM == $CICD_SYSTEM ]; then
-    PARSERS="${GIT_SYSTEM}"
-elif [ ! -z "${GIT_SYSTEM}" ] && [ ! -z "${CICD_SYSTEM}" ]; then
-    PARSERS="${GIT_SYSTEM} ${CICD_SYSTEM}"
-else
-    PARSERS="${GIT_SYSTEM}${CICD_SYSTEM}"
-fi
 
 # build service containers (using parent project) and store them in the fourkeys project
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
@@ -58,9 +49,13 @@ gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} --member="serviceAcco
 # launch container builds in background/parallel
 gcloud builds submit ../../event_handler --tag=gcr.io/${FOURKEYS_PROJECT}/event-handler --project=${PARENT_PROJECT} > event_handler.containerbuild.log & 
 
-for parser in ${PARSERS}; do
-    gcloud builds submit ../../bq-workers/${parser}-parser --tag=gcr.io/${FOURKEYS_PROJECT}/${parser}-parser --project=${PARENT_PROJECT} > ${parser}-parser.containerbuild.log & 
-done
+if [[ ! -z "$GIT_SYSTEM" ]]; then
+    gcloud builds submit ../../bq-workers/${GIT_SYSTEM}-parser --tag=gcr.io/${FOURKEYS_PROJECT}/${GIT_SYSTEM}-parser --project=${PARENT_PROJECT} > ${GIT_SYSTEM}-parser.containerbuild.log & 
+fi
+
+if [[ ! -z "$CICD_SYSTEM" && "$CICD_SYSTEM" != "$GIT_SYSTEM" ]]; then
+    gcloud builds submit ../../bq-workers/${CICD_SYSTEM}-parser --tag=gcr.io/${FOURKEYS_PROJECT}/${CICD_SYSTEM}-parser --project=${PARENT_PROJECT} > ${CICD_SYSTEM}-parser.containerbuild.log & 
+fi
 
 # wait for containers to be built, then continue
 wait
@@ -92,6 +87,6 @@ python3 -m webbrowser ${DATASTUDIO_URL}
 echo "Please visit $DATASTUDIO_URL to connect your data to the dashboard template."
 
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
-echo 'Setup complete. Run the following commands to get values needed to configure VCS webhook:'
+echo 'Setup complete! Run the following commands to get values needed to configure VCS webhook:'
 echo -e "➡️ Webhook URL: ${GREEN}echo \$(terraform output -raw event-handler-endpoint)${NOCOLOR}"
 echo -e "➡️ Secret: ${GREEN}echo \$(terraform output -raw event-handler-secret)${NOCOLOR}"

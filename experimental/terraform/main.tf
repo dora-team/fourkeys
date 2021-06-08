@@ -1,9 +1,9 @@
 terraform {
   required_version = ">= 0.15"
   required_providers {
-      google = {
-          version = "~> 3.70.0"
-      }
+    google = {
+      version = "~> 3.70.0"
+    }
   }
 }
 
@@ -11,23 +11,23 @@ data "google_project" "project" {
 }
 
 resource "google_project_service" "run_api" {
-  service = "run.googleapis.com"
-  disable_dependent_services=true
+  service                    = "run.googleapis.com"
+  disable_dependent_services = true
 }
 
 resource "google_project_service" "bq_api" {
-  service = "bigquery.googleapis.com"
-  disable_dependent_services=true
+  service                    = "bigquery.googleapis.com"
+  disable_dependent_services = true
 }
 
 resource "google_project_service" "bq_dt_api" {
-  service = "bigquerydatatransfer.googleapis.com"
-  disable_dependent_services=true
+  service                    = "bigquerydatatransfer.googleapis.com"
+  disable_dependent_services = true
 }
 
 resource "google_project_service" "sm_api" {
-  service = "secretmanager.googleapis.com"
-  disable_dependent_services=true
+  service                    = "secretmanager.googleapis.com"
+  disable_dependent_services = true
 }
 
 resource "google_service_account" "fourkeys_service_account" {
@@ -70,8 +70,8 @@ resource "google_cloud_run_service_iam_binding" "noauth" {
   project  = var.google_project_id
   service  = "event-handler"
 
-  role    = "roles/run.invoker"
-  members = ["allUsers"]
+  role       = "roles/run.invoker"
+  members    = ["allUsers"]
   depends_on = [google_cloud_run_service.event_handler]
 }
 
@@ -104,15 +104,17 @@ resource "google_bigquery_dataset" "four_keys" {
 }
 
 resource "google_bigquery_table" "bq_table_events_raw" {
-  dataset_id = google_bigquery_dataset.four_keys.dataset_id
-  table_id   = "events_raw"
-  schema     = file("../../setup/events_raw_schema.json")
+  dataset_id          = google_bigquery_dataset.four_keys.dataset_id
+  table_id            = "events_raw"
+  schema              = file("../../setup/events_raw_schema.json")
+  deletion_protection = false
 }
 
 resource "google_bigquery_table" "bq_tables_derived" {
-  for_each   = toset(["changes", "deployments", "incidents"])
-  dataset_id = google_bigquery_dataset.four_keys.dataset_id
-  table_id   = each.key
+  for_each            = toset(["changes", "deployments", "incidents"])
+  dataset_id          = google_bigquery_dataset.four_keys.dataset_id
+  table_id            = each.key
+  deletion_protection = false
 }
 
 resource "google_bigquery_data_transfer_config" "scheduled_query" {
@@ -133,8 +135,8 @@ resource "google_bigquery_data_transfer_config" "scheduled_query" {
 }
 
 resource "google_service_account" "parser_service_account" {
-    account_id = "parser-service"
-    display_name = "Service Account for data parser Cloud Run services"
+  account_id   = "parser-service"
+  display_name = "Service Account for data parser Cloud Run services"
 }
 
 resource "google_project_iam_member" "parser_bq_project_access" {
@@ -154,14 +156,14 @@ resource "google_project_iam_member" "parser_service_account_run_invoker" {
 }
 
 module "data_parser_service" {
-    for_each = toset(var.parsers)
-    source = "./data_parser"
-    parser_service_name = each.key
-    google_project_id = var.google_project_id
-    google_region = var.google_region
-    fourkeys_service_account_email = google_service_account.fourkeys_service_account.email
+  for_each                       = toset(var.parsers)
+  source                         = "./data_parser"
+  parser_service_name            = each.key
+  google_project_id              = var.google_project_id
+  google_region                  = var.google_region
+  fourkeys_service_account_email = google_service_account.fourkeys_service_account.email
 
-    depends_on = [
-        google_project_service.run_api
-    ]
+  depends_on = [
+    google_project_service.run_api
+  ]
 }

@@ -18,7 +18,7 @@ This folder contains terraform scripts to provision all of the infrastructure in
     ```
 
 
-Current functionality (GitHub + Cloud Build only):
+Current functionality:
 - Create a GCP project (outside of terraform)
 - Build the event-handler container image and push to GCR [TODO: use AR instead]
 - Deploy the event-handler container as a Cloud Run service
@@ -31,8 +31,6 @@ Current functionality (GitHub + Cloud Build only):
 - Establish BigQuery scheduled queries
 - Generate test data
 - Launch Data Studio connector flow
-
-TODO:
 - Support using an existing project
 - Allow user to choose whether to generate test data
 

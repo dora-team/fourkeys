@@ -1,0 +1,93 @@
+steps:
+  - id: Install
+    name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+    entrypoint: /bin/bash
+    dir: "experimental/terraform"
+    args:
+      - '-c'
+      - |
+        # install Terraform
+        apt-get update && apt-get install -y gnupg software-properties-common curl
+        curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
+        apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+        apt-get update && apt-get install terraform
+
+        # configure remote terraform backend GCS
+        cat > backend.tf <<EOF
+        terraform {
+          backend "gcs" {
+            bucket  = "stanke-fourkeys-testing-tf-state-target-project"
+            prefix  = "terraform/state"
+          }
+        }
+        EOF
+
+        # create a tfvars file
+        cat > terraform.tfvars <<EOF
+        google_project_id = "stanke-fourkeys-testing-target"
+        google_region = "us-central1"
+        bigquery_region = "US"
+        parsers = ["cloud-build","github"]
+        EOF
+
+        terraform init
+
+        # invoke install script
+        GIT_SYSTEM="github" \
+        CICD_SYSTEM="cloud-build" \
+        PARENT_PROJECT="stanke-fourkeys-testing" \
+        FOURKEYS_PROJECT="stanke-fourkeys-testing-target" \
+        FOURKEYS_REGION="us-central1" \
+        BIGQUERY_REGION="US" \
+        GENERATE_DATA="yes" \
+        ./install.sh
+
+  - id: Check Tables are Populated
+    name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+    entrypoint: /bin/bash
+    args:
+      - '-c'
+      - |
+        result_check="import sys, json
+        results = int(json.load(sys.stdin)[0]['vol'])
+        try:
+          if results < 1:
+            sys.exit('Table is empty')
+        except Exception as e:
+          sys.exit(e)"
+
+        echo "Checking events_raw table"
+        bq query --format=json \
+        'SELECT count(*) as vol FROM four_keys.events_raw' | \
+         python3 -c "$result_check"
+
+        echo "Checking deployments table"
+        bq query --format=json \
+        'SELECT count(*) as vol FROM four_keys.deployments' | \
+         python3 -c "$result_check"
+
+        echo "Checking changes table"
+        bq query --format=json \
+        'SELECT count(*) as vol FROM four_keys.changes' | \
+         python3 -c "$result_check"
+
+        echo "Checking incidents table"
+        bq query --format=json \
+        'SELECT count(*) as vol FROM four_keys.incidents' | \
+         python3 -c "$result_check"
+
+  - id: Tear Down Resources
+    name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+    entrypoint: /bin/bash
+    dir: "experimental/terraform"
+    args:
+      - '-c'
+      - |
+        # install Terraform
+        apt-get update && apt-get install -y gnupg software-properties-common curl
+        curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
+        apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+        apt-get update && apt-get install terraform
+
+        terraform init
+        terraform destroy --auto-apply
