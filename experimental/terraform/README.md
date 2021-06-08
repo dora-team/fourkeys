@@ -35,8 +35,6 @@ Current functionality (GitHub + Cloud Build only):
 TODO:
 - Support using an existing project
 - Allow user to choose whether to generate test data
-- Deploy Hello World app
-- Allow user to choose whether to create helloworld app
 
 Open questions:
 - Should we create a service account and run TF as that, or keep the current process of using application default credentials of the user who invokes the script?

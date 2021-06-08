@@ -13,11 +13,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# This script configures installation variables, then invokes `install.sh`
+
 set -eEuo pipefail
 
-echo "••••••••🔑••🔑••🔑••🔑••••••••"
-printf "starting Four Keys setup…\n\n"
+PARENT_PROJECT=$(gcloud config get-value project 2>/dev/null)
 
+read -p "Would you like to create a new project for The Four Keys (y/N): " make_new_project
+make_new_project=${make_new_project:-no}
+
+if [ $make_new_project == 'y' ]; then
+    echo "Creating new project for Four Keys Dashboard…"
+    PARENT_FOLDER=$(gcloud projects describe ${PARENT_PROJECT} --format="value(parent.id)")
+    BILLING_ACCOUNT=$(gcloud beta billing projects describe ${PARENT_PROJECT} --format="value(billingAccountName)" || sed -e 's/.*\///g')
+    FOURKEYS_PROJECT=$(printf "fourkeys-%06d" $((RANDOM%999999)))
+    FOURKEYS_REGION="us-central1"
+    BIGQUERY_REGION="US"
+    gcloud projects create ${FOURKEYS_PROJECT} --folder=${PARENT_FOLDER}
+    gcloud beta billing projects link ${FOURKEYS_PROJECT} --billing-account=${BILLING_ACCOUNT}
+else
+    read -p "Enter the project ID for Four Keys installation (ex: 'my-project'): " FOURKEYS_PROJECT
+    read -p "Enter the region for Four Keys resources (ex: 'us-central1'): " FOURKEYS_REGION
+    read -p "Enter the location for Four Keys BigQuery resources (ex: 'US' or 'us-central1'): " BIGQUERY_REGION
+fi
+
+printf "\n"
 read -p "Which version control system are you using? 
 (1) GitLab
 (2) GitHub
@@ -34,105 +54,45 @@ Which CI/CD system are you using?
 
 Enter a selection (1 - 4): " cicd_system_id
 
-git_system=""
-cicd_system=""
+GIT_SYSTEM=""
+CICD_SYSTEM=""
 
 case $git_system_id in
-    1) git_system="gitlab" ;;
-    2) git_system="github" ;;
+    1) GIT_SYSTEM="gitlab" ;;
+    2) GIT_SYSTEM="github" ;;
     *) echo "Please see the documentation to learn how to extend to VCS sources other than GitHub or GitLab"
 esac
 
 case $cicd_system_id in
-    1) cicd_system="cloud-build" ;;
-    2) cicd_system="tekton" ;;
-    3) cicd_system="gitlab" ;;
+    1) CICD_SYSTEM="cloud-build" ;;
+    2) CICD_SYSTEM="tekton" ;;
+    3) CICD_SYSTEM="gitlab" ;;
     *) echo "Please see the documentation to learn how to extend to CI/CD sources other than Cloud Build, Tekton, GitLab, or GitHub."
 esac
 
-parsers=""
-if [ $git_system == $cicd_system ]; then
-    parsers="${git_system}"
-elif [ ! -z "${git_system}" ] && [ ! -z "${cicd_system}" ]; then
-    parsers="${git_system} ${cicd_system}"
+read -p "Would you like to generate mock data? (y/N): " generate_mock_data
+generate_mock_data=${generate_mock_data:-no}
+
+if [ $generate_mock_data == "y" ]; then
+    GENERATE_DATA="yes"
 else
-    parsers="${git_system}${cicd_system}"
+    GENERATE_DATA="no"
 fi
-
-RANDOM_IDENTIFIER=$((RANDOM%999999))
-export PARENT_PROJECT=$(gcloud config get-value project)
-export FOURKEYS_PROJECT=$(printf "fourkeys-%06d" $RANDOM_IDENTIFIER)
-export FOURKEYS_REGION=us-central1
-export PARENT_FOLDER=$(gcloud projects describe ${PARENT_PROJECT} --format="value(parent.id)")
-export BILLING_ACCOUNT=$(gcloud beta billing projects describe ${PARENT_PROJECT} --format="value(billingAccountName)" || sed -e 's/.*\///g')
-# TODO: support user-specified location
-export BIGQUERY_REGION='US'
-
-echo "••••••••🔑••🔑••🔑••🔑••••••••"
-echo "Preparing environment…"
-
-# TODO: Allow user to specify project name (or choose current)
-echo "Creating new project for Four Keys Dashboard…"
-gcloud projects create ${FOURKEYS_PROJECT} --folder=${PARENT_FOLDER}
-gcloud beta billing projects link ${FOURKEYS_PROJECT} --billing-account=${BILLING_ACCOUNT}
-export PARENT_PROJECTNUM=$(gcloud projects describe ${PARENT_PROJECT} --format='value(projectNumber)')
 
 # FOR DEVELOPMENT ONLY: purge all TF state
 echo "Purging TF state [FOR DEVELOPMENT ONLY]"
 rm -rf .terraform terraform.tfstate* terraform.tfvars
-
-# build service containers (using parent project) and store them in the fourkeys project
-echo "••••••••🔑••🔑••🔑••🔑••••••••"
-echo "Building containers…"
-gcloud services enable cloudbuild.googleapis.com --project=${PARENT_PROJECT}
-gcloud services enable containerregistry.googleapis.com --project=${FOURKEYS_PROJECT}
-gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} --member="serviceAccount:${PARENT_PROJECTNUM}@cloudbuild.gserviceaccount.com" --role="roles/storage.admin"
-
-# launch container builds in background/parallel
-gcloud builds submit ../../event_handler --tag=gcr.io/${FOURKEYS_PROJECT}/event-handler --project=${PARENT_PROJECT} > event_handler.containerbuild.log & 
-
-for parser in ${parsers}; do
-    gcloud builds submit ../../bq-workers/${parser}-parser --tag=gcr.io/${FOURKEYS_PROJECT}/${parser}-parser --project=${PARENT_PROJECT} > ${parser}.containerbuild.log & 
-done
-
-# wait for containers to be built, then continue
-wait
-echo "••••••••🔑••🔑••🔑••🔑••••••••"
-echo "Invoking Terraform on project ${FOURKEYS_PROJECT}…"
 
 # create a tfvars file
 cat > terraform.tfvars <<EOF
 google_project_id = "${FOURKEYS_PROJECT}"
 google_region = "${FOURKEYS_REGION}"
 bigquery_region = "${BIGQUERY_REGION}"
-parsers = [$(printf '"%b",' $parsers)]
+parsers = ["${GIT_SYSTEM}","${CICD_SYSTEM}"]
 EOF
 
+echo "••••••••🔑••🔑••🔑••🔑••••••••"
+printf "starting Four Keys setup…\n\n"
+
 terraform init
-terraform apply --auto-approve
-
-echo "Terraform resource creation complete."
-echo "••••••••🔑••🔑••🔑••🔑••••••••"
-
-# TODO: make data generation optional
-echo "generating data…"
-WEBHOOK=$(terraform output -raw event-handler-endpoint) \
-    SECRET=$(terraform output -raw event-handler-secret) \
-    python3 ../../data_generator/generate_data.py --vc_system=${git_system}
-
-echo "refreshing derived tables…"
-for table in changes deployments incidents; do
-    scheduled_query=$(bq ls --transfer_config --project_id=${FOURKEYS_PROJECT} --transfer_location=${BIGQUERY_REGION} | grep "four_keys_${table}" -m 1 | awk '{print $1;}')
-    bq mk --transfer_run --project_id=${FOURKEYS_PROJECT} --run_time "$(date --iso-8601=seconds)" ${scheduled_query}
-done
-
-echo "••••••••🔑••🔑••🔑••🔑••••••••"
-echo "configuring Data Studio dashboard…"
-DATASTUDIO_URL="https://datastudio.google.com/datasources/create?connectorId=AKfycbxCOPCqhVOJQlRpOPgJ47dPZNdDu44MXbjsgKw_2-s"
-python3 -m webbrowser ${DATASTUDIO_URL}
-echo "Please visit $DATASTUDIO_URL to connect your data to the dashboard template."
-
-echo "••••••••🔑••🔑••🔑••🔑••••••••"
-echo 'Setup complete. Run the following commands to get values needed for GitHub webhook config:'
-echo 'Webhook URL: `echo $(terraform output -raw event-handler-endpoint)`'
-echo 'Secret: `echo $(terraform output -raw event-handler-secret)`'
+source install.sh
