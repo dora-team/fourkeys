@@ -17,6 +17,6 @@ variable "bigquery_region" {
 }
 
 variable "parsers" {
-    type = list
-    description = "list of data parsers to configure (e.g. 'gitlab','tekton')"
+  type        = list(any)
+  description = "list of data parsers to configure (e.g. 'gitlab','tekton')"
 }

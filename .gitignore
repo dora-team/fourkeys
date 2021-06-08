@@ -130,3 +130,6 @@ dmypy.json
 
 .DS_Store
 .terraform.lock.hcl
+
+# exclude terraform backend b/c different users will choose different backends
+backend.tf
