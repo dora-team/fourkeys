@@ -92,7 +92,7 @@ gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} --member="serviceAcco
 gcloud builds submit ../../event_handler --tag=gcr.io/${FOURKEYS_PROJECT}/event-handler --project=${PARENT_PROJECT} > event_handler.containerbuild.log & 
 
 for parser in ${parsers}; do
-    gcloud builds submit ../../bq_workers/${parser}-parser --tag=gcr.io/${FOURKEYS_PROJECT}/${parser}-parser --project=${PARENT_PROJECT} > ${parser}.containerbuild.log & 
+    gcloud builds submit ../../bq-workers/${parser}-parser --tag=gcr.io/${FOURKEYS_PROJECT}/${parser}-parser --project=${PARENT_PROJECT} > ${parser}.containerbuild.log & 
 done
 
 # wait for containers to be built, then continue
