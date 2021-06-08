@@ -16,7 +16,7 @@ steps:
         cat > backend.tf <<EOF
         terraform {
           backend "gcs" {
-            bucket  = "$PROJECT_ID-fourkeys-tf-state"
+            bucket  = "$PROJECT_ID-target-tf-state"
             prefix  = "terraform/state"
           }
         }
