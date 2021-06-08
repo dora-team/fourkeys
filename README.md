@@ -41,7 +41,7 @@ This diagram shows the design of the Four Keys system:
 
 # Code structure
 
-* `bq_workers/`
+* `bq-workers/`
   * Contains the code for the individual BigQuery workers.  Each data source has its own worker service with the logic for parsing the data from the Pub/Sub message. For example, GitHub has its own worker which only looks at events pushed to the GitHub-Hookshot Pub/Sub topic
 * `connectors/`
   * Contains the code for the DataStudio Connector which generates the Four Keys Dashboard
@@ -55,7 +55,7 @@ This diagram shows the design of the Four Keys system:
 * `setup/`
   * Contains the code for setting up and tearing down the Four Keys pipeline. Also contains a script for extending the data sources.
 * `shared/`
-  * Contains a shared module for inserting data into BigQuery, which is used by the `bq_workers`
+  * Contains a shared module for inserting data into BigQuery, which is used by the `bq-workers`
 
 # How to use 
 
