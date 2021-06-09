@@ -134,11 +134,6 @@ resource "google_bigquery_data_transfer_config" "scheduled_query" {
   depends_on = [google_project_service.bq_dt_api, google_bigquery_table.bq_table_events_raw, google_bigquery_table.bq_tables_derived]
 }
 
-resource "google_service_account" "parser_service_account" {
-  account_id   = "parser-service"
-  display_name = "Service Account for data parser Cloud Run services"
-}
-
 resource "google_project_iam_member" "parser_bq_project_access" {
   role   = "roles/bigquery.user"
   member = "serviceAccount:${google_service_account.fourkeys_service_account.email}"

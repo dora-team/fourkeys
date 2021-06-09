@@ -2,7 +2,7 @@
 
 This folder contains terraform scripts to provision all of the infrastructure in a Four Keys GCP project. 
 
-**DO NOT USE!** It's very early and very incomplete. (Though: holler if you want to contribute!)
+**DO NOT USE!** This isn't ready for production yet (though it's close!)
 
 ## How to use
 1. run `setup.sh`; this will:
