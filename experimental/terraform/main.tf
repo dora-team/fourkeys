@@ -131,6 +131,7 @@ resource "google_bigquery_data_transfer_config" "scheduled_query" {
     write_disposition               = "WRITE_TRUNCATE"
     query                           = file("../../queries/${each.key}.sql")
   }
+  service_account_name = google_service_account.fourkeys_service_account.email
   depends_on = [google_project_service.bq_dt_api, google_bigquery_table.bq_table_events_raw, google_bigquery_table.bq_tables_derived]
 }
 
