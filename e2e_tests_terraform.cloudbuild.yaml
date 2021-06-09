@@ -78,4 +78,4 @@ steps:
       - '-c'
       - |
         terraform init
-        terraform apply -destroy --auto-apply
+        terraform destroy --auto-approve
