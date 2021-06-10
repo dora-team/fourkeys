@@ -10,7 +10,7 @@ steps:
         cat > backend.tf <<EOF
         terraform {
           backend "gcs" {
-            bucket  = "$PROJECT_ID-target-tf-state"
+            bucket  = "$PROJECT_ID-tf-state"
             prefix  = "terraform/state"
           }
         }

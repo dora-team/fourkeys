@@ -9,28 +9,28 @@ steps:
       - '-c'
       - |
         cat > terraform.tfvars <<EOF
-          google_project_id = "fourkeys-tests-target"
+          google_project_id = "fourkeys-tests"
           google_region = "us-central1"
           bigquery_region = "US"
           parsers = ["cloud-build","github"]
         EOF
         terraform init || true
         terraform destroy -compact-warnings --auto-approve || true
-        gsutil -m rm -r gs://fourkeys-tests-target-tf-state/terraform || true
+        gsutil -m rm -r gs://fourkeys-tests-tf-state/terraform || true
   - name: gcr.io/$PROJECT_ID/fourkeys-builder
     id: gCloud delete
     entrypoint: /bin/bash
     args:
       - '-c'
       - |
-        gcloud config set project fourkeys-tests-target
+        gcloud config set project fourkeys-tests
         echo "Dropping BQ Resources"
         set -x
         bq rm -r -f -d fourkeys-tests-target:four_keys
         set +x
         
         for table in changes deployments incidents; do
-          config=$(bq ls --transfer_config --project_id=fourkeys-tests-target --transfer_location=US | grep "four_keys_${table}" -m 1 | awk '{print $1;}')
+          config=$(bq ls --transfer_config --project_id=fourkeys-tests --transfer_location=US | grep "four_keys_${table}" -m 1 | awk '{print $1;}')
           bq rm -f --transfer_config $config
         done
 
@@ -38,7 +38,7 @@ steps:
         gcloud beta secrets delete event-handler -q
 
         echo "Removing service account"
-        gcloud iam service-accounts delete fourkeys@fourkeys-tests-target.iam.gserviceaccount.com -q
+        gcloud iam service-accounts delete fourkeys@fourkeys-tests.iam.gserviceaccount.com -q
 
         echo "Delete Cloud Run services"
         gcloud run services delete event-handler --platform=managed --region=us-central1 -q
