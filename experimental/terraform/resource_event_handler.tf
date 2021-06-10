@@ -1,5 +1,5 @@
 resource "google_project_service" "sm_api" {
-  service                    = "secretmanager.googleapis.com"
+  service = "secretmanager.googleapis.com"
 }
 
 resource "google_cloud_run_service" "event_handler" {
