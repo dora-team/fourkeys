@@ -1,9 +1,11 @@
 resource "google_project_service" "bq_api" {
   service = "bigquery.googleapis.com"
+  disable_dependent_services = true
 }
 
 resource "google_project_service" "bq_dt_api" {
   service = "bigquerydatatransfer.googleapis.com"
+  disable_dependent_services = true
 }
 
 resource "google_bigquery_dataset" "four_keys" {
