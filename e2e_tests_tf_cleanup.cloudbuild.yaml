@@ -37,6 +37,9 @@ steps:
         echo "Removing secret"
         gcloud beta secrets delete event-handler -q
 
+        echo "Removing service account"
+        gcloud iam service-accounts delete fourkeys@fourkeys-tests-target.iam.gserviceaccount.com -q
+
         echo "Delete Cloud Run services"
         gcloud run services delete event-handler --platform=managed --region=us-central1 -q
         gcloud run services delete github-worker --platform=managed --region=us-central1 -q
@@ -48,7 +51,6 @@ steps:
         gcloud pubsub subscriptions delete cloudbuild-subscription -q
 
         echo "Turning off APIs"
-
         gcloud services disable compute.googleapis.com 
         gcloud services disable run.googleapis.com 
         gcloud services disable bigquery.googleapis.com 
