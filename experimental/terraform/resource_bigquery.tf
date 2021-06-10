@@ -1,9 +1,9 @@
 resource "google_project_service" "bq_api" {
-  service                    = "bigquery.googleapis.com"
+  service = "bigquery.googleapis.com"
 }
 
 resource "google_project_service" "bq_dt_api" {
-  service                    = "bigquerydatatransfer.googleapis.com"
+  service = "bigquerydatatransfer.googleapis.com"
 }
 
 resource "google_bigquery_dataset" "four_keys" {
