@@ -34,6 +34,8 @@
 
 set -eEuo pipefail
 
+echo "DEBUG: TF_VAR_google_project_id = $TF_VAR_google_project_id"
+
 # color formatting shortcuts
 export GREEN="\033[0;32m"
 export NOCOLOR="\033[0m"
