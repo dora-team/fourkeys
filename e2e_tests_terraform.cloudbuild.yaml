@@ -10,7 +10,7 @@ steps:
         cat > backend.tf <<EOF
         terraform {
           backend "gcs" {
-            bucket  = "$PROJECT_ID-tf-state"
+            bucket  = "$_TARGET_PROJECT-tf-state"
             prefix  = "terraform/state"
           }
         }
@@ -22,12 +22,12 @@ steps:
         GIT_SYSTEM='github' \
         CICD_SYSTEM='cloud-build' \
         PARENT_PROJECT='$PROJECT_ID' \
-        FOURKEYS_PROJECT='fourkeys-tests' \
+        FOURKEYS_PROJECT='$_TARGET_PROJECT' \
         FOURKEYS_REGION='us-central1' \
         BIGQUERY_REGION='US' \
         GENERATE_DATA='no' \
         TF_LOG=$_TF_LOG \
-        TF_VAR_google_project_id='fourkeys-tests' \
+        TF_VAR_google_project_id='$_TARGET_PROJECT' \
         TF_VAR_google_region='us-central1' \
         TF_VAR_bigquery_region='US' \
         TF_VAR_parsers='["cloud-build","github"]' \
@@ -76,10 +76,11 @@ steps:
       - |
         terraform init
         TF_LOG=$_TF_LOG \
-        TF_VAR_google_project_id='fourkeys-tests' \
+        TF_VAR_google_project_id='$_TARGET_PROJECT' \
         TF_VAR_google_region='us-central1' \
         TF_VAR_bigquery_region='US' \
         TF_VAR_parsers='["cloud-build","github"]' \
         terraform destroy --auto-approve
 substitutions:
   _TF_LOG: WARN # Logging Level for Terraform
+  _TARGET_PROJECT: fourkeys-tests-target
