@@ -1,0 +1,56 @@
+# delete any orphaned resources created by a Four Keys deployment
+
+steps:
+  - name: gcr.io/$PROJECT_ID/fourkeys-builder
+    id: Terraform Destroy
+    dir: experimental/terraform
+    entrypoint: /bin/bash
+    args:
+      - '-c'
+      - |
+        cat > terraform.tfvars <<EOF
+          google_project_id = "fourkeys-tests-target"
+          google_region = "us-central1"
+          bigquery_region = "US"
+          parsers = ["cloud-build","github"]
+        EOF
+        terraform init
+        terraform destroy --auto-approve
+  - name: gcr.io/$PROJECT_ID/fourkeys-builder
+    id: Gcloud deletions
+    entrypoint: /bin/bash
+    args:
+      - '-c'
+      - |
+        gcloud config set project fourkeys-tests-target
+        echo "Dropping BQ Resources"
+        set -x
+        bq rm -r -f -d fourkeys-tests-target:four_keys
+        set +x
+        
+        for table in changes deployments incidents; do
+          config=$(bq ls --transfer_config --project_id=fourkeys-tests-target --transfer_location=US | grep "four_keys_${table}" -m 1 | awk '{print $1;}')
+          bq rm -f --transfer_config $config
+        done
+
+        echo "Removing secret"
+        gcloud beta secrets delete event-handler -q
+
+        echo "Delete Cloud Run services"
+        gcloud run services delete event-handler --platform=managed --region=us-central1 -q
+        gcloud run services delete github-worker --platform=managed --region=us-central1 -q
+        gcloud run services delete cloud-build-worker --platform=managed --region=us-central1 -q
+
+        echo "Delete Pub/Sub topics and subscriptions"
+        gcloud pubsub topics delete github -q
+        gcloud pubsub subscriptions delete github-subscription -q
+        gcloud pubsub subscriptions delete cloudbuild-subscription -q
+
+        echo "Turning off APIs"
+
+        gcloud services disable compute.googleapis.com 
+        gcloud services disable run.googleapis.com 
+        gcloud services disable bigquery.googleapis.com 
+        gcloud services disable bigquerydatatransfer.googleapis.com 
+        gcloud services disable bigqueryconnection.googleapis.com 
+        gcloud services disable secretmanager.googleapis.com
