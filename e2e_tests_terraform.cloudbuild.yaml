@@ -67,20 +67,20 @@ steps:
   #       'SELECT count(*) as vol FROM four_keys.incidents' | \
   #        python3 -c "$result_check"
 
-  # - id: Tear Down Resources
-  #   name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
-  #   entrypoint: /bin/bash
-  #   dir: "experimental/terraform"
-  #   args:
-  #     - '-c'
-  #     - |
-  #       terraform init
-  #       TF_LOG=$_TF_LOG \
-  #       TF_VAR_google_project_id='$_TARGET_PROJECT' \
-  #       TF_VAR_google_region='us-central1' \
-  #       TF_VAR_bigquery_region='US' \
-  #       TF_VAR_parsers='["cloud-build","github"]' \
-  #       terraform destroy --auto-approve
+  - id: Tear Down Resources
+    name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+    entrypoint: /bin/bash
+    dir: "experimental/terraform"
+    args:
+      - '-c'
+      - |
+        terraform init
+        TF_LOG=$_TF_LOG \
+        TF_VAR_google_project_id='$_TARGET_PROJECT' \
+        TF_VAR_google_region='us-central1' \
+        TF_VAR_bigquery_region='US' \
+        TF_VAR_parsers='["cloud-build","github"]' \
+        terraform destroy --auto-approve
 substitutions:
   _TF_LOG: WARN # Logging Level for Terraform
   _TARGET_PROJECT: fourkeys-tests-target
