@@ -22,7 +22,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud config set project fourkeys-tests
+        gcloud config set project $_TARGET_PROJECT
         echo "Dropping BQ Resources"
         set -x
         bq rm -r -f -d $_TARGET_PROJECT:four_keys
