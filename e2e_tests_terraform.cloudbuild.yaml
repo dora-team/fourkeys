@@ -18,9 +18,6 @@ steps:
 
         terraform init
 
-        # TF_VAR_bigquery_region='US' \
-        # TF_VAR_parsers='["cloud-build","github"]' \
-
         # invoke install script
         GIT_SYSTEM='github' \
         CICD_SYSTEM='cloud-build' \
@@ -32,6 +29,8 @@ steps:
         TF_LOG=$_TF_LOG \
         TF_VAR_google_project_id='fourkeys-tests' \
         TF_VAR_google_region='us-central1' \
+        TF_VAR_bigquery_region='US' \
+        TF_VAR_parsers='["cloud-build","github"]' \
         ./install.sh
 
   # - id: Check Tables are Populated
@@ -76,6 +75,11 @@ steps:
       - '-c'
       - |
         terraform init
+        TF_LOG=$_TF_LOG \
+        TF_VAR_google_project_id='fourkeys-tests' \
+        TF_VAR_google_region='us-central1' \
+        TF_VAR_bigquery_region='US' \
+        TF_VAR_parsers='["cloud-build","github"]' \
         terraform destroy --auto-approve
 substitutions:
   _TF_LOG: WARN # Logging Level for Terraform
