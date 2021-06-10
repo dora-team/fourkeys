@@ -9,7 +9,7 @@ steps:
         ### Delete Terraform state
         gsutil -m rm -r gs://$_TARGET_PROJECT-tf-state/terraform || true
 
-        ### Double-delete by purging via gcloud
+        ### Delete all resources
         gcloud config set project $_TARGET_PROJECT
         echo "Dropping BQ Resources"
         set -x
