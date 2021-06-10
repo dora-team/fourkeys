@@ -41,8 +41,8 @@ steps:
 
         echo "Delete Cloud Run services"
         gcloud run services delete event-handler --platform=managed --region=us-central1 -q
-        gcloud run services delete github-worker --platform=managed --region=us-central1 -q
-        gcloud run services delete cloud-build-worker --platform=managed --region=us-central1 -q
+        gcloud run services delete github --platform=managed --region=us-central1 -q
+        gcloud run services delete cloud-build --platform=managed --region=us-central1 -q
 
         echo "Delete Pub/Sub topics and subscriptions"
         gcloud pubsub topics delete github -q
