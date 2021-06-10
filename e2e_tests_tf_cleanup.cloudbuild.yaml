@@ -2,7 +2,7 @@
 
 steps:
   - name: gcr.io/$PROJECT_ID/fourkeys-builder
-    id: Terraform Destroy
+    id: TF destroy
     dir: experimental/terraform
     entrypoint: /bin/bash
     args:
@@ -15,10 +15,10 @@ steps:
           parsers = ["cloud-build","github"]
         EOF
         terraform init || true
-        terraform destroy --auto-approve || true
+        terraform destroy -compact-warnings --auto-approve || true
         gsutil -m rm -r gs://fourkeys-tests-target-tf-state/terraform || true
   - name: gcr.io/$PROJECT_ID/fourkeys-builder
-    id: Gcloud deletions
+    id: gCloud delete
     entrypoint: /bin/bash
     args:
       - '-c'
