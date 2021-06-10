@@ -14,8 +14,9 @@ steps:
           bigquery_region = "US"
           parsers = ["cloud-build","github"]
         EOF
-        terraform init
-        terraform destroy --auto-approve
+        terraform init || true
+        terraform destroy --auto-approve || true
+        gsutil -m rm -r gs://fourkeys-tests-target-tf-state/terraform || true
   - name: gcr.io/$PROJECT_ID/fourkeys-builder
     id: Gcloud deletions
     entrypoint: /bin/bash
