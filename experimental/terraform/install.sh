@@ -83,7 +83,6 @@ fi
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
 echo "configuring Data Studio dashboard…"
 DATASTUDIO_URL="https://datastudio.google.com/datasources/create?connectorId=AKfycbxCOPCqhVOJQlRpOPgJ47dPZNdDu44MXbjsgKw_2-s"
-python3 -m webbrowser ${DATASTUDIO_URL}
 echo "Please visit $DATASTUDIO_URL to connect your data to the dashboard template."
 
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
