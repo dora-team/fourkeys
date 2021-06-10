@@ -1,27 +1,15 @@
 # delete any orphaned resources created by a Four Keys deployment
 
-steps:
+steps:  
   - name: gcr.io/$PROJECT_ID/fourkeys-builder
-    id: TF destroy
-    dir: experimental/terraform
     entrypoint: /bin/bash
     args:
       - '-c'
       - |
-        terraform init || true
-        TF_LOG=$_TF_LOG \
-        TF_VAR_google_project_id='$_TARGET_PROJECT' \
-        TF_VAR_google_region='us-central1' \
-        TF_VAR_bigquery_region='US' \
-        TF_VAR_parsers='["cloud-build","github"]' \
-        terraform destroy -compact-warnings --auto-approve || true
+        ### Delete Terraform state
         gsutil -m rm -r gs://$_TARGET_PROJECT-tf-state/terraform || true
-  - name: gcr.io/$PROJECT_ID/fourkeys-builder
-    id: gCloud delete
-    entrypoint: /bin/bash
-    args:
-      - '-c'
-      - |
+
+        ### Double-delete by purging via gcloud
         gcloud config set project $_TARGET_PROJECT
         echo "Dropping BQ Resources"
         set -x
@@ -30,7 +18,9 @@ steps:
         
         for table in changes deployments incidents; do
           config=$(bq ls --transfer_config --project_id=$_TARGET_PROJECT --transfer_location=US | grep "four_keys_${table}" -m 1 | awk '{print $1;}')
-          bq rm -f --transfer_config $config
+          if [[ ! -z "$config" ]]; then 
+            bq rm -f --transfer_config $config 
+          fi
         done
 
         echo "Removing secret"
