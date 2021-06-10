@@ -50,12 +50,12 @@ steps:
         gcloud pubsub subscriptions delete cloudbuild-subscription -q
 
         echo "Turning off APIs"
-        gcloud services disable compute.googleapis.com 
-        gcloud services disable run.googleapis.com 
-        gcloud services disable bigquery.googleapis.com 
-        gcloud services disable bigquerydatatransfer.googleapis.com 
-        gcloud services disable bigqueryconnection.googleapis.com 
-        gcloud services disable secretmanager.googleapis.com
+        gcloud services disable compute.googleapis.com --force
+        gcloud services disable run.googleapis.com --force
+        gcloud services disable bigquery.googleapis.com --force 
+        gcloud services disable bigquerydatatransfer.googleapis.com --force 
+        gcloud services disable bigqueryconnection.googleapis.com --force 
+        gcloud services disable secretmanager.googleapis.com --force
 substitutions:
   _TF_LOG: WARN # Logging Level for Terraform
   _TARGET_PROJECT: fourkeys-tests-target
