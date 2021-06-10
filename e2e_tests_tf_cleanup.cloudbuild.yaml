@@ -46,8 +46,9 @@ steps:
 
         echo "Delete Pub/Sub topics and subscriptions"
         gcloud pubsub topics delete github -q
+        gcloud pubsub topics delete cloud-build -q
         gcloud pubsub subscriptions delete github-subscription -q
-        gcloud pubsub subscriptions delete cloudbuild-subscription -q
+        gcloud pubsub subscriptions delete cloud-build-subscription -q
 
         echo "Turning off APIs"
         gcloud services disable compute.googleapis.com --force
