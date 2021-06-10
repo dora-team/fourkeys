@@ -12,26 +12,22 @@ data "google_project" "project" {
 
 resource "google_project_service" "run_api" {
   service                    = "run.googleapis.com"
-  disable_dependent_services = true
 }
 
 resource "google_project_service" "bq_api" {
   service                    = "bigquery.googleapis.com"
-  disable_dependent_services = true
 }
 
 resource "google_project_service" "bq_dt_api" {
   service                    = "bigquerydatatransfer.googleapis.com"
-  disable_dependent_services = true
 }
 
 resource "google_project_service" "sm_api" {
   service                    = "secretmanager.googleapis.com"
-  disable_dependent_services = true
 }
 
 resource "google_service_account" "fourkeys_service_account" {
-  account_id   = "event-handler"
+  account_id   = "fourkeys"
   display_name = "Service Account for Four Keys resources"
 }
 

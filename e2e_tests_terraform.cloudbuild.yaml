@@ -34,6 +34,7 @@ steps:
         FOURKEYS_REGION="us-central1" \
         BIGQUERY_REGION="US" \
         GENERATE_DATA="yes" \
+        TF_LOG=$_TF_LOG \
         ./install.sh
 
   - id: Check Tables are Populated
@@ -79,3 +80,5 @@ steps:
       - |
         terraform init
         terraform destroy --auto-approve
+substitutions:
+  _TF_LOG: WARN # Logging Level for Terraform
