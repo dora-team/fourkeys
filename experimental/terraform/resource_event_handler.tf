@@ -32,15 +32,15 @@ resource "google_cloud_run_service" "event_handler" {
 
 }
 
-# resource "google_cloud_run_service_iam_binding" "noauth" {
-#   location = var.google_region
-#   project  = var.google_project_id
-#   service  = "event-handler"
+resource "google_cloud_run_service_iam_binding" "noauth" {
+  location = var.google_region
+  project  = var.google_project_id
+  service  = "event-handler"
 
-#   role       = "roles/run.invoker"
-#   members    = ["allUsers"]
-#   depends_on = [google_cloud_run_service.event_handler]
-# }
+  role       = "roles/run.invoker"
+  members    = ["allUsers"]
+  depends_on = [google_cloud_run_service.event_handler]
+}
 
 resource "google_secret_manager_secret" "event-handler-secret" {
   secret_id = "event-handler"
