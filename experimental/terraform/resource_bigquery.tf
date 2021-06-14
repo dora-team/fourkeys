@@ -3,11 +3,6 @@ resource "google_project_service" "bq_api" {
   disable_dependent_services = true
 }
 
-resource "google_project_service" "bq_dt_api" {
-  service = "bigquerydatatransfer.googleapis.com"
-  disable_dependent_services = true
-}
-
 resource "google_bigquery_dataset" "four_keys" {
   dataset_id = "four_keys"
   location   = var.bigquery_region
@@ -23,29 +18,49 @@ resource "google_bigquery_table" "bq_table_events_raw" {
   deletion_protection = false
 }
 
-resource "google_bigquery_table" "bq_tables_derived" {
-  for_each            = toset(["changes", "deployments", "incidents"])
-  dataset_id          = google_bigquery_dataset.four_keys.dataset_id
-  table_id            = each.key
-  deletion_protection = false
+resource "google_bigquery_table" "bq_mat_view_changes" {
+    dataset_id = google_bigquery_dataset.four_keys.dataset_id
+    table_id = "changes"
+    materialized_view {
+      query = file("../../queries/changes.sql")
+    }
+    deletion_protection = false
+    depends_on = [
+      google_bigquery_table.bq_table_events_raw
+    ]
 }
 
-# resource "google_bigquery_data_transfer_config" "scheduled_query" {
+resource "google_bigquery_routine" "bq_func_json2array" {
+    dataset_id = google_bigquery_dataset.four_keys.dataset_id
+    routine_id = "json2array"
+    routine_type = "SCALAR_FUNCTION"
+    return_type = "{\"typeKind\": \"ARRAY\", \"arrayElementType\": {\"typeKind\": \"INT64\"}}"
+    language = "JAVASCRIPT"
+    arguments {
+        name = "json"
+        data_type = "{\"typeKind\" :  \"STRING\"}"
+    }
+    definition_body = "return JSON.parse(json).map(x=>JSON.stringify(x));"
+}
 
-#   for_each = toset(["changes", "deployments", "incidents"])
+resource "google_bigquery_table" "bq_mat_view_deployments" {
+    dataset_id = google_bigquery_dataset.four_keys.dataset_id
+    table_id = "deployments"
+    materialized_view {
+      query = file("../../queries/deployments.sql")
+    }
+    deletion_protection = false
+    depends_on = [
+      google_bigquery_table.bq_table_events_raw,
+        google_bigquery_routine.bq_func_json2array
+    ]
+}
 
-#   display_name           = "four_keys_${each.key}"
-#   data_source_id         = "scheduled_query"
-#   schedule               = "every 24 hours"
-#   destination_dataset_id = google_bigquery_dataset.four_keys.dataset_id
-#   location               = var.bigquery_region
-#   params = {
-#     destination_table_name_template = each.key
-#     write_disposition               = "WRITE_TRUNCATE"
-#     query                           = file("../../queries/${each.key}.sql")
-#   }
-#   service_account_name = google_service_account.fourkeys_service_account.email
-#   depends_on = [google_project_service.bq_dt_api, google_bigquery_table.bq_table_events_raw, google_bigquery_table.bq_tables_derived]
+# resource "google_bigquery_table" "bq_tables_derived" {
+#   for_each            = toset(["changes", "deployments", "incidents"])
+#   dataset_id          = google_bigquery_dataset.four_keys.dataset_id
+#   table_id            = each.key
+#   deletion_protection = false
 # }
 
 resource "google_project_iam_member" "parser_bq_project_access" {
@@ -63,3 +78,27 @@ resource "google_project_iam_member" "parser_service_account_run_invoker" {
   member = "serviceAccount:${google_service_account.fourkeys_service_account.email}"
   role   = "roles/run.invoker"
 }
+
+# resource "google_project_service" "bq_dt_api" {
+#   service = "bigquerydatatransfer.googleapis.com"
+#   disable_dependent_services = true
+# }
+
+# # resource "google_bigquery_data_transfer_config" "scheduled_query" {
+
+# #   for_each = toset(["changes", "deployments", "incidents"])
+
+# #   display_name           = "four_keys_${each.key}"
+# #   data_source_id         = "scheduled_query"
+# #   schedule               = "every 24 hours"
+# #   destination_dataset_id = google_bigquery_dataset.four_keys.dataset_id
+# #   location               = var.bigquery_region
+# #   params = {
+# #     destination_table_name_template = each.key
+# #     write_disposition               = "WRITE_TRUNCATE"
+# #     query                           = file("../../queries/${each.key}.sql")
+# #   }
+# #   service_account_name = google_service_account.fourkeys_service_account.email
+# #   depends_on = [google_project_service.bq_dt_api, google_bigquery_table.bq_table_events_raw, google_bigquery_table.bq_tables_derived]
+# # }
+

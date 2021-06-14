@@ -22,6 +22,29 @@ PARENT_PROJECT=$(gcloud config get-value project 2>/dev/null)
 read -p "Would you like to create a new project for The Four Keys (y/N): " make_new_project
 make_new_project=${make_new_project:-no}
 
+printf "\n"
+
+read -p "Which version control system are you using? 
+(1) GitLab
+(2) GitHub
+(3) Other
+
+Enter a selection (1 - 3): " git_system_id
+
+read -p "
+Which CI/CD system are you using? 
+(1) Cloud Build
+(2) Tekton
+(3) GitLab
+(4) Other
+
+Enter a selection (1 - 4): " cicd_system_id
+
+printf "\n"
+
+read -p "Would you like to generate mock data? (y/N): " generate_mock_data
+generate_mock_data=${generate_mock_data:-no}
+
 if [ $make_new_project == 'y' ]; then
     echo "Creating new project for Four Keys Dashboard…"
     PARENT_FOLDER=$(gcloud projects describe ${PARENT_PROJECT} --format="value(parent.id)")
@@ -38,21 +61,6 @@ else
 fi
 
 printf "\n"
-read -p "Which version control system are you using? 
-(1) GitLab
-(2) GitHub
-(3) Other
-
-Enter a selection (1 - 3): " git_system_id
-
-read -p "
-Which CI/CD system are you using? 
-(1) Cloud Build
-(2) Tekton
-(3) GitLab
-(4) Other
-
-Enter a selection (1 - 4): " cicd_system_id
 
 GIT_SYSTEM=""
 CICD_SYSTEM=""
@@ -70,18 +78,11 @@ case $cicd_system_id in
     *) echo "Please see the documentation to learn how to extend to CI/CD sources other than Cloud Build, Tekton, GitLab, or GitHub."
 esac
 
-read -p "Would you like to generate mock data? (y/N): " generate_mock_data
-generate_mock_data=${generate_mock_data:-no}
-
 if [ $generate_mock_data == "y" ]; then
     GENERATE_DATA="yes"
 else
     GENERATE_DATA="no"
 fi
-
-# FOR DEVELOPMENT ONLY: purge all TF state
-echo "Purging TF state [FOR DEVELOPMENT ONLY]"
-rm -rf .terraform terraform.tfstate* terraform.tfvars
 
 # create a tfvars file
 cat > terraform.tfvars <<EOF
