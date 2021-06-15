@@ -2,7 +2,7 @@
 
 This folder contains terraform scripts to provision all of the infrastructure in a Four Keys GCP project. 
 
-**DO NOT USE!** It's very early and very incomplete. (Though: holler if you want to contribute!)
+**DO NOT USE!** This isn't ready for production yet (though it's close!)
 
 ## How to use
 1. run `setup.sh`; this will:
@@ -18,7 +18,7 @@ This folder contains terraform scripts to provision all of the infrastructure in
     ```
 
 
-Current functionality (GitHub + Cloud Build only):
+Current functionality:
 - Create a GCP project (outside of terraform)
 - Build the event-handler container image and push to GCR [TODO: use AR instead]
 - Deploy the event-handler container as a Cloud Run service
@@ -31,17 +31,12 @@ Current functionality (GitHub + Cloud Build only):
 - Establish BigQuery scheduled queries
 - Generate test data
 - Launch Data Studio connector flow
-
-TODO:
-- Deploy Hello World app
-- Support other VCSes and CICDs
 - Support using an existing project
-- Allow user to choose whether to create helloworld app
 - Allow user to choose whether to generate test data
 
 Open questions:
-- What's an elegant way to support those user inputs (VCS, CI/CD) as conditionals in the TF?
 - Should we create a service account and run TF as that, or keep the current process of using application default credentials of the user who invokes the script?
 
 Answered questions:
+- What's an elegant way to support those user inputs (VCS, CI/CD) as conditionals in the TF? (see implementation: generate a list of parsers to create)
 - Should we create the GCP project in terraform? No. The auth gets really complicated, especially when considering that the project may or may not be in an organization and/or folder

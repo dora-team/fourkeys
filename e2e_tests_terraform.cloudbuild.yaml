@@ -1,0 +1,86 @@
+steps:
+  - id: Install
+    name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+    entrypoint: /bin/bash
+    dir: "experimental/terraform"
+    args:
+      - '-c'
+      - |
+        # configure remote terraform backend GCS
+        cat > backend.tf <<EOF
+        terraform {
+          backend "gcs" {
+            bucket  = "$_TARGET_PROJECT-tf-state"
+            prefix  = "terraform/state"
+          }
+        }
+        EOF
+
+        terraform init
+
+        # invoke install script
+        GIT_SYSTEM='github' \
+        CICD_SYSTEM='cloud-build' \
+        PARENT_PROJECT='$PROJECT_ID' \
+        FOURKEYS_PROJECT='$_TARGET_PROJECT' \
+        FOURKEYS_REGION='us-central1' \
+        BIGQUERY_REGION='US' \
+        GENERATE_DATA='no' \
+        TF_LOG=$_TF_LOG \
+        TF_VAR_google_project_id='$_TARGET_PROJECT' \
+        TF_VAR_google_region='us-central1' \
+        TF_VAR_bigquery_region='US' \
+        TF_VAR_parsers='["cloud-build","github"]' \
+        ./install.sh
+
+  # - id: Check Tables are Populated
+  #   name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+  #   entrypoint: /bin/bash
+  #   args:
+  #     - '-c'
+  #     - |
+  #       result_check="import sys, json
+  #       results = int(json.load(sys.stdin)[0]['vol'])
+  #       try:
+  #         if results < 1:
+  #           sys.exit('Table is empty')
+  #       except Exception as e:
+  #         sys.exit(e)"
+
+  #       echo "Checking events_raw table"
+  #       bq query --format=json \
+  #       'SELECT count(*) as vol FROM four_keys.events_raw' | \
+  #        python3 -c "$result_check"
+
+  #       echo "Checking deployments table"
+  #       bq query --format=json \
+  #       'SELECT count(*) as vol FROM four_keys.deployments' | \
+  #        python3 -c "$result_check"
+
+  #       echo "Checking changes table"
+  #       bq query --format=json \
+  #       'SELECT count(*) as vol FROM four_keys.changes' | \
+  #        python3 -c "$result_check"
+
+  #       echo "Checking incidents table"
+  #       bq query --format=json \
+  #       'SELECT count(*) as vol FROM four_keys.incidents' | \
+  #        python3 -c "$result_check"
+
+  - id: Tear Down Resources
+    name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+    entrypoint: /bin/bash
+    dir: "experimental/terraform"
+    args:
+      - '-c'
+      - |
+        terraform init
+        TF_LOG=$_TF_LOG \
+        TF_VAR_google_project_id='$_TARGET_PROJECT' \
+        TF_VAR_google_region='us-central1' \
+        TF_VAR_bigquery_region='US' \
+        TF_VAR_parsers='["cloud-build","github"]' \
+        terraform destroy --auto-approve
+substitutions:
+  _TF_LOG: WARN # Logging Level for Terraform
+  _TARGET_PROJECT: fourkeys-tests-target
