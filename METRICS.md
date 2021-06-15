@@ -189,7 +189,7 @@ LIMIT 1;
 
 ## Time to Restore Services ##
 
-**Definition**: For a failure, the median amount of time between the deployment which caused the failure and the remediation.  The remediation is measured by closing an associated bug / incident report. 
+**Definition**: For a failure, the median amount of time between the deployment which caused the failure and the remediation. The remediation is measured by closing an associated bug / incident report.  The timestamps in the `four_keys.incidents` table should align with these events, whenever available.  
 
 ### Daily Median Time to Restore Services ###
 ![Image of chart from the Four Keys dashboard, showing the daily MTTR.](images/daily_mttr.png)

@@ -43,17 +43,15 @@ project_prompt(){
 }
 
 source_prompt(){
-	# The user-agent value will be used as the pub/sub topic name.  Capitalization matters.
-	read -p "What's the user-agent of your new source?  Eg GitHub-Hookshot:  " user_agent
-	# Will be used to name the Cloud Run service. Should be lowercase.
+	# Will be used to name the Cloud Run service and pubsub topic. Should be lowercase.
 	read -p "What is the nickname of your source?  Eg github (lowercase):  " nickname
 }
 
 build_deploy_cloud_run(){
 	# Build and deploy by copying new_source_template
 	echo "Creating ${nickname}-worker"
-	cp -R $DIR/../bq_workers/new_source_template $DIR/../bq_workers/${nickname}_parser
-	cd $DIR/../bq_workers/${nickname}_parser
+	cp -R $DIR/../bq-workers/new_source_template $DIR/../bq-workers/${nickname}_parser
+	cd $DIR/../bq-workers/${nickname}_parser
 	gcloud builds submit --substitutions _SOURCE=${nickname},_REGION=us-central1 \
 						 --project ${FOURKEYS_PROJECT} . 
 }
@@ -74,11 +72,11 @@ setup_pubsub_topic_subscription(){
 
 	# Create topic
 	echo "Creating event handler Pub/Sub topic..."; set -x
-	gcloud pubsub topics create ${user_agent} --project ${FOURKEYS_PROJECT}
+	gcloud pubsub topics create ${nickname} --project ${FOURKEYS_PROJECT}
 
 	# configure the subscription push identity
 	gcloud pubsub subscriptions create ${nickname}Subscription \
-	--topic=${user_agent} \
+	--topic=${nickname} \
 	--push-endpoint=${PUSH_ENDPOINT_URL} \
 	--push-auth-service-account=cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com \
 	--project ${FOURKEYS_PROJECT}

@@ -52,8 +52,8 @@ gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} --member="serviceAcco
 
 # launch container builds in background/parallel
 gcloud builds submit ../../event_handler --tag=gcr.io/${FOURKEYS_PROJECT}/event-handler --project=${PARENT_PROJECT} > event_handler.containerbuild.log & 
-gcloud builds submit ../../bq_workers/github_parser --tag=gcr.io/${FOURKEYS_PROJECT}/github-parser --project=${PARENT_PROJECT} > github_parser.containerbuild.log & 
-gcloud builds submit ../../bq_workers/cloud_build_parser --tag=gcr.io/${FOURKEYS_PROJECT}/cloud-build-parser --project=${PARENT_PROJECT} > cloud_build_parser.containerbuild.log &
+gcloud builds submit ../../bq-workers/github-parser --tag=gcr.io/${FOURKEYS_PROJECT}/github-parser --project=${PARENT_PROJECT} > github-parser.containerbuild.log & 
+gcloud builds submit ../../bq-workers/cloud-build-parser --tag=gcr.io/${FOURKEYS_PROJECT}/cloud-build-parser --project=${PARENT_PROJECT} > cloud-build-parser.containerbuild.log &
 
 # wait for containers to be built, then continue
 wait
@@ -75,10 +75,9 @@ echo "••••••••🔑••🔑••🔑••🔑•••••�
 
 # TODO: make data generation optional
 echo "generating data…"
-# TODO: allow passing of webhook / secret as params to data generator
-export WEBHOOK=$(terraform output -raw event-handler-endpoint)
-export SECRET=$(terraform output -raw event-handler-secret)
-python3 ../../data_generator/generate_data.py --vc_system=github
+WEBHOOK=$(terraform output -raw event-handler-endpoint) \
+    SECRET=$(terraform output -raw event-handler-secret) \
+    python3 ../../data_generator/generate_data.py --vc_system=github
 
 echo "refreshing derived tables…"
 for table in changes deployments incidents; do

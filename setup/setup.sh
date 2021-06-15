@@ -216,12 +216,12 @@ github_pipeline(){
   echo "Creating Github Data Pipeline..."
 
   echo "Deploying BQ github worker..."; set -x
-  cd $DIR/../bq_workers/github_parser
+  cd $DIR/../bq-workers/github-parser
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
   set +x; echo
 
   echo "Creating Github Pub/Sub Topic & Subscription..."
-  gcloud pubsub topics create GitHub-Hookshot
+  gcloud pubsub topics create github
 
   gcloud run services add-iam-policy-binding github-worker \
    --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
@@ -231,7 +231,7 @@ github_pipeline(){
   export PUSH_ENDPOINT_URL=$(gcloud run services describe github-worker --format="value(status.url)")
   # configure the subscription push identity
   gcloud pubsub subscriptions create GithubSubscription \
-    --topic=GitHub-Hookshot \
+    --topic=github \
     --push-endpoint=${PUSH_ENDPOINT_URL} \
     --push-auth-service-account=cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com
   set +x; echo
@@ -242,12 +242,12 @@ gitlab_pipeline(){
   echo "Creating Gitlab Data Pipeline..."
 
   echo "Deploying BQ gitlab worker..."; set -x
-  cd $DIR/../bq_workers/gitlab_parser
+  cd $DIR/../bq-workers/gitlab-parser
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
   set +x; echo
 
   echo "Creating Github Pub/Sub Topic & Subscription..."
-  gcloud pubsub topics create Gitlab
+  gcloud pubsub topics create gitlab
 
   gcloud run services add-iam-policy-binding gitlab-worker \
    --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
@@ -257,7 +257,7 @@ gitlab_pipeline(){
   export PUSH_ENDPOINT_URL=$(gcloud run services describe gitlab-worker --format="value(status.url)")
   # configure the subscription push identity
   gcloud pubsub subscriptions create GitlabSubscription \
-    --topic=Gitlab \
+    --topic=gitlab \
     --push-endpoint=${PUSH_ENDPOINT_URL} \
     --push-auth-service-account=cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com
   set +x; echo
@@ -269,7 +269,7 @@ cloud_build_pipeline(){
   echo "Creating Cloud Build Data Pipeline..."
 
   echo "Deploying BQ cloud build worker..."; set -x
-  cd $DIR/../bq_workers/cloud_build_parser
+  cd $DIR/../bq-workers/cloud-build-parser
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} . 
   set +x; echo
 
@@ -297,12 +297,12 @@ tekton_pipeline(){
   echo "Creating Tekton Data Pipeline..."
 
   echo "Deploying BQ tekton worker..."; set -x
-  cd $DIR/../bq_workers/tekton_parser
+  cd $DIR/../bq-workers/tekton-parser
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
   set +x; echo
 
   echo "Creating Tekton Pub/Sub Topic & Subscription..."
-  gcloud pubsub topics create Tekton
+  gcloud pubsub topics create tekton
 
   gcloud run services add-iam-policy-binding tekton-worker \
    --member="serviceAccount:cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com" \
@@ -312,7 +312,7 @@ tekton_pipeline(){
   export PUSH_ENDPOINT_URL=$(gcloud run services describe tekton-worker --format="value(status.url)")
   # configure the subscription push identity
   gcloud pubsub subscriptions create TektonSubscription \
-    --topic=Tekton \
+    --topic=tekton \
     --push-endpoint=${PUSH_ENDPOINT_URL} \
     --push-auth-service-account=cloud-run-pubsub-invoker@${FOURKEYS_PROJECT}.iam.gserviceaccount.com
   set +x; echo

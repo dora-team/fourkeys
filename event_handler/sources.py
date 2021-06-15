@@ -26,8 +26,7 @@ class EventSource(object):
     A source of event data being delivered to the webhook
     """
 
-    def __init__(self, name, signature_header, verification_func):
-        self.name = name
+    def __init__(self, signature_header, verification_func):
         self.signature = signature_header
         self.verification = verification_func
 
@@ -84,27 +83,25 @@ def get_source(headers):
     Gets the source from the User-Agent header
     """
     if "X-Gitlab-Event" in headers:
-        return "Gitlab"
+        return "gitlab"
 
-    if "Ce-Type" in headers and "tekton" in headers["Ce-Type"]:
-        return "Tekton"
+    if "tekton" in headers.get("Ce-Type", ""):
+        return "tekton"
 
-    if "User-Agent" in headers:
-        if "/" in headers["User-Agent"]:
-            return headers["User-Agent"].split("/")[0]
-        return headers["User-Agent"]
+    if "GitHub-Hookshot" in headers.get("User-Agent", ""):
+        return "github"
 
-    return None
+    return headers.get("User-Agent")
 
 
 AUTHORIZED_SOURCES = {
-    "GitHub-Hookshot": EventSource(
-        "github", "X-Hub-Signature", github_verification
+    "github": EventSource(
+        "X-Hub-Signature", github_verification
         ),
-    "Gitlab": EventSource(
-        "gitlab", "X-Gitlab-Token", simple_token_verification
+    "gitlab": EventSource(
+        "X-Gitlab-Token", simple_token_verification
         ),
-    "Tekton": EventSource(
-        "tekton", "tekton-secret", simple_token_verification
+    "tekton": EventSource(
+        "tekton-secret", simple_token_verification
         )
 }
