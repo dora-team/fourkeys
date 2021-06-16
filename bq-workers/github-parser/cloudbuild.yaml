@@ -16,7 +16,7 @@ steps:
 - # Build github-worker image
   name: gcr.io/cloud-builders/docker:latest
   args: ['build', 
-         '--tag=gcr.io/$PROJECT_ID/github-worker:${_TAG}', '.']
+         '--tag=gcr.io/$PROJECT_ID/github-worker:${_TAG}', './bq-workers/github-parser']
   id: build
 
 - # Push the container image to Container Registry
