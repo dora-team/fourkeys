@@ -123,12 +123,12 @@ def test_github_event_avoid_id_conflicts_issues(client):
     headers = {"X-Github-Event": "issues", "X-Hub-Signature": "foo"}
     commit = json.dumps({
         "issue": {
-            "updated_at": "2021-06-15T13:12:14Z"
+            "updated_at": "2021-06-15T13:12:14Z",
+            "number":477
         },
          "repository": {
             "name": "reponame"
-        },
-        "number":477
+        }        
     }).encode("utf-8")
 
     encoded_commit = {
