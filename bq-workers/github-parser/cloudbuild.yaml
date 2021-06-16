@@ -22,7 +22,7 @@ steps:
 - # Push the container image to Container Registry
   name: gcr.io/cloud-builders/docker
   args: ['push', 'gcr.io/$PROJECT_ID/github-worker:${_TAG}']
-  waitFor: build
+  waitFor: ["build"]
   id: push
 
 - # Deploy to Cloud Run
@@ -33,7 +33,7 @@ steps:
          '--platform', 'managed'
   ]
   id: deploy
-  waitFor: push
+  waitFor: ["push"]
 
 images: [
   'gcr.io/$PROJECT_ID/github-worker:${_TAG}'
