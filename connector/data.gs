@@ -50,11 +50,13 @@ SELECT
     ELSE "One year"
     END AS lead_time_to_change,
   CASE
+    WHEN sum(deployments) OVER () = 0 THEN "0-15%"
     WHEN sum(failures) OVER () / sum(deployments) OVER () <= .15 THEN "0-15%"
     WHEN sum(failures) OVER () / sum(deployments) OVER () < .46 THEN "16-45%"
     ELSE "46-60%"
     END AS change_fail_rate_bucket,
   CASE
+    WHEN max(med_time_to_resolve_bucket) OVER () < 1 THEN "One hour"
     WHEN max(med_time_to_resolve_bucket) OVER () < 24 THEN "One day"
     WHEN max(med_time_to_resolve_bucket) OVER () < 168 THEN "One week"
     WHEN max(med_time_to_resolve_bucket) OVER () < 672 THEN "One month"
@@ -132,6 +134,7 @@ CROSS JOIN
   (
     SELECT
       CASE
+        WHEN ondemand THEN "On Demand"
         WHEN daily THEN "Daily"
         WHEN weekly THEN "Weekly"
         # If at least one per month, then Monthly
@@ -141,6 +144,8 @@ CROSS JOIN
     FROM
       (
         SELECT
+           # If the median number of days per week is more than 5, then On-Demand
+          PERCENTILE_CONT(days_deployed, 0.5) OVER () >= 5 AS ondemand,
           # If the median number of days per week is more than 3, then Daily
           PERCENTILE_CONT(days_deployed, 0.5) OVER () >= 3 AS daily,
           # If most weeks have a deployment, then Weekly
