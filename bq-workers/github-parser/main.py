@@ -95,7 +95,7 @@ def process_github_event(headers, msg):
 
     if event_type == "pull_request":
         time_created = metadata["pull_request"]["updated_at"]
-        e_id = metadata["number"]
+        e_id = metadata["repository"]["name"] + "/" + str(metadata["number"])
 
     if event_type == "pull_request_review":
         time_created = metadata["review"]["submitted_at"]
@@ -107,7 +107,7 @@ def process_github_event(headers, msg):
 
     if event_type == "issues":
         time_created = metadata["issue"]["updated_at"]
-        e_id = metadata["issue"]["number"]
+        e_id = metadata["repository"]["name"] + "/" + str(metadata["issue"]["number"])
 
     if event_type == "issue_comment":
         time_created = metadata["comment"]["updated_at"]
