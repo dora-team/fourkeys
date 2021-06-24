@@ -149,7 +149,7 @@ CROSS JOIN
           # If the median number of days per week is more than 3, then Daily
           PERCENTILE_CONT(days_deployed, 0.5) OVER () >= 3 AS daily,
           # If most weeks have a deployment, then Weekly
-          PERCENTILE_CONT(week_deployed, 0.5) OVER () >= 1 AS weekly,
+          PERCENTILE_CONT(week_deployed, 0.5) OVER () > 0.5 AS weekly,
 
           # Count the number of deployments per month.
           # Cannot mix aggregate and analytic functions, so calculate the median in the outer select statement
