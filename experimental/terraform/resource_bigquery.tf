@@ -1,5 +1,5 @@
 resource "google_project_service" "bq_api" {
-  service = "bigquery.googleapis.com"
+  service                    = "bigquery.googleapis.com"
   disable_dependent_services = true
 }
 
@@ -19,41 +19,41 @@ resource "google_bigquery_table" "bq_table_events_raw" {
 }
 
 resource "google_bigquery_table" "bq_mat_view_changes" {
-    dataset_id = google_bigquery_dataset.four_keys.dataset_id
-    table_id = "changes"
-    materialized_view {
-      query = file("../../queries/changes.sql")
-    }
-    deletion_protection = false
-    depends_on = [
-      google_bigquery_table.bq_table_events_raw
-    ]
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  table_id   = "changes"
+  materialized_view {
+    query = file("../../queries/changes.sql")
+  }
+  deletion_protection = false
+  depends_on = [
+    google_bigquery_table.bq_table_events_raw
+  ]
 }
 
 resource "google_bigquery_routine" "bq_func_json2array" {
-    dataset_id = google_bigquery_dataset.four_keys.dataset_id
-    routine_id = "json2array"
-    routine_type = "SCALAR_FUNCTION"
-    return_type = "{\"typeKind\": \"ARRAY\", \"arrayElementType\": {\"typeKind\": \"INT64\"}}"
-    language = "JAVASCRIPT"
-    arguments {
-        name = "json"
-        data_type = "{\"typeKind\" :  \"STRING\"}"
-    }
-    definition_body = "return JSON.parse(json).map(x=>JSON.stringify(x));"
+  dataset_id   = google_bigquery_dataset.four_keys.dataset_id
+  routine_id   = "json2array"
+  routine_type = "SCALAR_FUNCTION"
+  return_type  = "{\"typeKind\": \"ARRAY\", \"arrayElementType\": {\"typeKind\": \"INT64\"}}"
+  language     = "JAVASCRIPT"
+  arguments {
+    name      = "json"
+    data_type = "{\"typeKind\" :  \"STRING\"}"
+  }
+  definition_body = "return JSON.parse(json).map(x=>JSON.stringify(x));"
 }
 
 resource "google_bigquery_table" "bq_mat_view_deployments" {
-    dataset_id = google_bigquery_dataset.four_keys.dataset_id
-    table_id = "deployments"
-    materialized_view {
-      query = file("../../queries/deployments.sql")
-    }
-    deletion_protection = false
-    depends_on = [
-      google_bigquery_table.bq_table_events_raw,
-        google_bigquery_routine.bq_func_json2array
-    ]
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  table_id   = "deployments"
+  materialized_view {
+    query = file("../../queries/deployments.sql")
+  }
+  deletion_protection = false
+  depends_on = [
+    google_bigquery_table.bq_table_events_raw,
+    google_bigquery_routine.bq_func_json2array
+  ]
 }
 
 # resource "google_bigquery_table" "bq_tables_derived" {
