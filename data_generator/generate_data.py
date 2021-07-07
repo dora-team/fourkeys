@@ -95,6 +95,7 @@ def make_github_issue(root_cause):
             "number": random.randrange(0, 1000),
             "labels": [{"name": "Incident"}],
             "body": "root cause: %s" % root_cause["id"],
+            "repository": {"name": "foobar"}
         }
     }
     return event

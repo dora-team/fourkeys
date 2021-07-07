@@ -432,13 +432,15 @@ The data ranges used for this color coding roughly follows the ranges for elite,
 
 **Deployment Frequency**
 
-*   **Green:** Weekly
+*   **Purple:** On-Demand (multiple deploys per day)
+*   **Green:** Daily, Weekly 
 *   **Yellow:** Monthly
 *   **Red:** Between once per month and once every 6 months.  
     *   This is expressed as “Yearly.” 
 
 **Lead Time to Change**
 
+*   **Purple:** Less than one day
 *   **Green:** Less than one week
 *   **Yellow:** Between one week and one month
 *   **Red:** Between one month and 6 months.  
@@ -447,6 +449,7 @@ The data ranges used for this color coding roughly follows the ranges for elite,
 
 **Time to Restore Service**
 
+*   **Purple:** Less than one hour
 *   **Green:** Less than one day
 *   **Yellow:** Less than one week
 *   **Red:**  Between one week and a month
