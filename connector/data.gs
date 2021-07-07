@@ -30,7 +30,7 @@ const DASHBOARD_QUERY = `WITH
           CURRENT_DATE(),
           INTERVAL 1 DAY)) AS day
     # FROM the start of the data
-    WHERE day > (SELECT date(min(time_created)) FROM four_keys.events_raw)
+    WHERE day >= (SELECT date(min(time_created)) FROM four_keys.events_raw)
   )
 SELECT
   FORMAT_TIMESTAMP('%Y%m%d', day) AS day,
