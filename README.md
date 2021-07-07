@@ -64,7 +64,7 @@ This diagram shows the design of the Four Keys system:
 _The project uses Python 3 and supports data extraction for Cloud Build and GitHub events._
 
 1.  Fork this project.
-1.  Run the automation scripts, which does the following (See the [INSTALL.md](setup/INSTALL.md) for more details):
+1.  Run the automation scripts, which does the following (See the [setup README](setup/README.md) for more details):
     1.  Set up a new Google Cloud Project.
     1.  Create and deploy the Cloud Run webhook target and ETL workers.
     1.  Create the Pub/Sub topics and subscriptions.
