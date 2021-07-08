@@ -94,9 +94,9 @@ def make_github_issue(root_cause):
             "closed_at": datetime.datetime.now(),
             "number": random.randrange(0, 1000),
             "labels": [{"name": "Incident"}],
-            "body": "root cause: %s" % root_cause["id"],
-            "repository": {"name": "foobar"}
-        }
+            "body": "root cause: %s" % root_cause["id"]
+        },
+        "repository": {"name": "foobar"}
     }
     return event
 
@@ -123,6 +123,7 @@ def make_gitlab_issue(changes):
 def make_webhook_request(vcs, webhook_url, secret, event_type, data):
     data = json.dumps(data, default=str).encode()
     request = Request(webhook_url, data)
+    print(data)
 
     if vcs == "github":
         signature = hmac.new(secret.encode(), data, sha1)
