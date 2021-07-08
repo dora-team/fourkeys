@@ -53,7 +53,7 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
       deploy_id,
       deploys.time_created time_created,
       change_metadata,
-      json2array(JSON_EXTRACT(change_metadata, '$.commits')) as array_commits,
+      four_keys.json2array(JSON_EXTRACT(change_metadata, '$.commits')) as array_commits,
       main_commit
       FROM deploys
       JOIN
