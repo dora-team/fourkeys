@@ -68,6 +68,7 @@ resource "google_bigquery_table" "bq_view_incidents" {
   deletion_protection = false
   depends_on = [
     google_bigquery_table.bq_table_events_raw,
+    google_bigquery_table.bq_view_deployments
   ]
 }
 
