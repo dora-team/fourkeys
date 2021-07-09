@@ -30,7 +30,7 @@ steps:
         FOURKEYS_PROJECT='$_TARGET_PROJECT' \
         FOURKEYS_REGION='us-central1' \
         BIGQUERY_REGION='US' \
-        GENERATE_DATA='no' \
+        GENERATE_DATA='yes' \
         TF_LOG=$_TF_LOG \
         TF_VAR_google_project_id='$_TARGET_PROJECT' \
         TF_VAR_google_region='us-central1' \
