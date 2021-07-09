@@ -75,7 +75,7 @@ if [ $GENERATE_DATA == "yes" ]; then
     TOKEN=""
 
     # Create an identity token if running in cloudbuild tests
-    if [[ "$(gcloud config get-value account)" == "${FOURKEYS_PROJECTNUM}@cloudbuild.gserviceaccount.com" ]]
+    if [[ "$(gcloud config get-value account)" == "${PARENT_PROJECTNUM}@cloudbuild.gserviceaccount.com" ]]
     then
     TOKEN=$(curl -X POST -H "content-type: application/json" \
         -H "Authorization: Bearer $(gcloud auth print-access-token)" \
