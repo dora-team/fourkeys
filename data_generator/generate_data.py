@@ -123,7 +123,6 @@ def make_gitlab_issue(changes):
 def make_webhook_request(vcs, webhook_url, secret, event_type, data):
     data = json.dumps(data, default=str).encode()
     request = Request(webhook_url, data)
-    print(data)
 
     if vcs == "github":
         signature = hmac.new(secret.encode(), data, sha1)
