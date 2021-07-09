@@ -17,33 +17,62 @@
 
 set -eEuo pipefail
 
+# PARSE INPUTS
+CLEAN="false"
+AUTO="false"
+for i in "$@"
+do
+  case $i in
+    -c | --clean ) CLEAN="true"; shift;;
+    -a | --auto ) AUTO="true"; shift;;
+    -h | --help ) echo "Usage: ./setup.sh [--clean] [--auto]"; exit 0; shift;;
+    *) ;; # unknown option
+  esac
+done
+
 PARENT_PROJECT=$(gcloud config get-value project 2>/dev/null)
 
-read -p "Would you like to create a new project for The Four Keys (y/N): " make_new_project
-make_new_project=${make_new_project:-no}
+if [[ ${AUTO} == 'true' ]]
+then
+    # populate setup variables (for use in testing/dev)
+    make_new_project="y"
+    git_system_id=2
+    cicd_system_id=1
+    generate_mock_data=y
+    CLEAN='true'
+else
+    read -p "Would you like to create a new project for The Four Keys (y/N): " make_new_project
+    make_new_project=${make_new_project:-no}
 
-printf "\n"
+    printf "\n"
 
-read -p "Which version control system are you using? 
-(1) GitLab
-(2) GitHub
-(3) Other
+    read -p "Which version control system are you using? 
+    (1) GitLab
+    (2) GitHub
+    (3) Other
 
-Enter a selection (1 - 3): " git_system_id
+    Enter a selection (1 - 3): " git_system_id
 
-read -p "
-Which CI/CD system are you using? 
-(1) Cloud Build
-(2) Tekton
-(3) GitLab
-(4) Other
+    read -p "
+    Which CI/CD system are you using? 
+    (1) Cloud Build
+    (2) Tekton
+    (3) GitLab
+    (4) Other
 
-Enter a selection (1 - 4): " cicd_system_id
+    Enter a selection (1 - 4): " cicd_system_id
 
-printf "\n"
+    printf "\n"
 
-read -p "Would you like to generate mock data? (y/N): " generate_mock_data
-generate_mock_data=${generate_mock_data:-no}
+    read -p "Would you like to generate mock data? (y/N): " generate_mock_data
+    generate_mock_data=${generate_mock_data:-no}
+fi
+
+if [[ ${CLEAN} == 'true' ]]
+then
+    # purge all local terraform state
+    rm -rf .terraform* *.containerbuild.log terraform.tfstate terraform.tfvars
+fi
 
 if [ $make_new_project == 'y' ]; then
     echo "Creating new project for Four Keys Dashboard…"
