@@ -54,22 +54,22 @@ steps:
           sys.exit(e)"
 
         echo "Checking events_raw table"
-        bq query --format=json \
+        bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
         'SELECT count(*) as vol FROM four_keys.events_raw' | \
          python3 -c "$result_check"
 
         echo "Checking deployments table"
-        bq query --format=json \
+        bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
         'SELECT count(*) as vol FROM four_keys.deployments' | \
          python3 -c "$result_check"
 
         echo "Checking changes table"
-        bq query --format=json \
+        bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
         'SELECT count(*) as vol FROM four_keys.changes' | \
          python3 -c "$result_check"
 
         echo "Checking incidents table"
-        bq query --format=json \
+        bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
         'SELECT count(*) as vol FROM four_keys.incidents' | \
          python3 -c "$result_check"
 
