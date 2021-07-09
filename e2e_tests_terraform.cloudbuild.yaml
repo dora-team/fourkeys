@@ -89,4 +89,4 @@ steps:
         terraform destroy --auto-approve
 substitutions:
   _TF_LOG: WARN # Logging Level for Terraform
-  _TARGET_PROJECT: fourkeys-tests-target
+  _TARGET_PROJECT: fourkeys-tf-tests
