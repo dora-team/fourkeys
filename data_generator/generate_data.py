@@ -94,9 +94,9 @@ def make_github_issue(root_cause):
             "closed_at": datetime.datetime.now(),
             "number": random.randrange(0, 1000),
             "labels": [{"name": "Incident"}],
-            "body": "root cause: %s" % root_cause["id"],
-            "repository": {"name": "foobar"}
-        }
+            "body": "root cause: %s" % root_cause["id"]
+        },
+        "repository": {"name": "foobar"}
     }
     return event
 

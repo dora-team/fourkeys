@@ -44,6 +44,7 @@ echo "Building containers…"
 gcloud services enable cloudbuild.googleapis.com
 gcloud services enable containerregistry.googleapis.com --project=${FOURKEYS_PROJECT}
 PARENT_PROJECTNUM=$(gcloud projects describe $(gcloud config get-value project) --format='value(projectNumber)')
+FOURKEYS_PROJECTNUM=$(gcloud projects describe ${FOURKEYS_PROJECT} --format='value(projectNumber)')
 gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} --member="serviceAccount:${PARENT_PROJECTNUM}@cloudbuild.gserviceaccount.com" --role="roles/storage.admin"
 
 # launch container builds in background/parallel
@@ -68,16 +69,29 @@ echo "Terraform resource creation complete."
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
 
 if [ $GENERATE_DATA == "yes" ]; then
-    echo "generating data…"
-    WEBHOOK=$(terraform output -raw event-handler-endpoint) \
-        SECRET=$(terraform output -raw event-handler-secret) \
-        python3 ../../data_generator/generate_data.py --vc_system=${GIT_SYSTEM}
+    
+    WEBHOOK=$(terraform output -raw event-handler-endpoint)
+    SECRET=$(terraform output -raw event-handler-secret)
+    TOKEN=""
 
-    echo "refreshing derived tables…"
-    for table in changes deployments incidents; do
-        scheduled_query=$(bq ls --transfer_config --project_id=${FOURKEYS_PROJECT} --transfer_location=${BIGQUERY_REGION} | grep "four_keys_${table}" -m 1 | awk '{print $1;}')
-        bq mk --transfer_run --project_id=${FOURKEYS_PROJECT} --run_time "$(date --iso-8601=seconds)" ${scheduled_query}
-    done
+    # Create an identity token if running in cloudbuild tests
+    if [[ "$(gcloud config get-value account)" == "${PARENT_PROJECTNUM}@cloudbuild.gserviceaccount.com" ]]
+    then
+    TOKEN=$(curl -X POST -H "content-type: application/json" \
+        -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+        -d "{\"audience\": \"${WEBHOOK}\"}" \
+        "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/fourkeys@${FOURKEYS_PROJECT}.iam.gserviceaccount.com:generateIdToken" | \
+        python3 -c "import sys, json; print(json.load(sys.stdin)['token'])")
+    fi
+    
+    echo "generating data…"  # FYI: env vars are set in-line so that this command can be copied and run separately
+    WEBHOOK=${WEBHOOK} SECRET=${SECRET} TOKEN=${TOKEN} python3 ../../data_generator/generate_data.py --vc_system=${GIT_SYSTEM}
+
+    # echo "refreshing derived tables…"
+    # for table in changes deployments incidents; do
+    #     scheduled_query=$(bq ls --transfer_config --project_id=${FOURKEYS_PROJECT} --transfer_location=${BIGQUERY_REGION} | grep "four_keys_${table}" -m 1 | awk '{print $1;}')
+    #     bq mk --transfer_run --project_id=${FOURKEYS_PROJECT} --run_time "$(date --iso-8601=seconds)" ${scheduled_query}
+    # done
 fi
 
 echo "••••••••🔑••🔑••🔑••🔑••••••••"

@@ -1,7 +1,8 @@
 FROM gcr.io/google.com/cloudsdktool/cloud-sdk:slim
 
-RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - && \
-    apt-get install software-properties-common -y && \
-    apt-add-repository "deb [arch=$(dpkg --print-architecture)] https://apt.releases.hashicorp.com $(lsb_release -cs) main" && \
-    apt update && \
-    apt install terraform=0.15.5
+ARG VERSION=1.0.2
+
+RUN apt install unzip -y
+RUN curl https://releases.hashicorp.com/terraform/${VERSION}/terraform_${VERSION}_linux_amd64.zip -o terraform.zip
+RUN unzip terraform.zip && rm terraform.zip
+RUN mv terraform /usr/bin

@@ -48,5 +48,4 @@ steps:
         gcloud services disable bigqueryconnection.googleapis.com --force 
         gcloud services disable secretmanager.googleapis.com --force
 substitutions:
-  _TF_LOG: WARN # Logging Level for Terraform
   _TARGET_PROJECT: fourkeys-tests-target

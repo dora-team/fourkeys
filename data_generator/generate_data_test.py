@@ -100,14 +100,17 @@ def valid_deployment(vcs):
 @pytest.fixture
 def valid_issue(vcs):
     if vcs == 'github':
-        return {'issue': {
-            'created_at': datetime.datetime(2021, 1, 30, 22, 30, 5, 76942),
-            'updated_at': datetime.datetime(2021, 2, 2, 21, 20, 58, 77232),
-            'closed_at': datetime.datetime(2021, 2, 2, 21, 20, 58, 77235),
-            'number': 440,
-            'labels': [{'name': 'Incident'}],
-            'repository': {'name': 'foobar'},
-            'body': 'root cause: 2b04b6d3939608f19776193697e0e30c04d9c6b8'}}
+        return {
+            'issue': {
+                'created_at': datetime.datetime(2021, 1, 30, 22, 30, 5, 76942),
+                'updated_at': datetime.datetime(2021, 2, 2, 21, 20, 58, 77232),
+                'closed_at': datetime.datetime(2021, 2, 2, 21, 20, 58, 77235),
+                'number': 440,
+                'labels': [{'name': 'Incident'}],
+                'body': 'root cause: 2b04b6d3939608f19776193697e0e30c04d9c6b8'
+                },
+            'repository': {'name': 'foobar'}
+            }
     elif vcs == 'gitlab':
         return {'object_kind': 'issue',
                 'object_attributes':
