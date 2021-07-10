@@ -1,9 +1,4 @@
 # Deployments Table
-CREATE TEMP FUNCTION json2array(json STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js AS """
-  return JSON.parse(json).map(x=>JSON.stringify(x));
-"""; 
 
 WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipelines
       SELECT 
@@ -35,7 +30,7 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
       id,
       TIMESTAMP_TRUNC(time_created, second) as time_created,
       source,
-      json2array(JSON_EXTRACT(metadata, '$.data.pipelineRun.spec.params')) params
+      four_keys.json2array(JSON_EXTRACT(metadata, '$.data.pipelineRun.spec.params')) params
       FROM four_keys.events_raw
       WHERE event_type = "dev.tekton.event.pipelinerun.successful.v1" 
       AND metadata like "%gitrevision%") e, e.params as param
@@ -58,7 +53,7 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
       deploy_id,
       deploys.time_created time_created,
       change_metadata,
-      json2array(JSON_EXTRACT(change_metadata, '$.commits')) as array_commits,
+      four_keys.json2array(JSON_EXTRACT(change_metadata, '$.commits')) as array_commits,
       main_commit
       FROM deploys
       JOIN

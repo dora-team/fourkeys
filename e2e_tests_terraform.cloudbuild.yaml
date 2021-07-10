@@ -1,4 +1,9 @@
 steps:
+    # remove any detritus left from prior runs
+  - id: Clean
+    name: 'gcr.io/cloud-builders/gcloud'
+    args: ['builds','submit','--no-source','--config=e2e_tests_tf_cleanup.cloudbuild.yaml','--substitutions=_TARGET_PROJECT=$_TARGET_PROJECT']
+
   - id: Install
     name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
     entrypoint: /bin/bash
@@ -25,47 +30,48 @@ steps:
         FOURKEYS_PROJECT='$_TARGET_PROJECT' \
         FOURKEYS_REGION='us-central1' \
         BIGQUERY_REGION='US' \
-        GENERATE_DATA='no' \
+        GENERATE_DATA='yes' \
         TF_LOG=$_TF_LOG \
         TF_VAR_google_project_id='$_TARGET_PROJECT' \
         TF_VAR_google_region='us-central1' \
         TF_VAR_bigquery_region='US' \
         TF_VAR_parsers='["cloud-build","github"]' \
+        TF_VAR_make_event_handler_public=false \
         ./install.sh
 
-  # - id: Check Tables are Populated
-  #   name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
-  #   entrypoint: /bin/bash
-  #   args:
-  #     - '-c'
-  #     - |
-  #       result_check="import sys, json
-  #       results = int(json.load(sys.stdin)[0]['vol'])
-  #       try:
-  #         if results < 1:
-  #           sys.exit('Table is empty')
-  #       except Exception as e:
-  #         sys.exit(e)"
+  - id: Check Tables are Populated
+    name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+    entrypoint: /bin/bash
+    args:
+      - '-c'
+      - |
+        result_check="import sys, json
+        results = int(json.load(sys.stdin)[0]['vol'])
+        try:
+          if results < 1:
+            sys.exit('Table is empty')
+        except Exception as e:
+          sys.exit(e)"
 
-  #       echo "Checking events_raw table"
-  #       bq query --format=json \
-  #       'SELECT count(*) as vol FROM four_keys.events_raw' | \
-  #        python3 -c "$result_check"
+        echo "Checking events_raw table"
+        bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
+        'SELECT count(*) as vol FROM four_keys.events_raw' | \
+         python3 -c "$result_check"
 
-  #       echo "Checking deployments table"
-  #       bq query --format=json \
-  #       'SELECT count(*) as vol FROM four_keys.deployments' | \
-  #        python3 -c "$result_check"
+        echo "Checking deployments table"
+        bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
+        'SELECT count(*) as vol FROM four_keys.deployments' | \
+         python3 -c "$result_check"
 
-  #       echo "Checking changes table"
-  #       bq query --format=json \
-  #       'SELECT count(*) as vol FROM four_keys.changes' | \
-  #        python3 -c "$result_check"
+        echo "Checking changes table"
+        bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
+        'SELECT count(*) as vol FROM four_keys.changes' | \
+         python3 -c "$result_check"
 
-  #       echo "Checking incidents table"
-  #       bq query --format=json \
-  #       'SELECT count(*) as vol FROM four_keys.incidents' | \
-  #        python3 -c "$result_check"
+        echo "Checking incidents table"
+        bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
+        'SELECT count(*) as vol FROM four_keys.incidents' | \
+         python3 -c "$result_check"
 
   - id: Tear Down Resources
     name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
@@ -83,4 +89,4 @@ steps:
         terraform destroy --auto-approve
 substitutions:
   _TF_LOG: WARN # Logging Level for Terraform
-  _TARGET_PROJECT: fourkeys-tests-target
+  _TARGET_PROJECT: fourkeys-tf-tests
