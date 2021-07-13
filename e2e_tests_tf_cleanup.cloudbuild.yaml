@@ -48,4 +48,4 @@ steps:
         gcloud services disable bigqueryconnection.googleapis.com --force 
         gcloud services disable secretmanager.googleapis.com --force
 substitutions:
-  _TARGET_PROJECT: fourkeys-tests-target
+  _TARGET_PROJECT: fourkeys-tf-tests

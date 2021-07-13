@@ -31,6 +31,7 @@
     # google_region (FOURKEYS_REGION)
     # bigquery_region (BIGQUERY_REGION)
     # parsers [(list of VCS and CICD parsers to install)]
+    # make_event_handler_public (true/false: allow public access to the event-handler endpoint [default is true, as required by GitHub.com/GitLab.com])
 
 set -eEuo pipefail
 
@@ -86,12 +87,6 @@ if [ $GENERATE_DATA == "yes" ]; then
     
     echo "generating data…"  # FYI: env vars are set in-line so that this command can be copied and run separately
     WEBHOOK=${WEBHOOK} SECRET=${SECRET} TOKEN=${TOKEN} python3 ../../data_generator/generate_data.py --vc_system=${GIT_SYSTEM}
-
-    # echo "refreshing derived tables…"
-    # for table in changes deployments incidents; do
-    #     scheduled_query=$(bq ls --transfer_config --project_id=${FOURKEYS_PROJECT} --transfer_location=${BIGQUERY_REGION} | grep "four_keys_${table}" -m 1 | awk '{print $1;}')
-    #     bq mk --transfer_run --project_id=${FOURKEYS_PROJECT} --run_time "$(date --iso-8601=seconds)" ${scheduled_query}
-    # done
 fi
 
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
