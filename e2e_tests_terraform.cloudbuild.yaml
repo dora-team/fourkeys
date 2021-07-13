@@ -88,5 +88,5 @@ steps:
         TF_VAR_parsers='["cloud-build","github"]' \
         terraform destroy --auto-approve
 substitutions:
-  _TF_LOG: WARN # Logging Level for Terraform
+  _TF_LOG: ERROR
   _TARGET_PROJECT: fourkeys-tf-tests
