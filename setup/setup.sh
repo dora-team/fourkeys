@@ -26,7 +26,7 @@ environment () {
   export HELLOWORLD_REGION=us-central
   export HELLOWORLD_ZONE=${HELLOWORLD_REGION}1-a
   export PARENT_FOLDER=$(gcloud projects describe ${PARENT_PROJECT} --format="value(parent.id)")
-  export BILLING_ACCOUNT=$(gcloud beta billing projects describe ${PARENT_PROJECT} --format="value(billingAccountName)" || sed -e 's/.*\///g')
+  export BILLING_ACCOUNT=$(gcloud beta billing projects describe ${PARENT_PROJECT} --format="value(billingAccountName)")
 
   export PYTHONHTTPSVERIFY=0
 
@@ -53,7 +53,7 @@ create_new_project(){
 
 fourkeys_project_setup () {
   # Check that the Four Keys Project has a billing account
-  export BILLING_ACCOUNT=$(gcloud beta billing projects describe ${FOURKEYS_PROJECT} --format="value(billingAccountName)" || sed -e 's/.*\///g')
+  export BILLING_ACCOUNT=$(gcloud beta billing projects describe ${FOURKEYS_PROJECT} --format="value(billingAccountName)")
 
   if [[ ! ${BILLING_ACCOUNT} ]]
   then echo "Please enable billing account on ${FOURKEYS_PROJECT}" 
