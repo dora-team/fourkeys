@@ -1,4 +1,4 @@
-resource "google_cloud_run_service" "parser_service" {
+resource "google_cloud_run_service" "parser" {
   name     = var.parser_service_name
   location = var.google_region
 
@@ -24,22 +24,22 @@ resource "google_cloud_run_service" "parser_service" {
 
 }
 
-resource "google_pubsub_topic" "parser_pubsub" {
+resource "google_pubsub_topic" "parser" {
   name = var.parser_service_name
 }
 
-resource "google_pubsub_topic_iam_member" "event_handler_pubsub_write_iam" {
-  topic  = google_pubsub_topic.parser_pubsub.id
+resource "google_pubsub_topic_iam_member" "event_handler" {
+  topic  = google_pubsub_topic.parser.id
   role   = "roles/editor"
   member = "serviceAccount:${var.fourkeys_service_account_email}"
 }
 
-resource "google_pubsub_subscription" "parser_subscription" {
+resource "google_pubsub_subscription" "parser" {
   name  = "${var.parser_service_name}-subscription"
-  topic = google_pubsub_topic.parser_pubsub.id
+  topic = google_pubsub_topic.parser.id
 
   push_config {
-    push_endpoint = google_cloud_run_service.parser_service.status[0]["url"]
+    push_endpoint = google_cloud_run_service.parser.status[0]["url"]
 
     oidc_token {
       service_account_email = var.fourkeys_service_account_email
