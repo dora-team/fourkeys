@@ -155,6 +155,9 @@ fourkeys_project_setup () {
     $DIR/incidents_schema.json
   set +x; echo
 
+  # Create the json2array function
+  bq query --nouse_legacy_sql $(cat ${DIR}/../queries/json2array.sql)
+
   echo "Saving Event Handler Secret in Secret Manager.."
   # Set permissions so Cloud Run can access secrets
   SERVICE_ACCOUNT="${FOURKEYS_PROJECTNUM}-compute@developer.gserviceaccount.com"
