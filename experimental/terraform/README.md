@@ -13,8 +13,8 @@ This folder contains terraform scripts to provision all of the infrastructure in
   * invoke terraform
 1. run the following commands to retrieve values needed for your SCM:
   * ```
-    echo `terraform output -raw event-handler-endpoint`
-    echo `terraform output -raw event-handler-secret`
+    echo `terraform output -raw event_handler_endpoint`
+    echo `terraform output -raw event_handler_secret`
     ```
 
 

@@ -35,7 +35,7 @@ PARENT_PROJECT=$(gcloud config get-value project 2>/dev/null)
 if [[ ${AUTO} == 'true' ]]
 then
     # populate setup variables (for use in testing/dev)
-    make_new_project="y"
+    make_new_project='y'
     git_system_id=2
     cicd_system_id=1
     generate_mock_data=y
@@ -71,7 +71,7 @@ fi
 if [[ ${CLEAN} == 'true' ]]
 then
     # purge all local terraform state
-    rm -rf .terraform* *.containerbuild.log terraform.tfstate terraform.tfvars
+    rm -rf .terraform* *.containerbuild.log terraform.tfstate* terraform.tfvars
 fi
 
 if [ $make_new_project == 'y' ]; then
