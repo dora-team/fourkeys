@@ -15,7 +15,7 @@ resource "google_cloud_run_service" "event_handler" {
           value = var.google_project_id
         }
       }
-      service_account_name = google_service_account.fourkeys_service_account.email
+      service_account_name = google_service_account.fourkeys.email
     }
   }
 
@@ -43,7 +43,7 @@ resource "google_cloud_run_service_iam_binding" "noauth" {
   depends_on = [google_cloud_run_service.event_handler]
 }
 
-resource "google_secret_manager_secret" "event-handler-secret" {
+resource "google_secret_manager_secret" "event_handler" {
   secret_id = "event-handler"
   replication {
     automatic = true
@@ -51,17 +51,17 @@ resource "google_secret_manager_secret" "event-handler-secret" {
   depends_on = [google_project_service.sm_api]
 }
 
-resource "random_id" "event-handler-random-value" {
+resource "random_id" "event_handler_random_value" {
   byte_length = "20"
 }
 
-resource "google_secret_manager_secret_version" "event-handler-secret-version" {
-  secret      = google_secret_manager_secret.event-handler-secret.id
-  secret_data = random_id.event-handler-random-value.hex
+resource "google_secret_manager_secret_version" "event_handler" {
+  secret      = google_secret_manager_secret.event_handler.id
+  secret_data = random_id.event_handler_random_value.hex
 }
 
-resource "google_secret_manager_secret_iam_member" "event-handler" {
-  secret_id = google_secret_manager_secret.event-handler-secret.id
+resource "google_secret_manager_secret_iam_member" "event_handler" {
+  secret_id = google_secret_manager_secret.event_handler.id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.fourkeys_service_account.email}"
+  member    = "serviceAccount:${google_service_account.fourkeys.email}"
 }

@@ -71,8 +71,6 @@ echo "••••••••🔑••🔑••🔑••🔑•••••�
 
 if [ $GENERATE_DATA == "yes" ]; then
     
-    WEBHOOK=$(terraform output -raw event-handler-endpoint)
-    SECRET=$(terraform output -raw event-handler-secret)
     TOKEN=""
 
     # Create an identity token if running in cloudbuild tests
@@ -80,13 +78,13 @@ if [ $GENERATE_DATA == "yes" ]; then
     then
     TOKEN=$(curl -X POST -H "content-type: application/json" \
         -H "Authorization: Bearer $(gcloud auth print-access-token)" \
-        -d "{\"audience\": \"${WEBHOOK}\"}" \
+        -d "{\"audience\": \"$(terraform output -raw event_handler_endpoint)\"}" \
         "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/fourkeys@${FOURKEYS_PROJECT}.iam.gserviceaccount.com:generateIdToken" | \
         python3 -c "import sys, json; print(json.load(sys.stdin)['token'])")
     fi
     
-    echo "generating data…"  # FYI: env vars are set in-line so that this command can be copied and run separately
-    WEBHOOK=${WEBHOOK} SECRET=${SECRET} TOKEN=${TOKEN} python3 ../../data_generator/generate_data.py --vc_system=${GIT_SYSTEM}
+    echo "generating data…"
+    WEBHOOK=$(terraform output -raw event_handler_endpoint) SECRET=$(terraform output -raw event_handler_secret) TOKEN=${TOKEN} python3 ../../data_generator/generate_data.py --vc_system=${GIT_SYSTEM}
 fi
 
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
@@ -96,5 +94,5 @@ echo "Please visit $DATASTUDIO_URL to connect your data to the dashboard templat
 
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
 echo 'Setup complete! Run the following commands to get values needed to configure VCS webhook:'
-echo -e "➡️ Webhook URL: ${GREEN}echo \$(terraform output -raw event-handler-endpoint)${NOCOLOR}"
-echo -e "➡️ Secret: ${GREEN}echo \$(terraform output -raw event-handler-secret)${NOCOLOR}"
+echo -e "➡️ Webhook URL: ${GREEN}echo \$(terraform output -raw event_handler_endpoint)${NOCOLOR}"
+echo -e "➡️ Secret: ${GREEN}echo \$(terraform output -raw event_handler_secret)${NOCOLOR}"

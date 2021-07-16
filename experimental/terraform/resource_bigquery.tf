@@ -11,14 +11,14 @@ resource "google_bigquery_dataset" "four_keys" {
   ]
 }
 
-resource "google_bigquery_table" "bq_table_events_raw" {
+resource "google_bigquery_table" "events_raw" {
   dataset_id          = google_bigquery_dataset.four_keys.dataset_id
   table_id            = "events_raw"
   schema              = file("../../setup/events_raw_schema.json")
   deletion_protection = false
 }
 
-resource "google_bigquery_table" "bq_view_changes" {
+resource "google_bigquery_table" "view_changes" {
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   table_id   = "changes"
   view {
@@ -27,11 +27,11 @@ resource "google_bigquery_table" "bq_view_changes" {
   }
   deletion_protection = false
   depends_on = [
-    google_bigquery_table.bq_table_events_raw
+    google_bigquery_table.events_raw
   ]
 }
 
-resource "google_bigquery_routine" "bq_func_json2array" {
+resource "google_bigquery_routine" "func_json2array" {
   dataset_id   = google_bigquery_dataset.four_keys.dataset_id
   routine_id   = "json2array"
   routine_type = "SCALAR_FUNCTION"
@@ -44,7 +44,7 @@ resource "google_bigquery_routine" "bq_func_json2array" {
   definition_body = "return JSON.parse(json).map(x=>JSON.stringify(x));"
 }
 
-resource "google_bigquery_table" "bq_view_deployments" {
+resource "google_bigquery_table" "view_deployments" {
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   table_id   = "deployments"
   view {
@@ -53,12 +53,12 @@ resource "google_bigquery_table" "bq_view_deployments" {
   }
   deletion_protection = false
   depends_on = [
-    google_bigquery_table.bq_table_events_raw,
-    google_bigquery_routine.bq_func_json2array
+    google_bigquery_table.events_raw,
+    google_bigquery_routine.func_json2array
   ]
 }
 
-resource "google_bigquery_table" "bq_view_incidents" {
+resource "google_bigquery_table" "view_incidents" {
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   table_id   = "incidents"
   view {
@@ -67,23 +67,23 @@ resource "google_bigquery_table" "bq_view_incidents" {
   }
   deletion_protection = false
   depends_on = [
-    google_bigquery_table.bq_table_events_raw,
-    google_bigquery_table.bq_view_deployments
+    google_bigquery_table.events_raw,
+    google_bigquery_table.view_deployments
   ]
 }
 
 resource "google_project_iam_member" "parser_bq_project_access" {
   role   = "roles/bigquery.user"
-  member = "serviceAccount:${google_service_account.fourkeys_service_account.email}"
+  member = "serviceAccount:${google_service_account.fourkeys.email}"
 }
 
-resource "google_bigquery_dataset_iam_member" "parser_bq_dataset_access" {
+resource "google_bigquery_dataset_iam_member" "parser_bq" {
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   role       = "roles/bigquery.dataEditor"
-  member     = "serviceAccount:${google_service_account.fourkeys_service_account.email}"
+  member     = "serviceAccount:${google_service_account.fourkeys.email}"
 }
 
-resource "google_project_iam_member" "parser_service_account_run_invoker" {
-  member = "serviceAccount:${google_service_account.fourkeys_service_account.email}"
+resource "google_project_iam_member" "parser_run_invoker" {
+  member = "serviceAccount:${google_service_account.fourkeys.email}"
   role   = "roles/run.invoker"
 }
