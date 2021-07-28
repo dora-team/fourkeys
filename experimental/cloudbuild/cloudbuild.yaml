@@ -43,8 +43,10 @@ steps:
           echo "  }" >> backend.tf
           echo "}" >> backend.tf
 
+          echo "bigquery_region = \"${_FOURKEYS_BIGQUERY_REGION}\"" >> environment.auto.tfvars
           echo "google_project_id = \"${PROJECT_ID}\"" >> environment.auto.tfvars
           echo "google_region = \"${_FOURKEYS_REGION}\"" >> environment.auto.tfvars
+          echo "parsers = [ ${_FOURKEYS_PARSERS} ]" >> terraform.tfvars
           
           terraform init
         else
@@ -114,6 +116,8 @@ options:
     - 'STACK_PATH=experimental/terraform'
 
 substitutions:
+  _FOURKEYS_BIGQUERY_REGION: 'US'
   _FOURKEYS_BRANCH: 'main'
+  _FOURKEYS_PARSERS: '"cloud-build", "tekton", "gitlab", "gitlab"'
   _FOURKEYS_REGION: 'us-central1'
 timeout: 3600s # Same as token now, i.e. 1hr.
