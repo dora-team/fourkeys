@@ -1,0 +1,119 @@
+# Copyright 2020 Google LLC
+# Copyright 2021 Nando’s Chickenland Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+steps:
+# [START tf-branch]
+  - id: 'branch name check'
+    name: 'alpine'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        echo "********************************************************************************"
+        echo "Running branch: ${BRANCH_NAME}"
+        echo "********************************************************************************"
+# [END tf-branch]
+# [START tf-init]
+  - id: 'tf init'
+    name: 'hashicorp/terraform:1.0.2'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        if [ -d "$${STACK_PATH}" ]; then
+          cd "$${STACK_PATH}"
+          
+          echo "terraform {" >> backend.tf
+          echo "required_version = \">=1.0\"" >> backend.tf
+          echo "  backend \"gcs\" {" >> backend.tf
+          echo "    bucket = \"${PROJECT_ID}-${_REGION}-terraform-state\"" >> backend.tf
+          echo "    prefix = \"fourkeys\"" >> backend.tf
+          echo "  }" >> backend.tf
+          echo "}" >> backend.tf
+
+          echo "google_project_id = \"${PROJECT_ID}\"" >> environment.auto.tfvars
+          echo "google_region = \"${_FOURKEYS_REGION}\"" >> environment.auto.tfvars
+          
+          terraform init
+        else
+          echo "***************************** SKIPPING INIT ************************************"
+          echo "$${STACK_PATH} folder not found in branch '${BRANCH_NAME}'."
+          echo "********************************************************************************"
+          exit 1
+        fi
+# [END tf-init]
+# [START tf-validate]
+  - id: 'tf validate'
+    name: 'hashicorp/terraform:1.0.2'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        if [ -d "$${STACK_PATH}" ]; then
+          cd "$${STACK_PATH}"
+          terraform validate
+        else
+          echo "***************************** SKIPPING VALIDATE ********************************"
+          echo "$${STACK_PATH} folder not found in branch '$BRANCH_NAME'."
+          echo "********************************************************************************"
+          exit 2
+        fi
+  # [END tf-validate]
+  # [START tf-plan]
+  - id: 'tf plan'
+    name: 'hashicorp/terraform:1.0.2'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        if [ -d "$${STACK_PATH}" ]; then
+          cd "$${STACK_PATH}"
+          terraform plan
+        else
+          echo "***************************** SKIPPING PLAN ************************************"
+          echo "$${STACK_PATH} folder not found in branch '${BRANCH_NAME}'."
+          echo "********************************************************************************"
+          exit 3
+        fi
+  # [END tf-plan]
+  # [START tf-apply]
+  - id: 'tf apply'
+    name: 'hashicorp/terraform:1.0.2'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        if [ "${BRANCH_NAME}" == "${_FOURKEYS_BRANCH}" ]; then
+          if [ -d "$${STACK_PATH}" ]; then
+            cd "$${STACK_PATH}"
+            terraform apply -auto-approve
+          else
+            echo "***************************** SKIPPING APPLYING *******************************"
+            echo "$${STACK_PATH} folder not found in branch '${BRANCH_NAME}'."
+            echo "*******************************************************************************"
+            exit 4
+          fi
+        else
+          echo "Skipping as this is not provisioning, i.e. ${BRANCH_NAME} to ${_BUILD_ENV}"
+        fi
+  # [END tf-apply]
+options:
+  env:
+    - 'STACK_PATH=experimental/terraform'
+
+substitutions:
+  _FOURKEYS_BRANCH: 'main'
+  _FOURKEYS_REGION: 'us-central1'
+timeout: 3600s # Same as token now, i.e. 1hr.
