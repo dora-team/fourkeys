@@ -38,7 +38,7 @@ steps:
           echo "terraform {" >> backend.tf
           echo "required_version = \">=1.0\"" >> backend.tf
           echo "  backend \"gcs\" {" >> backend.tf
-          echo "    bucket = \"${PROJECT_ID}-${_REGION}-terraform-state\"" >> backend.tf
+          echo "    bucket = \"${PROJECT_ID}-${_FOURKEYS_REGION}-state\"" >> backend.tf
           echo "    prefix = \"fourkeys\"" >> backend.tf
           echo "  }" >> backend.tf
           echo "}" >> backend.tf
