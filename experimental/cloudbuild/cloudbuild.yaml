@@ -118,6 +118,6 @@ options:
 substitutions:
   _FOURKEYS_BIGQUERY_REGION: 'US'
   _FOURKEYS_BRANCH: 'main'
-  _FOURKEYS_PARSERS: '"cloud-build", "tekton", "gitlab", "gitlab"'
+  _FOURKEYS_PARSERS: '\"cloud-build\", \"tekton\", \"gitlab\", \"gitlab\"'
   _FOURKEYS_REGION: 'us-central1'
 timeout: 3600s # Same as token now, i.e. 1hr.
