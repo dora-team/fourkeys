@@ -1,5 +1,6 @@
 resource "google_project_service" "bq_api" {
-  service                    = "bigquery.googleapis.com"
+  for_each                   = toset([ "bigquery.googleapis.com", "bigquerydatatransfer.googleapis.com" ])
+  service                    = each.value
   disable_dependent_services = true
 }
 
