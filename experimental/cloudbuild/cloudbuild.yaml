@@ -46,7 +46,7 @@ steps:
           echo "bigquery_region = \"${_FOURKEYS_BIGQUERY_REGION}\"" >> environment.auto.tfvars
           echo "google_project_id = \"${PROJECT_ID}\"" >> environment.auto.tfvars
           echo "google_region = \"${_FOURKEYS_REGION}\"" >> environment.auto.tfvars
-          echo "parsers = [ ${_FOURKEYS_PARSERS} ]" >> terraform.tfvars
+          echo "parsers = [ ${_FOURKEYS_PARSERS} ]" >> environment.auto.tfvars
           
           terraform init
         else
