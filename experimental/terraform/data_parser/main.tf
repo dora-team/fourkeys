@@ -5,7 +5,7 @@ resource "google_cloud_run_service" "parser" {
   template {
     spec {
       containers {
-        image = "gcr.io/google-containers/busybox"
+        image = "gcr.io/cloudrun/placeholder"
         env {
           name  = "PROJECT_NAME"
           value = var.google_project_id

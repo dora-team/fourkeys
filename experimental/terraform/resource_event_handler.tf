@@ -9,7 +9,7 @@ resource "google_cloud_run_service" "event_handler" {
   template {
     spec {
       containers {
-        image = "gcr.io/${var.google_project_id}/event-handler"
+        image = "gcr.io/cloudrun/placeholder"
         env {
           name  = "PROJECT_NAME"
           value = var.google_project_id
