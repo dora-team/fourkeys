@@ -46,7 +46,11 @@ resource "google_cloud_run_service_iam_binding" "noauth" {
 resource "google_secret_manager_secret" "event_handler" {
   secret_id = "event-handler"
   replication {
-    automatic = true
+    user_managed {
+      replicas {
+        location = var.google_region
+      }
+    }
   }
   depends_on = [google_project_service.sm_api]
 }
