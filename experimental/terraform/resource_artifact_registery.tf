@@ -1,3 +1,7 @@
+resource "google_project_service" "ar_api" {
+  service = "artifactregistry.googleapis.com"
+}
+
 resource "google_artifact_registry_repository" "default" {
   provider = google-beta
 
