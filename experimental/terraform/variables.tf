@@ -29,3 +29,18 @@ variable "make_event_handler_public" {
   type        = bool
   default     = true
 }
+
+variable "cloud_build_triggers" {
+  description = "List of artifacts to be published to the Artifacts registry"
+  type = list(object({
+    name          = string
+    description   = string
+    cloudbuild    = string
+    owner         = string
+    repository    = string
+    branch        = string
+    include       = list(string)
+    substitutions = map(string)
+    invert_regex  = bool
+  }))
+}

@@ -69,3 +69,19 @@ resource "google_secret_manager_secret_iam_member" "event_handler" {
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.fourkeys.email}"
 }
+
+# add module reference for cloud build to create trigger
+module "cloudbuild_for_publishing" {
+  for_each = { for item in var.cloud_build_triggers : item.name => item }
+
+  source        = "cloudbuild-trigger"
+  name          = each.key
+  description   = each.value.description
+  project_id    = var.google_project_id
+  cloudbuild    = each.value.cloudbuild
+  owner         = each.value.owner
+  repository    = each.value.repository
+  branch        = each.value.branch
+  include       = each.value.include
+  substitutions = each.value.substitutions
+}
