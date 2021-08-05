@@ -72,16 +72,14 @@ resource "google_secret_manager_secret_iam_member" "event_handler" {
 
 # add module reference for cloud build to create trigger
 module "cloudbuild_for_publishing" {
-  for_each = { for item in var.cloud_build_triggers : item.name => item }
-
   source        = "./cloudbuild-trigger"
-  name          = each.key
-  description   = each.value.description
+  name          = var.name
+  description   = var.description
   project_id    = var.google_project_id
-  cloudbuild    = each.value.cloudbuild
-  owner         = each.value.owner
-  repository    = each.value.repository
-  branch        = each.value.branch
-  include       = each.value.include
-  substitutions = each.value.substitutions
+  cloudbuild    = var.cloudbuild
+  owner         = var.owner
+  repository    = var.repository
+  branch        = var.branch
+  include       = var.include
+  substitutions = var.substitutions
 }
