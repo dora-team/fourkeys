@@ -81,6 +81,6 @@ module "cloudbuild_for_publishing" {
   owner         = var.owner
   repository    = var.repository
   branch        = "main"
-  include       = "event_handler/*"
+  include       = ["event_handler/*"]
   substitutions = {}
 }
