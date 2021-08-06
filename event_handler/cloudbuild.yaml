@@ -39,3 +39,7 @@ steps:
 images: [
   '${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/event-handler:${_TAG}'
 ]
+
+substitutions:
+  _FOURKEYS_GCR_DOMAIN: 'gcr.io'
+  
