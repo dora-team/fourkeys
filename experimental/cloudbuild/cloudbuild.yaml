@@ -46,10 +46,14 @@ steps:
           echo "bigquery_region = \"${_FOURKEYS_BIGQUERY_REGION}\"" >> environment.auto.tfvars
           echo "google_project_id = \"${PROJECT_ID}\"" >> environment.auto.tfvars
           echo "google_region = \"${_FOURKEYS_REGION}\"" >> environment.auto.tfvars
+          echo "google_gcr_domain = \"${_FOURKEYS_GCR_DOMAIN}\"" >> environment.auto.tfvars
           echo "parsers = [ ${_FOURKEYS_PARSERS} ]" >> environment.auto.tfvars
+          echo "owner = \"${_FOURKEYS_OWNER}\"" >> environment.auto.tfvars
+          echo "repository = \"$REPO_NAME\"" >> environment.auto.tfvars
           
           terraform init
         else
+
           echo "***************************** SKIPPING INIT ************************************"
           echo "$${STACK_PATH} folder not found in branch '${BRANCH_NAME}'."
           echo "********************************************************************************"
@@ -120,4 +124,6 @@ substitutions:
   _FOURKEYS_BRANCH: 'main'
   _FOURKEYS_PARSERS: '\"cloud-build\", \"tekton\", \"gitlab\", \"gitlab\"'
   _FOURKEYS_REGION: 'us-central1'
+  _FOURKEYS_OWNER: 'GoogleCloudPlatform'
+  _FOURKEYS_GCR_DOMAIN: 'gcr.io'
 timeout: 3600s # Same as token now, i.e. 1hr.

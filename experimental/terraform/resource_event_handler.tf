@@ -69,3 +69,19 @@ resource "google_secret_manager_secret_iam_member" "event_handler" {
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.fourkeys.email}"
 }
+
+module "cloudbuild_for_publishing" {
+  source        = "./cloudbuild-trigger"
+
+  name          = "event-handler-image-creation"
+  description   = "cloud build for creating publishing event handle container images"
+  project_id    = var.google_project_id
+  filename      = "event_handler/cloudbuild.yaml"
+  owner         = var.owner
+  repository    = var.repository
+  branch        = "main"
+  include       = ["event_handler/*"]
+  substitutions = {
+    _FOURKEYS_GCR_DOMAIN : "${var.google_region}-docker.pkg.dev"
+  }
+}

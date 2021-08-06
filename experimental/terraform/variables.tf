@@ -16,9 +16,24 @@ variable "bigquery_region" {
   }
 }
 
+variable "google_gcr_domain" {
+  type = string
+  default = "gcr.io"
+}
+
+variable "owner" {
+  type = string
+  description = "The owner of code repository"
+}
+
 variable "parsers" {
   description = "list of data parsers to configure (e.g. 'gitlab','tekton')"
   type        = list(any)
+}
+
+variable "repository" {
+  type = string
+  description = "The name of the git repository"
 }
 
 /*  The default for normal usage is true, because VCS webhooks need to call the endpoint over the
