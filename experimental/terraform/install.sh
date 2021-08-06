@@ -92,7 +92,9 @@ echo "configuring Data Studio dashboard…"
 DATASTUDIO_URL="https://datastudio.google.com/datasources/create?connectorId=AKfycbxCOPCqhVOJQlRpOPgJ47dPZNdDu44MXbjsgKw_2-s"
 echo "Please visit $DATASTUDIO_URL to connect your data to the dashboard template."
 
-echo "••••••••🔑••🔑••🔑••🔑••••••••"
-echo 'Setup complete! Run the following commands to get values needed to configure VCS webhook:'
-echo -e "➡️ Webhook URL: ${GREEN}echo \$(terraform output -raw event_handler_endpoint)${NOCOLOR}"
-echo -e "➡️ Secret: ${GREEN}echo \$(terraform output -raw event_handler_secret)${NOCOLOR}"
+if [[ ! -z "$CICD_SYSTEM" ]]; then
+    echo "••••••••🔑••🔑••🔑••🔑••••••••"
+    echo 'Setup complete! Run the following commands to get values needed to configure VCS webhook:'
+    echo -e "➡️ Webhook URL: ${GREEN}echo \$(terraform output -raw event_handler_endpoint)${NOCOLOR}"
+    echo -e "➡️ Secret: ${GREEN}echo \$(terraform output -raw event_handler_secret)${NOCOLOR}"
+fi
