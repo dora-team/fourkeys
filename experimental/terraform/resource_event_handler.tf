@@ -82,6 +82,6 @@ module "cloudbuild_for_publishing" {
   branch        = "main"
   include       = ["event_handler/*"]
   substitutions = {
-    _FOURKEYS_GCR_DOMAIN : var.google_gcr_domain
+    _FOURKEYS_GCR_DOMAIN : "${var.google_region}-docker.pkg.dev"
   }
 }

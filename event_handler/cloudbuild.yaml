@@ -42,4 +42,3 @@ images: [
 
 substitutions:
   _FOURKEYS_GCR_DOMAIN: 'gcr.io'
-  
