@@ -70,7 +70,6 @@ resource "google_secret_manager_secret_iam_member" "event_handler" {
   member    = "serviceAccount:${google_service_account.fourkeys.email}"
 }
 
-# add module reference for cloud build to create trigger
 module "cloudbuild_for_publishing" {
   source        = "./cloudbuild-trigger"
 
@@ -82,5 +81,7 @@ module "cloudbuild_for_publishing" {
   repository    = var.repository
   branch        = "main"
   include       = ["event_handler/*"]
-  substitutions = {}
+  substitutions = {
+    _FOURKEYS_GCR_DOMAIN : var.google_gcr_domain
+  }
 }

@@ -16,6 +16,11 @@ variable "bigquery_region" {
   }
 }
 
+variable "google_gcr_domain" {
+  type = string
+  default = "gcr.io"
+}
+
 variable "owner" {
   type = string
   description = "The owner of code repository"
