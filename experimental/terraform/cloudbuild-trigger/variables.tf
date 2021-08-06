@@ -1,7 +1,7 @@
 variable "name" {}
 variable "description" {}
 variable "project_id" {}
-variable "cloudbuild" {}
+variable "filename" {}
 variable "owner" {}
 variable "repository" {}
 variable "branch" {}

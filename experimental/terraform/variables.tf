@@ -16,9 +16,19 @@ variable "bigquery_region" {
   }
 }
 
+variable "owner" {
+  type = string
+  description = "The owner of code repository"
+}
+
 variable "parsers" {
   description = "list of data parsers to configure (e.g. 'gitlab','tekton')"
   type        = list(any)
+}
+
+variable "repository" {
+  type = string
+  description = "The name of the git repository"
 }
 
 /*  The default for normal usage is true, because VCS webhooks need to call the endpoint over the
@@ -28,19 +38,4 @@ variable "make_event_handler_public" {
   description = "If true, the event handler endpoint will be accessible by unauthenticated users."
   type        = bool
   default     = true
-}
-
-variable "cloud_build_triggers" {
-  description = "List of artifacts to be published to the Artifacts registry"
-  type = list(object({
-    name          = string
-    description   = string
-    cloudbuild    = string
-    owner         = string
-    repository    = string
-    branch        = string
-    include       = list(string)
-    substitutions = map(string)
-    invert_regex  = bool
-  }))
 }

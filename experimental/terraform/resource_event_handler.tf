@@ -73,13 +73,14 @@ resource "google_secret_manager_secret_iam_member" "event_handler" {
 # add module reference for cloud build to create trigger
 module "cloudbuild_for_publishing" {
   source        = "./cloudbuild-trigger"
-  name          = var.name
-  description   = var.description
+
+  name          = "event-handler-image-creation"
+  description   = "cloud build for creating publishing event handle container images"
   project_id    = var.google_project_id
-  cloudbuild    = var.cloudbuild
+  filename      = "event_handler/cloudbuild.yaml"
   owner         = var.owner
   repository    = var.repository
-  branch        = var.branch
-  include       = var.include
-  substitutions = var.substitutions
+  branch        = "main"
+  include       = "event_handler/*"
+  substitutions = {}
 }
