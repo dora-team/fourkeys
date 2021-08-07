@@ -31,7 +31,6 @@
     # google_region (FOURKEYS_REGION)
     # bigquery_region (BIGQUERY_REGION)
     # parsers [(list of VCS and CICD parsers to install)]
-    # make_event_handler_public (true/false: allow public access to the event-handler endpoint [default is true, as required by GitHub.com/GitLab.com])
 
 set -eEuo pipefail
 
