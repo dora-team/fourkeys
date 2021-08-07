@@ -169,7 +169,7 @@ To run nox:
 
 ### Listing tests
 
-To list all the test sesssions in the noxfile, use the following command:
+To list all the test sessions in the noxfile, use the following command:
 
 ```sh
 python3 -m nox -l
