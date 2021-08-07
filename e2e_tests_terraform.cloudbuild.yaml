@@ -36,7 +36,6 @@ steps:
         TF_VAR_google_region='us-central1' \
         TF_VAR_bigquery_region='US' \
         TF_VAR_parsers='["cloud-build","github"]' \
-        TF_VAR_make_event_handler_public=true \
         ./install.sh
 
   - id: Check Tables are Populated
