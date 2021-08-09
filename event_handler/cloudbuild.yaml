@@ -13,7 +13,7 @@
 # limitations under the License.
 
 steps:
-- # Build event_handler image
+- # Build the event_handler image
   name: gcr.io/cloud-builders/docker:latest
   args: ['build', '--tag=${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/event-handler:${_TAG}', '.']
   dir: 'event_handler'
