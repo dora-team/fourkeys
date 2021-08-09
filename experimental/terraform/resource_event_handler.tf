@@ -73,7 +73,7 @@ resource "google_secret_manager_secret_iam_member" "event_handler" {
 module "cloudbuild_for_publishing" {
   source        = "./cloudbuild-trigger"
 
-  name          = "event-handler-image-creation"
+  name          = "event-handler-build-deploy"
   description   = "cloud build for creating publishing event handle container images"
   project_id    = var.google_project_id
   filename      = "event_handler/cloudbuild.yaml"
