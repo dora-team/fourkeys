@@ -16,6 +16,7 @@ steps:
 - # Build event_handler image
   name: gcr.io/cloud-builders/docker:latest
   args: ['build', '--tag=${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/event-handler:${_TAG}', '.']
+  dir: 'event-handler'
   id: build
 
 - # Push the container image to Container Registry
