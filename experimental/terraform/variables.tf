@@ -1,11 +1,3 @@
-variable "google_project_id" {
-  type = string
-}
-
-variable "google_region" {
-  type = string
-}
-
 variable "bigquery_region" {
   type = string
   validation {
@@ -14,6 +6,20 @@ variable "bigquery_region" {
     )
     error_message = "The value for 'bigquery_region' must be one of: 'US','EU'."
   }
+}
+
+variable "cloud_build_branch" {
+  type = string
+  description = "(optional) the branch to trigger event handler and bq worker builds"
+  default = "main"
+}
+
+variable "google_project_id" {
+  type = string
+}
+
+variable "google_region" {
+  type = string
 }
 
 variable "google_gcr_domain" {
