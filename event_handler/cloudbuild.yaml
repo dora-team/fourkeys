@@ -40,4 +40,3 @@ steps:
 substitutions:
   _FOURKEYS_GCR_DOMAIN: 'gcr.io'
   _TAG: 'latest'
-  _TEST: 'foo'
