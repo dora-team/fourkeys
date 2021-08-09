@@ -44,6 +44,7 @@ steps:
           echo "}" >> backend.tf
 
           echo "bigquery_region = \"${_FOURKEYS_BIGQUERY_REGION}\"" >> environment.auto.tfvars
+          echo "cloud_build_branch = \"${_FOURKEYS_CLOUD_BUILD_BRANCH}\"" >> environment.auto.tfvars
           echo "google_project_id = \"${PROJECT_ID}\"" >> environment.auto.tfvars
           echo "google_region = \"${_FOURKEYS_REGION}\"" >> environment.auto.tfvars
           echo "google_gcr_domain = \"${_FOURKEYS_GCR_DOMAIN}\"" >> environment.auto.tfvars
@@ -101,7 +102,7 @@ steps:
     args:
       - '-c'
       - |
-        if [ "${BRANCH_NAME}" == "${_FOURKEYS_BRANCH}" ]; then
+        if [ "${BRANCH_NAME}" == "${_FOURKEYS_PROVISION_BRANCH}" ]; then
           if [ -d "$${STACK_PATH}" ]; then
             cd "$${STACK_PATH}"
             terraform apply -auto-approve
@@ -121,9 +122,10 @@ options:
 
 substitutions:
   _FOURKEYS_BIGQUERY_REGION: 'US'
-  _FOURKEYS_BRANCH: 'main'
-  _FOURKEYS_PARSERS: '\"cloud-build\", \"tekton\", \"gitlab\", \"gitlab\"'
-  _FOURKEYS_REGION: 'us-central1'
-  _FOURKEYS_OWNER: 'GoogleCloudPlatform'
+  _FOURKEYS_CLOUD_BUILD_BRANCH: 'main'
   _FOURKEYS_GCR_DOMAIN: 'gcr.io'
+  _FOURKEYS_OWNER: 'GoogleCloudPlatform'
+  _FOURKEYS_PARSERS: '\"cloud-build\", \"tekton\", \"gitlab\", \"gitlab\"'
+  _FOURKEYS_PROVISION_BRANCH: 'main'
+  _FOURKEYS_REGION: 'us-central1'
 timeout: 3600s # Same as token now, i.e. 1hr.
