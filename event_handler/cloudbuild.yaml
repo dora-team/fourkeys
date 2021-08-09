@@ -19,7 +19,7 @@ steps:
   dir: 'event_handler'
   id: build
 
-- # Push the container image to Container Registry.
+- # Push the container image to Container Registry
   name: gcr.io/cloud-builders/docker
   args: ['push', '${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/event-handler:${_TAG}']
   waitFor: ["build"]
