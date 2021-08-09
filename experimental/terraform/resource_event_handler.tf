@@ -79,7 +79,7 @@ module "cloudbuild_for_publishing" {
   filename      = "event_handler/cloudbuild.yaml"
   owner         = var.owner
   repository    = var.repository
-  branch        = "main"
+  branch        = var.cloud_build_branch
   include       = ["event_handler/*"]
   substitutions = {
     _FOURKEYS_GCR_DOMAIN : "${var.google_region}-docker.pkg.dev"
