@@ -16,20 +16,20 @@ steps:
 - # Build cloud-build-worker image
   name: gcr.io/cloud-builders/docker:latest
   args: ['build', 
-         '--tag=gcr.io/$PROJECT_ID/default/cloud-build-worker:${_TAG}', '.']
+         '--tag=${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/default/cloud-build-worker:${_TAG}', '.']
   id: build
 
 - # Push the container image to Container Registry
   name: gcr.io/cloud-builders/docker
-  args: ['push', 'gcr.io/$PROJECT_ID/default/cloud-build-worker:${_TAG}']
+  args: ['push', '${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/default/cloud-build-worker:${_TAG}']
   waitFor: ["build"]
   id: push
 
 - # Deploy to Cloud Run
   name: google/cloud-sdk
   args: ['gcloud', 'run', 'deploy', 'cloud-build-worker',
-         '--image', 'gcr.io/$PROJECT_ID/default/cloud-build-worker:${_TAG}',
-         '--region', '${_REGION}',
+         '--image', '${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/default/cloud-build-worker:${_TAG}',
+         '--region', '${_FOURKEYS_REGION}',
          '--platform', 'managed'
   ]
   id: deploy
@@ -38,3 +38,8 @@ steps:
 images: [
   'gcr.io/$PROJECT_ID/cloud-build-worker:${_TAG}'
 ]
+
+substitutions:
+  _FOURKEYS_GCR_DOMAIN: 'gcr.io'
+  _FOURKEYS_REGION: 'us-central1'
+  _TAG: 'latest'
