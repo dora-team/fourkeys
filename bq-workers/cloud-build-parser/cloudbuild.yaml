@@ -16,25 +16,28 @@ steps:
 - # Build cloud-build-worker image
   name: gcr.io/cloud-builders/docker:latest
   args: ['build', 
-         '--tag=gcr.io/$PROJECT_ID/cloud-build-worker:${_TAG}', '.']
+         '--tag=${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/default/cloud-build-worker:${_TAG}', '.']
+  dir: 'bq-workers/cloud-build-parser'   
   id: build
 
-- # Push the container image to Container Registry
+- # Push the container image to Artifact Registry
   name: gcr.io/cloud-builders/docker
-  args: ['push', 'gcr.io/$PROJECT_ID/cloud-build-worker:${_TAG}']
-  waitFor: build
+  args: ['push', '${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/default/cloud-build-worker:${_TAG}']
+  waitFor: ["build"]
   id: push
 
 - # Deploy to Cloud Run
   name: google/cloud-sdk
   args: ['gcloud', 'run', 'deploy', 'cloud-build-worker',
-         '--image', 'gcr.io/$PROJECT_ID/cloud-build-worker:${_TAG}',
-         '--region', '${_REGION}',
-         '--platform', 'managed'
+         '--image', '${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/default/cloud-build-worker:${_TAG}',
+         '--region', '${_FOURKEYS_REGION}',
+         '--platform', 'managed',
+         '--impersonate-service-account', 'terraform@${PROJECT_ID}.iam.gserviceaccount.com'
   ]
   id: deploy
-  waitFor: push
+  waitFor: ["push"]
 
-images: [
-  'gcr.io/$PROJECT_ID/cloud-build-worker:${_TAG}'
-]
+substitutions:
+  _FOURKEYS_GCR_DOMAIN: 'gcr.io'
+  _FOURKEYS_REGION: 'us-central1'
+  _TAG: 'latest'
