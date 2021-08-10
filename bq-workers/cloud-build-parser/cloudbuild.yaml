@@ -20,7 +20,7 @@ steps:
   dir: 'bq-workers/cloud-build-parser'   
   id: build
 
-- # Push the container image to Container Registry
+- # Push the container image to Artifact Registry
   name: gcr.io/cloud-builders/docker
   args: ['push', '${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/default/cloud-build-worker:${_TAG}']
   waitFor: ["build"]
