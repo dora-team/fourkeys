@@ -80,8 +80,9 @@ module "cloudbuild_for_publishing" {
   owner         = var.owner
   repository    = var.repository
   branch        = var.cloud_build_branch
-  include       = ["**"]
+  include       = ["event_handler/**"]
   substitutions = {
     _FOURKEYS_GCR_DOMAIN : "${var.google_region}-docker.pkg.dev"
+    _FOURKEYS_REGION: var.google_region
   }
 }

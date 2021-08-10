@@ -29,7 +29,7 @@ steps:
   name: google/cloud-sdk
   args: ['gcloud', 'run', 'deploy', 'event-handler',
          '--image', '${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/default/event-handler:${_TAG}',
-         '--region', '${_REGION}',
+         '--region', '${_FOURKEYS_REGION}',
          '--platform', 'managed',
          '--allow-unauthenticated',
          '--set-env-vars', 'PROJECT_NAME=$PROJECT_ID'
@@ -39,4 +39,5 @@ steps:
 
 substitutions:
   _FOURKEYS_GCR_DOMAIN: 'gcr.io'
+  _FOURKEYS_REGION: 'us-central1'
   _TAG: 'latest'
