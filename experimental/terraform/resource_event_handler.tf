@@ -83,5 +83,6 @@ module "cloudbuild_for_publishing" {
   include       = ["**"]
   substitutions = {
     _FOURKEYS_GCR_DOMAIN : "${var.google_region}-docker.pkg.dev"
+    _FOURKEYS_REGION: var.google_region
   }
 }
