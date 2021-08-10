@@ -17,6 +17,7 @@ steps:
   name: gcr.io/cloud-builders/docker:latest
   args: ['build', 
          '--tag=${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/default/cloud-build-worker:${_TAG}', '.']
+  dir: 'bq-workers/cloud-build-parser'   
   id: build
 
 - # Push the container image to Container Registry
