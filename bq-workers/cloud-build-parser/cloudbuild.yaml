@@ -35,10 +35,6 @@ steps:
   id: deploy
   waitFor: ["push"]
 
-images: [
-  'gcr.io/$PROJECT_ID/cloud-build-worker:${_TAG}'
-]
-
 substitutions:
   _FOURKEYS_GCR_DOMAIN: 'gcr.io'
   _FOURKEYS_REGION: 'us-central1'
