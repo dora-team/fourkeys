@@ -16,19 +16,19 @@ steps:
 - # Build cloud-build-worker image
   name: gcr.io/cloud-builders/docker:latest
   args: ['build', 
-         '--tag=gcr.io/$PROJECT_ID/cloud-build-worker:${_TAG}', '.']
+         '--tag=gcr.io/$PROJECT_ID/default/cloud-build-worker:${_TAG}', '.']
   id: build
 
 - # Push the container image to Container Registry
   name: gcr.io/cloud-builders/docker
-  args: ['push', 'gcr.io/$PROJECT_ID/cloud-build-worker:${_TAG}']
+  args: ['push', 'gcr.io/$PROJECT_ID/default/cloud-build-worker:${_TAG}']
   waitFor: ["build"]
   id: push
 
 - # Deploy to Cloud Run
   name: google/cloud-sdk
   args: ['gcloud', 'run', 'deploy', 'cloud-build-worker',
-         '--image', 'gcr.io/$PROJECT_ID/cloud-build-worker:${_TAG}',
+         '--image', 'gcr.io/$PROJECT_ID/default/cloud-build-worker:${_TAG}',
          '--region', '${_REGION}',
          '--platform', 'managed'
   ]
