@@ -31,7 +31,8 @@ steps:
   args: ['gcloud', 'run', 'deploy', 'cloud-build-worker',
          '--image', '${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/default/cloud-build-worker:${_TAG}',
          '--region', '${_FOURKEYS_REGION}',
-         '--platform', 'managed'
+         '--platform', 'managed',
+         '--impersonate-service-account', 'terraform@${PROJECT_ID}.iam.gserviceaccount.com'
   ]
   id: deploy
   waitFor: ["push"]
