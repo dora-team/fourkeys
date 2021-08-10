@@ -48,3 +48,20 @@ resource "google_pubsub_subscription" "parser" {
   }
 
 }
+
+module "cloudbuild_for_parser" {
+  source        = "../cloudbuild-trigger"
+
+  name          = "${var.parser_service_name}-build-deploy"
+  description   = "cloud build for creating publishing ${var.parser_service_name} container images"
+  project_id    = var.google_project_id
+  filename      = "bq-workers/${var.parser_service_name}-parser/cloudbuild.yaml"
+  owner         = var.owner
+  repository    = var.repository
+  branch        = var.cloud_build_branch
+  include       = ["bq-workers/${var.parser_service_name}-parser/**"]
+  substitutions = {
+    _FOURKEYS_GCR_DOMAIN : "${var.google_region}-docker.pkg.dev"
+    _FOURKEYS_REGION : var.google_region
+  }
+}
