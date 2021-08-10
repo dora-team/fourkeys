@@ -33,7 +33,6 @@ resource "google_cloud_run_service" "event_handler" {
 }
 
 resource "google_cloud_run_service_iam_binding" "noauth" {
-  count    = var.make_event_handler_public ? 1 : 0
   location = var.google_region
   project  = var.google_project_id
   service  = "event-handler"

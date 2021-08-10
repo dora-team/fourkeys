@@ -31,7 +31,6 @@
     # google_region (FOURKEYS_REGION)
     # bigquery_region (BIGQUERY_REGION)
     # parsers [(list of VCS and CICD parsers to install)]
-    # make_event_handler_public (true/false: allow public access to the event-handler endpoint [default is true, as required by GitHub.com/GitLab.com])
 
 set -eEuo pipefail
 
@@ -92,7 +91,9 @@ echo "configuring Data Studio dashboard…"
 DATASTUDIO_URL="https://datastudio.google.com/datasources/create?connectorId=AKfycbxCOPCqhVOJQlRpOPgJ47dPZNdDu44MXbjsgKw_2-s"
 echo "Please visit $DATASTUDIO_URL to connect your data to the dashboard template."
 
-echo "••••••••🔑••🔑••🔑••🔑••••••••"
-echo 'Setup complete! Run the following commands to get values needed to configure VCS webhook:'
-echo -e "➡️ Webhook URL: ${GREEN}echo \$(terraform output -raw event_handler_endpoint)${NOCOLOR}"
-echo -e "➡️ Secret: ${GREEN}echo \$(terraform output -raw event_handler_secret)${NOCOLOR}"
+if [[ ! -z "$CICD_SYSTEM" ]]; then
+    echo "••••••••🔑••🔑••🔑••🔑••••••••"
+    echo 'Setup complete! Run the following commands to get values needed to configure VCS webhook:'
+    echo -e "➡️ Webhook URL: ${GREEN}echo \$(terraform output -raw event_handler_endpoint)${NOCOLOR}"
+    echo -e "➡️ Secret: ${GREEN}echo \$(terraform output -raw event_handler_secret)${NOCOLOR}"
+fi
