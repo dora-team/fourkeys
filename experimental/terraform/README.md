@@ -47,7 +47,7 @@ This guide describes how to set up Four Keys with your GitHub or GitLab project.
 
 ### Making changes
 At some point after running the setup script, you may want to make modifications to your infrastructure. Or, the Four Keys project itself may be updated with a new configuration. Terraform can be used to apply any incremental changes: after updating the configuration files, run `terraform apply`. You'll be prompted to confirm the planned changes; review them carefully, then type `yes` to proceed.
-> Tip: to make changes that will apply to your infrastructure, without editing the core configuration, consider using [Terraform Override Files](https://www.terraform.io/docs/language/files/override.html).
+> Tip: To make changes that will apply to your infrastructure, without editing the core configuration, consider using [Terraform Override Files](https://www.terraform.io/docs/language/files/override.html).
 
 ### New Google Cloud projects
 
