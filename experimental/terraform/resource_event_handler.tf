@@ -30,6 +30,12 @@ resource "google_cloud_run_service" "event_handler" {
     google_project_service.run_api,
   ]
 
+  lifecycle {
+    ignore_changes = [
+      template[0].spec[0].containers[0].image
+    ]
+  }
+
 }
 
 resource "google_cloud_run_service_iam_binding" "noauth" {

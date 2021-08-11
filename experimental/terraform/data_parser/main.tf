@@ -22,6 +22,12 @@ resource "google_cloud_run_service" "parser" {
 
   autogenerate_revision_name = true
 
+  lifecycle {
+    ignore_changes = [
+      template[0].spec[0].containers[0].image
+    ]
+  }
+
 }
 
 resource "google_pubsub_topic" "parser" {
