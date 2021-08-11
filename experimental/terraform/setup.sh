@@ -86,7 +86,7 @@ if [ $make_new_project == 'y' ]; then
 else
     read -p "Enter the project ID for Four Keys installation (ex: 'my-project'): " FOURKEYS_PROJECT
     read -p "Enter the region for Four Keys resources (ex: 'us-central1'): " FOURKEYS_REGION
-    read -p "Enter the location for Four Keys BigQuery resources (ex: 'US' or 'us-central1'): " BIGQUERY_REGION
+    read -p "Enter the location for Four Keys BigQuery resources ('US' or 'EU'): " BIGQUERY_REGION
 fi
 
 printf "\n"

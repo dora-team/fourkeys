@@ -29,7 +29,7 @@ This guide describes how to set up Four Keys with your GitHub or GitLab project.
     ```bash
     gcloud config set project <PARENT_PROJECT_ID>
     cd setup
-    ./setup.sh 2>&1 | tee setup.log
+    script setup.log -c ./setup.sh
     ```
 1.  Answer the setup script's questions:
 
