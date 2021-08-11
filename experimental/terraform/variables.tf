@@ -62,6 +62,7 @@ variable "google_gcr_domain" {
 variable "mapped_domain" {
   type        = string
   description = "Domain name which is mapped on cloud run."
+  default     = ""
 }
 
 variable "owner" {

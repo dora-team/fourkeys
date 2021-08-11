@@ -39,6 +39,8 @@ resource "google_cloud_run_service" "event_handler" {
 }
 
 resource "google_cloud_run_domain_mapping" "event_handler" {
+  # conditionally use this module
+  count    = length(var.mapped_domain) > 0 ? 1 : 0
   location = var.google_domain_mapping_region
   name     = var.mapped_domain
 
