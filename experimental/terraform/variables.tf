@@ -59,6 +59,11 @@ variable "google_gcr_domain" {
   default = "gcr.io"
 }
 
+variable "mapped_domain" {
+  type        = string
+  description = "Domain name which is mapped on cloud run."
+}
+
 variable "owner" {
   type        = string
   description = "The owner of code repository"
