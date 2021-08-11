@@ -38,6 +38,19 @@ resource "google_cloud_run_service" "event_handler" {
 
 }
 
+resource "google_cloud_run_domain_mapping" "event_handler" {
+  location = var.google_region
+  name     = "dora.nandos.dev"
+
+  metadata {
+    namespace = var.google_project_id
+  }
+
+  spec {
+    route_name = google_cloud_run_service.event_handler.name
+  }
+}
+
 resource "google_cloud_run_service_iam_binding" "noauth" {
   count    = var.make_event_handler_public ? 1 : 0
   location = var.google_region
