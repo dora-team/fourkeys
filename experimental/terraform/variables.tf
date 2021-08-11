@@ -9,9 +9,9 @@ variable "bigquery_region" {
 }
 
 variable "cloud_build_branch" {
-  type = string
+  type        = string
   description = "(optional) the branch to trigger event handler and bq worker builds"
-  default = "main"
+  default     = "main"
 }
 
 variable "google_project_id" {
@@ -19,22 +19,48 @@ variable "google_project_id" {
 }
 
 variable "google_region" {
-  type = string
+  type    = string
   default = "us-central1"
 }
 
 variable "google_domain_mapping_region" {
-  type = string
-  default = "us-central1"
+  type        = string
+  description = "Domain mapping region"
+  default     = "us-central1"
+  validation {
+    condition = (
+      !contains([
+        "asia-east2",
+        "asia-northeast2",
+        "asia-northeast3",
+        "asia-southeast2",
+        "asia-south1",
+        "asia-south2",
+        "australia-southeast1",
+        "australia-southeast2",
+        "europe-central2",
+        "europe-west2",
+        "europe-west3",
+        "europe-west6",
+        "northamerica-northeast1",
+        "northamerica-northeast2",
+        "southamerica-east1",
+        "us-west2",
+        "us-west3",
+        "us-west4",
+      ], var.google_domain_mapping_region)
+    )
+    error_message = "The value for 'google_domain_mapping_region' is invalid, check https://cloud.google.com/run/docs/locations#domains ."
+  }
 }
 
 variable "google_gcr_domain" {
-  type = string
+  type    = string
   default = "gcr.io"
 }
 
 variable "owner" {
-  type = string
+  type        = string
   description = "The owner of code repository"
 }
 
@@ -44,7 +70,7 @@ variable "parsers" {
 }
 
 variable "repository" {
-  type = string
+  type        = string
   description = "The name of the git repository"
 }
 
