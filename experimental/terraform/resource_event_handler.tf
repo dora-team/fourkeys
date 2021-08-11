@@ -39,7 +39,7 @@ resource "google_cloud_run_service" "event_handler" {
 }
 
 resource "google_cloud_run_domain_mapping" "event_handler" {
-  location = var.google_region
+  location = var.google_domain_mapping_region
   name     = "dora.nandos.dev"
 
   metadata {

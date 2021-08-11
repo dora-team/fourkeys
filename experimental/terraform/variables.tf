@@ -20,6 +20,12 @@ variable "google_project_id" {
 
 variable "google_region" {
   type = string
+  default = "us-central1"
+}
+
+variable "google_domain_mapping_region" {
+  type = string
+  default = "us-central1"
 }
 
 variable "google_gcr_domain" {
