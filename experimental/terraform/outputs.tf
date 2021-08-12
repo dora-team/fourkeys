@@ -3,8 +3,7 @@ output "event_handler_endpoint" {
 }
 
 output "event_handler_dns" {
-  value = join("", google_cloud_run_domain_mapping.event_handler[0].status[0].resource_records)
-  # ["${google_cloud_run_domain_mapping.event_handler[0].status[0].resource_records}", null]
+  value = google_cloud_run_domain_mapping.event_handler ? google_cloud_run_domain_mapping.event_handler[0].status[0].resource_records : null
 }
 
 output "event_handler_secret" {
