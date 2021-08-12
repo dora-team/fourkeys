@@ -3,7 +3,7 @@ output "event_handler_endpoint" {
 }
 
 output "event_handler_dns" {
-  value = google_cloud_run_domain_mapping.event_handler.status[0]["resource_records"]
+  value = try(google_cloud_run_domain_mapping.event_handler[0].status[0]["resource_records"], null)
 }
 
 output "event_handler_secret" {
