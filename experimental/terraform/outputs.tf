@@ -3,7 +3,7 @@ output "event_handler_endpoint" {
 }
 
 output "event_handler_dns" {
-  value = length(var.google_domain_mapping_region) > 0 ? google_cloud_run_domain_mapping.event_handler[0].status[0].resource_records : "na"
+  value = length(var.google_domain_mapping_region) > 0 ? "test" : "na"
 }
 
 output "event_handler_secret" {
