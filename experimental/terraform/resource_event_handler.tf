@@ -48,6 +48,10 @@ resource "google_cloud_run_domain_mapping" "event_handler" {
     namespace = var.google_project_id
   }
 
+  depends_on = [
+    google_cloud_run_service.event_handler
+  ]
+
   spec {
     route_name = google_cloud_run_service.event_handler.name
   }
