@@ -49,7 +49,7 @@ resource "google_cloud_run_domain_mapping" "event_handler" {
   }
 
   spec {
-    route_name = google_cloud_run_service.event_handler.name
+    route_name = google_cloud_run_service.event_handler.id
   }
 }
 
