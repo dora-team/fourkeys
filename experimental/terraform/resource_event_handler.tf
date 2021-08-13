@@ -2,6 +2,10 @@ resource "google_project_service" "sm_api" {
   service = "secretmanager.googleapis.com"
 }
 
+resource "google_project_service" "dns_api" {
+  service = "dns.googleapis.com"
+}
+
 resource "google_cloud_run_service" "event_handler" {
   name     = "event-handler"
   location = length(var.mapped_domain) > 0 ? var.google_domain_mapping_region : var.google_region
@@ -51,6 +55,20 @@ resource "google_cloud_run_domain_mapping" "event_handler" {
   spec {
     route_name = google_cloud_run_service.event_handler.name
   }
+}
+
+module "event_hander_dns" {
+  source  = "terraform-google-modules/cloud-dns/google"
+  version = "3.1.0"
+  count   = length(var.mapped_domain) > 0 ? 1 : 0
+
+  project_id = var.google_project_id
+  name       = replace(replace(lower(trimspace(var.mapped_domain)), ".", "-"), "/[^a-z0-9\\-]/", "")
+  domain     = "${var.mapped_domain}."
+
+  recordsets = google_cloud_run_domain_mapping.event_handler[0].status[0]["resource_records"]
+
+  depends_on = [google_project_service.dns_api]
 }
 
 resource "google_cloud_run_service_iam_binding" "noauth" {
