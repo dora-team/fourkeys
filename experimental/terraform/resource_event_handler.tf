@@ -4,7 +4,7 @@ resource "google_project_service" "sm_api" {
 
 resource "google_cloud_run_service" "event_handler" {
   name     = "event-handler"
-  location = var.google_region
+  location = length(var.mapped_domain) > 0 ? var.google_domain_mapping_region : var.google_region
 
   template {
     spec {
@@ -49,7 +49,7 @@ resource "google_cloud_run_domain_mapping" "event_handler" {
   }
 
   spec {
-    route_name = google_cloud_run_service.event_handler.id
+    route_name = google_cloud_run_service.event_handler.name
   }
 }
 
