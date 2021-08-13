@@ -66,7 +66,16 @@ module "event_hander_dns" {
   name       = replace(replace(lower(trimspace(var.mapped_domain)), ".", "-"), "/[^a-z0-9\\-]/", "")
   domain     = "${var.mapped_domain}."
 
-  recordsets = google_cloud_run_domain_mapping.event_handler[0].status[0]["resource_records"]
+  recordsets = [
+    {
+      name    = google_cloud_run_domain_mapping.event_handler[0].status[0]["resource_records"][0]["name"]
+      type    = google_cloud_run_domain_mapping.event_handler[0].status[0]["resource_records"][0]["type"]
+      ttl     = 3600
+      records = [
+        google_cloud_run_domain_mapping.event_handler[0].status[0]["resource_records"][0]["rrdata"]
+      ]
+    }
+  ]
 
   depends_on = [google_project_service.dns_api]
 }
