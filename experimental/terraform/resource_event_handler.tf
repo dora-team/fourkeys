@@ -48,10 +48,6 @@ resource "google_cloud_run_domain_mapping" "event_handler" {
     namespace = var.google_project_id
   }
 
-  depends_on = [
-    google_cloud_run_service.event_handler
-  ]
-
   spec {
     route_name = google_cloud_run_service.event_handler.name
   }
@@ -59,13 +55,12 @@ resource "google_cloud_run_domain_mapping" "event_handler" {
 
 resource "google_cloud_run_service_iam_binding" "noauth" {
   count    = var.make_event_handler_public ? 1 : 0
-  location = var.google_region
+  location = length(var.mapped_domain) > 0 ? var.google_domain_mapping_region : var.google_region
   project  = var.google_project_id
-  service  = "event-handler"
+  service  = google_cloud_run_service.event_handler.name
 
   role       = "roles/run.invoker"
   members    = ["allUsers"]
-  depends_on = [google_cloud_run_service.event_handler]
 }
 
 resource "google_secret_manager_secret" "event_handler" {
@@ -73,7 +68,7 @@ resource "google_secret_manager_secret" "event_handler" {
   replication {
     user_managed {
       replicas {
-        location = var.google_region
+        location = length(var.mapped_domain) > 0 ? var.google_domain_mapping_region : var.google_region
       }
     }
   }
