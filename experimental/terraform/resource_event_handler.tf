@@ -65,6 +65,8 @@ module "event_hander_dns" {
   project_id = var.google_project_id
   name       = replace(replace(lower(trimspace(var.mapped_domain)), ".", "-"), "/[^a-z0-9\\-]/", "")
   domain     = "${var.mapped_domain}."
+  type       = "public"
+  dnssec_config = { state : "on" }
 
   recordsets = [
     {
