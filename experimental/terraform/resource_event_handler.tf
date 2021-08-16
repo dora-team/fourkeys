@@ -58,7 +58,7 @@ resource "google_cloud_run_domain_mapping" "event_handler" {
 }
 
 module "event_hander_dns" {
-  source  = "terraform-google-modules/cloud-dns/google"
+  source  = "./cloud-dns"
   version = "3.1.0"
   count   = length(var.mapped_domain) > 0 ? 1 : 0
 
