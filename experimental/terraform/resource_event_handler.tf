@@ -46,7 +46,7 @@ resource "google_cloud_run_domain_mapping" "event_handler" {
   # conditionally use this module
   count    = length(var.mapped_domain) > 0 ? 1 : 0
   location = var.google_domain_mapping_region
-  name     = "dora.${var.mapped_domain}"
+  name     = "${var.subdomain}.${var.mapped_domain}"
 
   metadata {
     namespace = var.google_project_id
@@ -59,7 +59,7 @@ resource "google_cloud_run_domain_mapping" "event_handler" {
 
 module "event_hander_dns" {
   source  = "./cloud-dns"
-  count   = length(var.mapped_domain) > 0 ? 1 : 0
+  count   = length(var.mapped_domain) > 0 && var.google_dns ? 1 : 0
 
   project_id = var.google_project_id
   name       = replace(replace(lower(trimspace(var.mapped_domain)), ".", "-"), "/[^a-z0-9\\-]/", "")
@@ -69,7 +69,7 @@ module "event_hander_dns" {
 
   recordsets = [
     {
-      name    = "dora"
+      name    = "${var.subdomain}"
       type    = "CNAME"
       ttl     = 3600
       records = [
