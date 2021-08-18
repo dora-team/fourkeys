@@ -45,14 +45,16 @@ steps:
 
           echo "bigquery_region = \"${_FOURKEYS_BIGQUERY_REGION}\"" >> environment.auto.tfvars
           echo "cloud_build_branch = \"${_FOURKEYS_CLOUD_BUILD_BRANCH}\"" >> environment.auto.tfvars
+          echo "google_domain_mapping_region = \"${_FOURKEYS_DOMAIN_MAPPING_REGION}\"" >> environment.auto.tfvars
+          echo "google_gcr_domain = \"${_FOURKEYS_GCR_DOMAIN}\"" >> environment.auto.tfvars
           echo "google_project_id = \"${PROJECT_ID}\"" >> environment.auto.tfvars
           echo "google_region = \"${_FOURKEYS_REGION}\"" >> environment.auto.tfvars
-          echo "google_gcr_domain = \"${_FOURKEYS_GCR_DOMAIN}\"" >> environment.auto.tfvars
-          echo "google_domain_mapping_region = \"${_FOURKEYS_DOMAIN_MAPPING_REGION}\"" >> environment.auto.tfvars
+          echo "looker_service_account = ${_FOURKEYS_LOOKER_SERVICE_ACCOUNT}" >> environment.auto.tfvars
           echo "mapped_domain = \"${_FOURKEYS_MAPPED_DOMAIN}\"" >> environment.auto.tfvars
-          echo "parsers = [ ${_FOURKEYS_PARSERS} ]" >> environment.auto.tfvars
           echo "owner = \"${_FOURKEYS_OWNER}\"" >> environment.auto.tfvars
+          echo "parsers = [ ${_FOURKEYS_PARSERS} ]" >> environment.auto.tfvars
           echo "repository = \"$REPO_NAME\"" >> environment.auto.tfvars
+          echo "service_account_keys_policy_override = ${_FOURKEYS_SERVICE_ACCOUNT_KEYS}" >> environment.auto.tfvars
           
           terraform init
         else
@@ -125,11 +127,13 @@ options:
 substitutions:
   _FOURKEYS_BIGQUERY_REGION: 'US'
   _FOURKEYS_CLOUD_BUILD_BRANCH: 'main'
+  _FOURKEYS_DOMAIN_MAPPING_REGION: 'us-central1'
   _FOURKEYS_GCR_DOMAIN: 'gcr.io'
+  _FOURKEYS_LOOKER_SERVICE_ACCOUNT: 'false'
+  _FOURKEYS_MAPPED_DOMAIN: ''
   _FOURKEYS_OWNER: 'GoogleCloudPlatform'
   _FOURKEYS_PARSERS: '\"cloud-build\", \"github\", \"gitlab\", \"tekton\"'
   _FOURKEYS_PROVISION_BRANCH: 'main'
   _FOURKEYS_REGION: 'us-central1'
-  _FOURKEYS_DOMAIN_MAPPING_REGION: 'us-central1'
-  _FOURKEYS_MAPPED_DOMAIN: ''
+  _FOURKEYS_SERVICE_ACCOUNT_KEYS: 'false'
 timeout: 3600s # Same as token now, i.e. 1hr.
