@@ -18,9 +18,7 @@ resource "google_project_organization_policy" "service_account_keys_policy" {
   project    = var.google_project_id
   constraint = "iam.disableServiceAccountKeyCreation"
 
-  list_policy {
-    allow {
-      all = false
-    }
+  boolean_policy {
+    enforced = false # should be impersonating service accounts that uses short lived keys.
   }
 }
