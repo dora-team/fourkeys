@@ -65,6 +65,12 @@ variable "google_gcr_domain" {
   default = "gcr.io"
 }
 
+variable "looker_service_account" {
+  description = "To create a service account for Looker (dashboard)"
+  default     = false
+  type        = bool
+}
+
 variable "mapped_domain" {
   type        = string
   description = "Domain name which is mapped on cloud run."
@@ -93,6 +99,12 @@ variable "parsers" {
 variable "repository" {
   type        = string
   description = "The name of the git repository"
+}
+
+variable "service_account_keys_policy_override" {
+  description = "To override organisation service account keys creation policy for project"
+  default     = false
+  type        = bool
 }
 
 variable "subdomain" {
