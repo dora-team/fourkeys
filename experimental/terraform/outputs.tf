@@ -22,3 +22,7 @@ output "event_handler_secret" {
   value     = google_secret_manager_secret_version.event_handler.secret_data
   sensitive = true
 }
+
+output "looker_service_account_email" {
+  value = try(module.service_account_for_looker[0].email, null)
+}
