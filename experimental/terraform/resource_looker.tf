@@ -8,7 +8,8 @@ module "service_account_for_looker" {
   project_id    = var.google_project_id
   names         = ["looker"]
   project_roles = [
-    "${var.google_project_id}=>roles/bigquery.user",
+    "${var.google_project_id}=>roles/bigquery.dataEditor",
+    "${var.google_project_id}=>roles/bigquery.jobUser",
   ]
 }
 
