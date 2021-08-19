@@ -129,11 +129,11 @@ substitutions:
   _FOURKEYS_CLOUD_BUILD_BRANCH: 'main'
   _FOURKEYS_DOMAIN_MAPPING_REGION: 'us-central1'
   _FOURKEYS_GCR_DOMAIN: 'gcr.io'
-  _FOURKEYS_LOOKER_SERVICE_ACCOUNT: 'true'
+  _FOURKEYS_LOOKER_SERVICE_ACCOUNT: 'false'
   _FOURKEYS_MAPPED_DOMAIN: ''
   _FOURKEYS_OWNER: 'GoogleCloudPlatform'
   _FOURKEYS_PARSERS: '\"cloud-build\", \"github\", \"gitlab\", \"tekton\"'
   _FOURKEYS_PROVISION_BRANCH: 'main'
   _FOURKEYS_REGION: 'us-central1'
-  _FOURKEYS_SERVICE_ACCOUNT_KEYS: 'true'
+  _FOURKEYS_SERVICE_ACCOUNT_KEYS: 'false'
 timeout: 3600s # Same as token now, i.e. 1hr.
