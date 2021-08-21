@@ -1,6 +1,10 @@
 on:
   pull_request:
+    paths:
+      - '**.py'
   push:
+    paths:
+      - '**.py'
     branches:
       - main
 
