@@ -58,20 +58,20 @@ resource "google_cloud_run_domain_mapping" "event_handler" {
 }
 
 module "event_hander_dns" {
-  source  = "./cloud-dns"
-  count   = length(var.mapped_domain) > 0 && var.google_dns ? 1 : 0
+  source = "./cloud-dns"
+  count  = length(var.mapped_domain) > 0 && var.google_dns ? 1 : 0
 
-  project_id = var.google_project_id
-  name       = replace(replace(lower(trimspace(var.mapped_domain)), ".", "-"), "/[^a-z0-9\\-]/", "")
-  domain     = "${var.mapped_domain}."
-  type       = "public"
+  project_id    = var.google_project_id
+  name          = replace(replace(lower(trimspace(var.mapped_domain)), ".", "-"), "/[^a-z0-9\\-]/", "")
+  domain        = "${var.mapped_domain}."
+  type          = "public"
   dnssec_config = { state : "on" }
 
   recordsets = [
     {
-      name    = "${var.subdomain}"
-      type    = "CNAME"
-      ttl     = 3600
+      name = "${var.subdomain}"
+      type = "CNAME"
+      ttl  = 3600
       records = [
         "ghs.googlehosted.com."
       ]
@@ -87,8 +87,8 @@ resource "google_cloud_run_service_iam_binding" "noauth" {
   project  = var.google_project_id
   service  = google_cloud_run_service.event_handler.name
 
-  role       = "roles/run.invoker"
-  members    = ["allUsers"]
+  role    = "roles/run.invoker"
+  members = ["allUsers"]
 }
 
 resource "google_secret_manager_secret" "event_handler" {
@@ -118,19 +118,32 @@ resource "google_secret_manager_secret_iam_member" "event_handler" {
   member    = "serviceAccount:${google_service_account.fourkeys.email}"
 }
 
-module "cloudbuild_for_publishing" {
-  source        = "./cloudbuild-trigger"
+module "event_handler_cloudbuild_trigger" {
+  source = "./cloudbuild-trigger"
 
-  name          = "event-handler-build-deploy"
-  description   = "cloud build for creating publishing event handle container images"
-  project_id    = var.google_project_id
-  filename      = "event_handler/cloudbuild.yaml"
-  owner         = var.owner
-  repository    = var.repository
-  branch        = var.cloud_build_branch
-  include       = ["event_handler/**"]
+  name        = "event-handler-build-deploy"
+  description = "cloud build for creating publishing event handle container images"
+  project_id  = var.google_project_id
+  filename    = "event_handler/cloudbuild.yaml"
+  owner       = var.owner
+  repository  = var.repository
+  branch      = var.cloud_build_branch
+  include     = ["event_handler/**"]
   substitutions = {
     _FOURKEYS_GCR_DOMAIN : "${var.google_region}-docker.pkg.dev"
     _FOURKEYS_REGION : length(var.mapped_domain) > 0 ? var.google_domain_mapping_region : var.google_region
   }
+}
+
+module "event_handler_cloudbuild_notification" {
+  source = "./cloudbuild-webhook-notification"
+
+  branch                = var.cloud_build_branch
+  google_project_id     = var.google_project_id
+  google_region         = var.google_region
+  service_account_email = module.service_account_for_cloudrun.email
+  storage_bucket        = module.bucket_for_cloudrun.bucket
+  trigger_id            = module.event_handler_cloudbuild_trigger.id
+  trigger_name          = module.event_handler_cloudbuild_trigger.name
+  url                   = length(var.mapped_domain) > 0 ? try("https://${var.subdomain}.${var.mapped_domain}", null) : google_cloud_run_service.event_handler.status[0]["url"]
 }
