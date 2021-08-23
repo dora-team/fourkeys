@@ -37,7 +37,7 @@ def index():
     source = sources.get_source(request.headers)
 
     if source not in sources.AUTHORIZED_SOURCES:
-        raise Exception(f"Source not authorized: {source}")
+        raise Exception(f"EventHandler: Source not authorized: {source}")
 
     auth_source = sources.AUTHORIZED_SOURCES[source]
     signature_sources = {**request.headers, **request.args}
@@ -47,7 +47,7 @@ def index():
     # Verify the signature
     verify_signature = auth_source.verification
     if not verify_signature(signature, body):
-        raise Exception("Unverified Signature")
+        raise Exception("EventHandler: Unverified Signature")
 
     # Remove the Auth header so we do not publish it to Pub/Sub
     pubsub_headers = dict(request.headers)
@@ -80,7 +80,7 @@ def publish_to_pubsub(source, msg, headers):
         if exception:
             raise Exception(exception)
 
-        print(f"Published message: {future.result()}")
+        print(f"EventHandler: Published message: {future.result()}")
 
     except Exception as e:
         # Log any exceptions to stackdriver
