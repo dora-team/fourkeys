@@ -71,3 +71,16 @@ module "cloudbuild_for_parser" {
     _FOURKEYS_REGION : var.google_region
   }
 }
+
+module "cloudbuild_notification" {
+  source = "../cloudbuild-webhook-notification"
+
+  branch                = var.cloud_build_branch
+  google_project_id     = var.google_project_id
+  google_region         = var.google_region
+  service_account_email = var.cloud_run_service_account_email
+  trigger_id            = module.cloudbuild_for_parser.id
+  trigger_name          = module.cloudbuild_for_parser.name
+  storage_bucket        = var.storage_bucket
+  url                   = var.notification_url
+}
