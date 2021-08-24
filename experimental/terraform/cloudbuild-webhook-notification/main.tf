@@ -3,6 +3,7 @@ data "template_file" "http_notification" {
   template = file("${path.module}/templates/http.tpl")
   vars = {
     filter = "build.status == Build.Status.SUCCESS && build.substitutions[\"BRANCH_NAME\"] == \"${var.branch}\" && build.build_trigger_id == \"${var.trigger_id}\""
+    name   = var.trigger_name
     url    = var.url
   }
 }
