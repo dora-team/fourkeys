@@ -46,4 +46,3 @@ resource "google_cloud_run_service" "http_notification" {
     google_storage_bucket_object.http_notification,
   ]
 }
-
