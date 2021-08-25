@@ -46,6 +46,7 @@ def index():
 
     try:
         attr = msg["attributes"]
+        print(attr.keys())
         # Process Cloud Build event
         if "buildId" in attr:
             event = process_cloud_build_event(attr, msg)
@@ -94,7 +95,6 @@ def process_cloud_build_event(attr, msg):
         "source": "cloud_build",
     }
 
-    print(json.dumps(build_event))
     return build_event
 
 
