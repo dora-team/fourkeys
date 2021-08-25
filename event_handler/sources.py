@@ -62,6 +62,8 @@ def simple_token_verification(token, body):
 
     return secret.decode() == token
 
+def trusted_verification(signature, body):
+    return True
 
 def get_secret(project_name, secret_name, version_num):
     """
@@ -91,10 +93,16 @@ def get_source(headers):
     if "GitHub-Hookshot" in headers.get("User-Agent", ""):
         return "github"
 
+    if "GCB-Notifier" in headers.get("User-Agent", ""):
+        return "cloudbuild"
+
     return headers.get("User-Agent")
 
 
 AUTHORIZED_SOURCES = {
+    "cloudbuild": EventSource(
+        "", trusted_verification  # Cloud Build HTTP Notifier does not provide a way to pass secret!
+        ),
     "github": EventSource(
         "X-Hub-Signature", github_verification
         ),
