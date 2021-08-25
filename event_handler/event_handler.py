@@ -43,6 +43,7 @@ def index():
     signature_sources = {**request.headers, **request.args}
     signature = signature_sources.get(auth_source.signature, None)
     body = request.data
+    print(f"{source} {body}")
 
     # Verify the signature
     verify_signature = auth_source.verification
