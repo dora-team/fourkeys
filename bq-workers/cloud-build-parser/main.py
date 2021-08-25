@@ -57,7 +57,7 @@ def index():
                 "severity": "WARNING",
                 "msg": "Data not saved to BigQuery",
                 "errors": str(e),
-                "json_payload": json.dumps(envelope)
+                "json_payload": envelope
             }
         print(json.dumps(entry))
 
@@ -94,6 +94,7 @@ def process_cloud_build_event(attr, msg):
         "source": "cloud_build",
     }
 
+    print(json.dumps(build_event))
     return build_event
 
 
