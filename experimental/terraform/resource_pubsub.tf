@@ -36,12 +36,12 @@ module "pubsub" {
   project_id = var.google_project_id
 
   push_subscriptions = concat([for item in var.parsers : {
-      name            = module.data_parser_service[item].trigger_name
-      push_endpoint   = module.data_parser_service[item].notification_url
-      service_account = module.service_account_for_cloudrun.email
+      name                       = module.data_parser_service[item].trigger_name
+      push_endpoint              = module.data_parser_service[item].notification_url
+      oidc_service_account_email = module.service_account_for_cloudrun.email
     }],[{
-      name            = module.event_handler_cloudbuild_trigger.name
-      push_endpoint   = module.event_handler_cloudbuild_notification.url
-      service_account = module.service_account_for_cloudrun.email
+      name                       = module.event_handler_cloudbuild_trigger.name
+      push_endpoint              = module.event_handler_cloudbuild_notification.url
+      oidc_service_account_email = module.service_account_for_cloudrun.email
     }])
 }
