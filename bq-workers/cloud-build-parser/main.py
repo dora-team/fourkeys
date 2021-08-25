@@ -32,6 +32,7 @@ def index():
     """
     event = None
     envelope = request.get_json()
+    print(f"envelope recieved: {envelope}")
 
     # Check that data has been posted
     if not envelope:
@@ -46,9 +47,8 @@ def index():
 
     try:
         attr = msg["attributes"]
-        print(attr.keys())
         # Process Cloud Build event
-        if "buildId" in attr:
+        if "id" in attr:
             event = process_cloud_build_event(attr, msg)
 
         shared.insert_row_into_bigquery(event)
@@ -69,7 +69,7 @@ def index():
 
 def process_cloud_build_event(attr, msg):
     event_type = "build"
-    e_id = attr["buildId"]
+    e_id = attr["id"]
 
     # Unique hash for the event
     signature = shared.create_unique_id(msg)
