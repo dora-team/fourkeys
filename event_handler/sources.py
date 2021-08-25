@@ -94,13 +94,13 @@ def get_source(headers):
         return "github"
 
     if "GCB-Notifier" in headers.get("User-Agent", ""):
-        return "cloudbuild"
+        return "cloud-build"
 
     return headers.get("User-Agent")
 
 
 AUTHORIZED_SOURCES = {
-    "cloudbuild": EventSource(
+    "cloud-build": EventSource(
         "", trusted_verification  # Cloud Build HTTP Notifier does not provide a way to pass secret!
         ),
     "github": EventSource(
