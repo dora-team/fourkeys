@@ -30,8 +30,6 @@ def index():
     Receives messages from a push subscription from Pub/Sub.
     Parses the message, and inserts it into BigQuery.
     """
-    print(f"request recieved: {request}")
-    
     event = None
     envelope = request.get_json()
     print(f"envelope recieved: {envelope}")
@@ -50,8 +48,10 @@ def index():
     try:
         attr = msg["attributes"]
         # Process Cloud Build event
-        if "id" in attr:
+        if "buildId" in attr:
             event = process_cloud_build_event(attr, msg)
+        else:
+            event = process_cloud_build_notification(msg)
 
         shared.insert_row_into_bigquery(event)
 
@@ -99,6 +99,34 @@ def process_cloud_build_event(attr, msg):
 
     return build_event
 
+def process_cloud_build_notification(msg):
+    event_type = "build"
+
+    # Unique hash for the event
+    signature = shared.create_unique_id(msg)
+
+    # Payload
+    metadata = json.loads(base64.b64decode(msg["data"]).decode("utf-8").strip())
+
+    # Most up to date timestamp for the event
+    if "finishTime" in metadata:
+        time_created = metadata["finishTime"]
+    if "startTime" in metadata:
+        time_created = metadata["startTime"]
+    if "createTime" in metadata:
+        time_created = metadata["createTime"]
+
+    build_event = {
+        "event_type": event_type,
+        "id": metadata["id"],
+        "metadata": json.dumps(metadata),
+        "time_created": time_created,
+        "signature": signature,
+        "msg_id": msg["message_id"],
+        "source": "cloud_build",
+    }
+
+    return build_event
 
 if __name__ == "__main__":
     PORT = int(os.getenv("PORT")) if os.getenv("PORT") else 8080
