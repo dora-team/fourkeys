@@ -57,7 +57,7 @@ def index():
                 "severity": "WARNING",
                 "msg": "Data not saved to BigQuery",
                 "errors": str(e),
-                "json_payload": envelope
+                "json_payload": json.dumps(envelope)
             }
         print(json.dumps(entry))
 
