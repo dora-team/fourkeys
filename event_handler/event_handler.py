@@ -66,10 +66,10 @@ def publish_to_pubsub(source, msg, headers):
     """
     Publishes the message to Cloud Pub/Sub
     """
+    print(f"publishing: {msg} {headers}")
     try:
         publisher = pubsub_v1.PublisherClient()
         topic_path = publisher.topic_path(PROJECT_NAME, source)
-        print(topic_path)
 
         # Pub/Sub data must be bytestring, attributes must be strings
         future = publisher.publish(

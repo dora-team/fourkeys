@@ -30,6 +30,8 @@ def index():
     Receives messages from a push subscription from Pub/Sub.
     Parses the message, and inserts it into BigQuery.
     """
+    print(f"request recieved: {request}")
+    
     event = None
     envelope = request.get_json()
     print(f"envelope recieved: {envelope}")
