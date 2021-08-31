@@ -76,13 +76,27 @@ fi
 
 if [ $make_new_project == 'y' ]; then
     echo "Creating new project for Four Keys Dashboard…"
-    PARENT_FOLDER=$(gcloud projects describe ${PARENT_PROJECT} --format="value(parent.id)")
+    # PARENT_FOLDER=$(gcloud projects describe ${PARENT_PROJECT} --format="value(parent.id)")
     BILLING_ACCOUNT=$(gcloud beta billing projects describe ${PARENT_PROJECT} --format="value(billingAccountName)" || sed -e 's/.*\///g')
     FOURKEYS_PROJECT=$(printf "fourkeys-%06d" $((RANDOM%999999)))
     FOURKEYS_REGION="us-central1"
     BIGQUERY_REGION="US"
-    gcloud projects create ${FOURKEYS_PROJECT} --folder=${PARENT_FOLDER}
+    
+    # try to create project; if fail, exit script
+    set +e
+    gcloud projects create ${FOURKEYS_PROJECT}  # --folder=${PARENT_FOLDER}
+    if [ $? -ne 0 ]; then
+        echo "Unable to create project; try again, and specify an existing project during setup."
+        exit 1
+    fi
+
     gcloud beta billing projects link ${FOURKEYS_PROJECT} --billing-account=${BILLING_ACCOUNT}
+    if [ $? -ne 0 ]; then
+        echo "Unable to link billing account ${BILLING_ACCOUNT} to project ${FOURKEYS_PROJECT}."
+        echo "Assign a billing account manually, then re-run setup and specify the project during setup."
+        exit 1
+    fi
+    set -e
 else
     read -p "Enter the project ID for Four Keys installation (ex: 'my-project'): " FOURKEYS_PROJECT
     read -p "Enter the region for Four Keys resources (ex: 'us-central1'): " FOURKEYS_REGION
