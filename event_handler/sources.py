@@ -96,6 +96,9 @@ def get_source(headers):
     if "GCB-Notifier" in headers.get("User-Agent", ""):
         return "cloud-build"
 
+    if "Argo-CD" in headers.get("User-Agent", ""):
+        return "argocd"
+
     return headers.get("User-Agent")
 
 
@@ -111,5 +114,9 @@ AUTHORIZED_SOURCES = {
         ),
     "tekton": EventSource(
         "tekton-secret", simple_token_verification
+        ),
+    "argocd": EventSource(
+        "argocd-secret", simple_token_verification
         )
+        
 }
