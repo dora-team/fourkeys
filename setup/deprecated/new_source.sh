@@ -52,8 +52,8 @@ source_prompt(){
 build_deploy_cloud_run(){
 	# Build and deploy by copying new_source_template
 	echo "Creating ${nickname}-worker"
-	cp -R $DIR/../bq-workers/new-source-template $DIR/../bq-workers/${nickname}-parser
-	cd $DIR/../bq-workers/${nickname}-parser
+	cp -R $DIR/../../bq-workers/new-source-template $DIR/../../bq-workers/${nickname}-parser
+	cd $DIR/../../bq-workers/${nickname}-parser
   gcloud builds submit --substitutions _SOURCE=${nickname},_REGION=us-central1 \
 						 --project ${FOURKEYS_PROJECT} . 
 }

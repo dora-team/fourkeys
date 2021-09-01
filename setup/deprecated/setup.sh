@@ -93,7 +93,7 @@ fourkeys_project_setup () {
     --role roles/iam.serviceAccountUser
 
   echo "Deploying event-handler..."; set -x
-  cd $DIR/../event_handler
+  cd $DIR/../../event_handler
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
   set +x; echo
 
@@ -156,7 +156,7 @@ fourkeys_project_setup () {
   set +x; echo
 
   # Create the json2array function
-  bq query --nouse_legacy_sql $(cat ${DIR}/../queries/json2array.sql)
+  bq query --nouse_legacy_sql $(cat ${DIR}/../../queries/json2array.sql)
 
   echo "Saving Event Handler Secret in Secret Manager.."
   # Set permissions so Cloud Run can access secrets
@@ -219,7 +219,7 @@ github_pipeline(){
   echo "Creating Github Data Pipeline..."
 
   echo "Deploying BQ github worker..."; set -x
-  cd $DIR/../bq-workers/github-parser
+  cd $DIR/../../bq-workers/github-parser
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
   set +x; echo
 
@@ -245,7 +245,7 @@ gitlab_pipeline(){
   echo "Creating Gitlab Data Pipeline..."
 
   echo "Deploying BQ gitlab worker..."; set -x
-  cd $DIR/../bq-workers/gitlab-parser
+  cd $DIR/../../bq-workers/gitlab-parser
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
   set +x; echo
 
@@ -272,7 +272,7 @@ cloud_build_pipeline(){
   echo "Creating Cloud Build Data Pipeline..."
 
   echo "Deploying BQ cloud build worker..."; set -x
-  cd $DIR/../bq-workers/cloud-build-parser
+  cd $DIR/../../bq-workers/cloud-build-parser
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} . 
   set +x; echo
 
@@ -300,7 +300,7 @@ tekton_pipeline(){
   echo "Creating Tekton Data Pipeline..."
 
   echo "Deploying BQ tekton worker..."; set -x
-  cd $DIR/../bq-workers/tekton-parser
+  cd $DIR/../../bq-workers/tekton-parser
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
   set +x; echo
 
@@ -340,11 +340,11 @@ generate_data(){
   fi
 
   if [[ ${git_system} == "1" ]]
-    then set -x; python3 ${DIR}/../data_generator/generate_data.py --vc_system=gitlab
+    then set -x; python3 ${DIR}/../../data_generator/generate_data.py --vc_system=gitlab
     set +x
   fi
     if [[ ${git_system} == "2" ]]
-    then set -x; python3 ${DIR}/../data_generator/generate_data.py --vc_system=github 
+    then set -x; python3 ${DIR}/../../data_generator/generate_data.py --vc_system=github 
     set +x
   fi
   
@@ -361,7 +361,7 @@ schedule_bq_queries(){
   done
 
   echo "Creating BigQuery scheduled queries for derived tables.."; set -x
-  cd ${DIR}/../queries/
+  cd ${DIR}/../../queries/
 
   ./schedule.sh --query_file=changes.sql --table=changes --project_id=$FOURKEYS_PROJECT
   ./schedule.sh --query_file=deployments.sql --table=deployments --project_id=$FOURKEYS_PROJECT

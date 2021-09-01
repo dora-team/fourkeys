@@ -7,7 +7,7 @@ steps:
   - id: Install
     name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
     entrypoint: /bin/bash
-    dir: "experimental/terraform"
+    dir: "setup"
     args:
       - '-c'
       - |
@@ -75,7 +75,7 @@ steps:
   - id: Tear Down Resources
     name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
     entrypoint: /bin/bash
-    dir: "experimental/terraform"
+    dir: "setup"
     args:
       - '-c'
       - |
