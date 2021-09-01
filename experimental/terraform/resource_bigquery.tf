@@ -41,7 +41,7 @@ resource "google_bigquery_routine" "func_json2array" {
     name      = "json"
     data_type = "{\"typeKind\" :  \"STRING\"}"
   }
-  definition_body = "return JSON.parse(json).map(x=>JSON.stringify(x));"
+  definition_body = file("../../queries/function_json2array.js")
 }
 
 resource "google_bigquery_table" "view_deployments" {
