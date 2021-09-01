@@ -147,7 +147,7 @@ fourkeys_project_setup () {
   bq mk \
     --table -f\
     ${FOURKEYS_PROJECT}:four_keys.events_raw \
-    $DIR/events_raw_schema.json
+    $DIR/../events_raw_schema.json
 
   bq mk \
     --table -f\
