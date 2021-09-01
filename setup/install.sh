@@ -89,7 +89,7 @@ fi
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
 echo "configuring Data Studio dashboard…"
 DATASTUDIO_URL="https://datastudio.google.com/datasources/create?connectorId=AKfycbxCOPCqhVOJQlRpOPgJ47dPZNdDu44MXbjsgKw_2-s"
-echo "Please visit $DATASTUDIO_URL to connect your data to the dashboard template."
+echo -e "Please visit ${GREEN}$DATASTUDIO_URL${NOCOLOR} to connect your data to the dashboard template."
 
 if [[ ! -z "$CICD_SYSTEM" ]]; then
     echo "••••••••🔑••🔑••🔑••🔑••••••••"
