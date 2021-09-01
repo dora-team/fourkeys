@@ -16,20 +16,20 @@ steps:
 - # Build argocd-worker image
   name: gcr.io/cloud-builders/docker:latest
   args: ['build', 
-         '--tag=${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/default/${_SOURCE}-worker:${_TAG}', '.']
-  dir: 'bq-workers/${_SOURCE}-parser'
+         '--tag=${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/default/argocd-worker:${_TAG}', '.']
+  dir: 'bq-workers/argocd-parser'
   id: build
 
 - # Push the container image to Artifact Registry
   name: gcr.io/cloud-builders/docker
-  args: ['push', '${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/default/{_SOURCE}-worker:${_TAG}']
+  args: ['push', '${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/default/argocd-worker:${_TAG}']
   waitFor: ["build"]
   id: push
 
 - # Deploy to Cloud Run
   name: google/cloud-sdk
-  args: ['gcloud', 'run', 'deploy', '${_SOURCE}-worker',
-         '--image', '${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/default/${_SOURCE}-worker:${_TAG}',
+  args: ['gcloud', 'run', 'deploy', 'argocd-worker',
+         '--image', '${_FOURKEYS_GCR_DOMAIN}/$PROJECT_ID/default/argocd-worker:${_TAG}',
          '--region', '${_FOURKEYS_REGION}',
          '--platform', 'managed',
          '--impersonate-service-account', 'terraform@${PROJECT_ID}.iam.gserviceaccount.com'
