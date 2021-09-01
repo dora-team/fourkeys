@@ -65,12 +65,15 @@ def index():
 def process_argocd_event(msg):
     metadata = json.loads(base64.b64decode(msg["data"]).decode("utf-8").strip())
 
+    # Unique hash for the event
+    signature = shared.create_unique_id(msg)
+
     argocd_event = {
         "event_type": "deployment",  # Event type, eg "push", "pull_reqest", etc
-        "id": metadata["id"],  # Object ID, eg pull request ID TODO argocd ID or pull reqest realted ID?
+        "id": metadata["id"],  # Object ID, eg pull request ID
         "metadata": json.dumps(metadata),  # The body of the msg
         "time_created": metadata["time"],  # The timestamp of with the event
-        "signature": "signature",  # The unique event signature TODO
+        "signature": signature,  # The unique event signature
         "msg_id": msg["message_id"],  # The pubsub message id
         "source": "argocd",  # The name of the source, eg "github"
     }
