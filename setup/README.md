@@ -81,19 +81,19 @@ To integrate Four Keys with a live repo, you need to:
 ## Migrating from an earlier version of The Four Keys
 If you have an existing installation of The Four Keys, created using the now-deprecated [bash-based setup process](deprecated/), and you want to be able to keep your installation up-to-date with new upstream releases, you'll need to put your cloud resources under Terraform control. The easiest way to do this is to destroy all existing resources and let Terraform create new ones that it will then manage going forward. Here's the process to do that (adapt as needed for your specific installation):
 1. [Export the data](https://cloud.google.com/bigquery/docs/exporting-data#console) from `events_raw`
+    * _If you exported your data to a bucket in a project that you plan to delete, be sure to download it before deleting the project!_
 1. Delete existing cloud resources
-  * If you have a project dedicated to Four Keys, you can simply delete that project
-    * _If you exported your data to a bucket in that project, be sure to download it before deleting the project!_
+    * If you have a project dedicated to Four Keys, you can simply delete that project
 1. Run `setup.sh` in this folder
-  * When configuring the installation, choose to not generate mock data
+    * When configuring the installation, choose to not generate mock data
 1. When the setup is complete: 
-  1. Use the newly-generated webhook URL and secret to reconfigure webhook deliveries from your VCS/CICD systems
-  1. Import the `events_raw` data:
-    1. [Load the data into a temporary table](https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-csv#console) named `events_raw_import`
-      * You may need to manually specify the schema (and delete the column headers) when importing
-    1. Copy the imported data into the `events_raw` table 
-      * `INSERT INTO events_raw (SELECT * FROM events_raw_import)`
-    1. Delete the temporary table
+    1. Use the newly-generated webhook URL and secret to reconfigure webhook deliveries from your VCS/CICD systems
+    1. Import the `events_raw` data:
+        1. [Load the data into a temporary table](https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-csv#console) named `events_raw_import`
+            * You may need to manually specify the schema (and delete the column headers) when importing
+        1. Copy the imported data into the `events_raw` table 
+            * `INSERT INTO events_raw (SELECT * FROM events_raw_import)`
+        1. Delete the temporary table
 
 ### Collecting changes data
 
