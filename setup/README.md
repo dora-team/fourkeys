@@ -39,8 +39,8 @@ This guide describes how to set up Four Keys with your GitHub or GitLab project.
             *   To exclude the mock data from the dashboard, update the SQL script to filter out any source with the word mock in it by adding: `WHERE source not like "%mock"`.
 
 ### Making changes
-At some point after running the setup script, you may want to make modifications to your infrastructure. Or, the Four Keys project itself may be updated with a new configuration. Terraform can be used to apply any incremental changes: after updating the configuration files, run `terraform apply`. You'll be prompted to confirm the planned changes; review them carefully, then type `yes` to proceed.
-> Tip: To make changes that will apply to your infrastructure, without editing the core configuration, consider using [Terraform Override Files](https://www.terraform.io/docs/language/files/override.html).
+At some point after running the setup script, you may want to make modifications to your infrastructure. Or, the Four Keys project itself may be updated with a new configuration. If you make changes to the project outside of Terraform, they will not be tracked and cannot be managed by Terraform. This includes pub/sub topics, subscriptions, permissions, service accounts, services, etc. Therefore, it's recommended to make all infrastructure changes by updating your Terraform files and re-running Terraform, using `terraform apply`. You'll be prompted to confirm the planned changes; review them carefully, then type `yes` to proceed.
+> Tip: The configurations in this repo will continue to evolve over time; if you want to be able to apply ongoing updates, **don't modify the tracked Terraform files**. Instead, consider using [Terraform Override Files](https://www.terraform.io/docs/language/files/override.html), which will allow you to customize the infrastructure to your needs without introducing potential merge conflicts the next time you pull from upstream.
 
 ### New Google Cloud projects
 
