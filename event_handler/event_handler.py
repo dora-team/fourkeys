@@ -42,6 +42,7 @@ def index():
 
     auth_source = sources.AUTHORIZED_SOURCES[source]
     signature_sources = {**request.headers, **request.args}
+    print(f"request headers: {request.headers}")
     signature = signature_sources.get(auth_source.signature, None)
     body = request.data
 

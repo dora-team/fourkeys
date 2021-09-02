@@ -116,7 +116,7 @@ AUTHORIZED_SOURCES = {
         "tekton-secret", simple_token_verification
         ),
     "argocd": EventSource(
-        "argocd-secret", simple_token_verification
+        "Argo-Signature", simple_token_verification
         )
         
 }
