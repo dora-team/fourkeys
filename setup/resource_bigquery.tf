@@ -14,7 +14,7 @@ resource "google_bigquery_dataset" "four_keys" {
 resource "google_bigquery_table" "events_raw" {
   dataset_id          = google_bigquery_dataset.four_keys.dataset_id
   table_id            = "events_raw"
-  schema              = file("../../setup/events_raw_schema.json")
+  schema              = file("./events_raw_schema.json")
   deletion_protection = false
 }
 
@@ -22,7 +22,7 @@ resource "google_bigquery_table" "view_changes" {
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   table_id   = "changes"
   view {
-    query          = file("../../queries/changes.sql")
+    query          = file("../queries/changes.sql")
     use_legacy_sql = false
   }
   deletion_protection = false
@@ -41,14 +41,14 @@ resource "google_bigquery_routine" "func_json2array" {
     name      = "json"
     data_type = "{\"typeKind\" :  \"STRING\"}"
   }
-  definition_body = file("../../queries/function_json2array.js")
+  definition_body = file("../queries/function_json2array.js")
 }
 
 resource "google_bigquery_table" "view_deployments" {
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   table_id   = "deployments"
   view {
-    query          = file("../../queries/deployments.sql")
+    query          = file("../queries/deployments.sql")
     use_legacy_sql = false
   }
   deletion_protection = false
@@ -62,7 +62,7 @@ resource "google_bigquery_table" "view_incidents" {
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   table_id   = "incidents"
   view {
-    query          = file("../../queries/incidents.sql")
+    query          = file("../queries/incidents.sql")
     use_legacy_sql = false
   }
   deletion_protection = false
