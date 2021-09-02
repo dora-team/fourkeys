@@ -8,7 +8,7 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
       CASE WHEN source = "argocd" then JSON_EXTRACT_SCALAR(metadata, '$.commit_sha')
            WHEN source = "cloud_build" then JSON_EXTRACT_SCALAR(metadata, '$.substitutions.COMMIT_SHA')
            WHEN source like "github%" then JSON_EXTRACT_SCALAR(metadata, '$.deployment.sha')
-           WHEN source like "gitlab%" then JSON_EXTRACT_SCALAR(metadata, '$.commit.id') end as main_commit      
+           WHEN source like "gitlab%" then JSON_EXTRACT_SCALAR(metadata, '$.commit.id') end as main_commit,
       CASE WHEN source LIKE "github%" THEN ARRAY(
                 SELECT JSON_EXTRACT_SCALAR(string_element, '$')
                 FROM UNNEST(JSON_EXTRACT_ARRAY(metadata, '$.deployment.additional_sha')) AS string_element)
