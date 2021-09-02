@@ -37,7 +37,8 @@ def index():
     source = sources.get_source(request.headers)
 
     if source not in sources.AUTHORIZED_SOURCES:
-        raise Exception(f"EventHandler: Source not authorized: {source}\nrequest headers: {request.headers}")
+        print(f"Full Request: {request}")
+        raise Exception(f"EventHandler: Source not authorized: {source}\n request headers: {request.headers}")
 
     auth_source = sources.AUTHORIZED_SOURCES[source]
     signature_sources = {**request.headers, **request.args}
