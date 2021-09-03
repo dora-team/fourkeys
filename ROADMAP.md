@@ -21,11 +21,7 @@ Non-goals:
 ## Roadmap
 
 * Short Term
-  * Google verification on the [DataStudio Connector](https://github.com/GoogleCloudPlatform/fourkeys/tree/main/connector)
-* Experimental
-  * Data modeling with [Grafeas](https://github.com/grafeas/grafeas)
-  * Terraform project setup
-    * [Experimental folder](https://github.com/GoogleCloudPlatform/fourkeys/tree/main/experimental/terraform)
+  * Rewriting the dashboard using [Grafana](https://grafana.com/)
 * Long Term
   * New Integrations
     * CI/CD Tools
