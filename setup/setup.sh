@@ -127,12 +127,21 @@ else
     GENERATE_DATA="no"
 fi
 
+PARSERS=""
+for PARSER in ${GIT_SYSTEM} ${CICD_SYSTEM}; do
+    if [ "${PARSERS}" == "" ]; then
+        PARSERS="\"${PARSER}\""
+    else
+        PARSERS+=",\"${PARSER}\""
+    fi
+done
+
 # create a tfvars file
 cat > terraform.tfvars <<EOF
 google_project_id = "${FOURKEYS_PROJECT}"
 google_region = "${FOURKEYS_REGION}"
 bigquery_region = "${BIGQUERY_REGION}"
-parsers = ["${GIT_SYSTEM}","${CICD_SYSTEM}"]
+parsers = [${PARSERS}]
 EOF
 
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
