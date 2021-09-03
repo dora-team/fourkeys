@@ -18,6 +18,27 @@ resource "google_project_iam_member" "storage_admin" {
   project = var.project_id
   role    = "roles/storage.admin"
   member  = "serviceAccount:${local.cloud_build_service_account}"
+  depends_on = [
+    google_project_service.cloud_build
+  ]
+}
+
+resource "google_project_iam_member" "bigquery_user" {
+  project = var.project_id
+  role    = "roles/bigquery.user"
+  member  = "serviceAccount:${google_service_account.fourkeys.email}"
+  depends_on = [
+    google_service_account.fourkeys
+  ]
+}
+
+resource "google_project_iam_member" "cloud_run_invoker" {
+  project = var.project_id
+  role    = "roles/run.invoker"
+  member  = "serviceAccount:${google_service_account.fourkeys.email}"
+  depends_on = [
+    google_service_account.fourkeys
+  ]
 }
 
 
