@@ -5,6 +5,7 @@ resource "google_cloud_run_service" "dashboard" {
   template {
     spec {
       containers {
+        port = 3000
         image = "gcr.io/${var.google_project_id}/fourkeys-grafana-dashboard"
         env {
           name  = "PROJECT_NAME"
@@ -21,4 +22,14 @@ resource "google_cloud_run_service" "dashboard" {
   }
 
   autogenerate_revision_name = true
+}
+
+resource "google_cloud_run_service_iam_binding" "noauth" {
+  location = var.google_region
+  project  = var.google_project_id
+  service  = "fourkeys-grafana-dashboard"
+
+  role       = "roles/run.invoker"
+  members    = ["allUsers"]
+  depends_on = [google_cloud_run_service.event_handler]
 }
