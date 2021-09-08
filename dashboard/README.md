@@ -20,7 +20,15 @@ Then update `grafana.ini` with the auth configuration of your choice.
 The datasource and dashboard are configured in `datasource.yaml` and `dashboards.yaml`.  Learn more about provisioning [here](https://grafana.com/docs/grafana/latest/administration/provisioning/). 
 
 ## How to update the dashboard
-The dashboard is running in a transient container. It does not store data.  Therefore, if you want to update the dashboard, you must update the `fourkeys_dashboard.json`, rebuild the image, and re-deploy the container.  The `cloudbuild.yaml` contains the steps to do this, which you can invoke with `gcloud builds submit`. 
+The dashboard is running in a transient container. It does not store data.  Therefore, if you want to update the dashboard, you must update the `fourkeys_dashboard.json`.  The easiest way to update the JSON is to make changes in the UI and export the JSON.  *Any changes in the UI will be temporary and must be saved in the container image.*  
+
+1.  Update the dashboard in the UI
+1.  Export the JSON
+1.  Save the JSOn in fourkeys_dashboard.json
+1.  Re-build the image and re-deploy the container
+
+To rebuild and deploy the container, you can run `gcloud builds submit` in this directory. 
+
 
 ## To deploy dashboard
 If using [Terraform](https://www.terraform.io), please see the [setup](setup/) to create the resources.  
