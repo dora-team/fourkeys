@@ -5,11 +5,9 @@ resource "google_cloud_run_service" "dashboard" {
   template {
     spec {
       containers {
-        ports = [
-          {
+        ports {
           container_port = 3000
-          }
-        ]
+        }
         image = "gcr.io/${var.google_project_id}/fourkeys-grafana-dashboard"
         env {
           name  = "PROJECT_NAME"
