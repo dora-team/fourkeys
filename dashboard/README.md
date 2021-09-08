@@ -3,7 +3,10 @@
 [Grafana](https://grafana.com) is an open source dashboard.  The Four Keys project is using it to display the four key metrics.  
 
 ## Current configuration
-You can see the configuration of the Grafana image in the `Dockerfile`.  Auth is currently disabled by default. Enable it by deleting or commenting out these lines:
+You can see the configuration of the Grafana image in the `Dockerfile`.  
+
+### Authentication
+Auth is currently disabled by default. Learn more about [Grafana User Authentication](https://grafana.com/docs/grafana/latest/auth/). To require a login, delete or comment out these lines: 
 
 ```
 ENV GF_AUTH_DISABLE_LOGIN_FORM "true"
@@ -11,6 +14,9 @@ ENV GF_AUTH_ANONYMOUS_ENABLED "true"
 ENV GF_AUTH_ANONYMOUS_ORG_ROLE "Admin"
 ```
 
+Then update `grafana.ini` with the auth configuration of your choice.
+
+### Provisioning
 The datasource and dashboard are configured in `datasource.yaml` and `dashboards.yaml`.  Learn more about provisioning [here](https://grafana.com/docs/grafana/latest/administration/provisioning/). 
 
 ## How to update the dashboard
