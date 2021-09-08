@@ -1,5 +1,5 @@
 resource "google_cloud_run_service" "dashboard" {
-  name     = fourkeys-grafana-dashboard
+  name     = "fourkeys-grafana-dashboard"
   location = var.google_region
 
   template {
