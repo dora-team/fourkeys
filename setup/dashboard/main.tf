@@ -31,5 +31,5 @@ resource "google_cloud_run_service_iam_binding" "noauth" {
 
   role       = "roles/run.invoker"
   members    = ["allUsers"]
-  depends_on = [google_cloud_run_service.event_handler]
+  depends_on = [google_cloud_run_service.dashboard]
 }
