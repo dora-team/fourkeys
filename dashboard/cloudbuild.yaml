@@ -16,18 +16,18 @@ steps:
 - # Build grafana image
   name: gcr.io/cloud-builders/docker:latest
   args: ['build', '--tag', 
-         'gcr.io/$PROJECT_ID/fourkeys-grafana:${_TAG}', '.']
+         'gcr.io/$PROJECT_ID/fourkeys-grafana-dashboard:${_TAG}', '.']
   id: build
 
 - # Push the container image to Container Registry
   name: gcr.io/cloud-builders/docker
-  args: ['push', 'gcr.io/$PROJECT_ID/fourkeys-grafana:${_TAG}']
+  args: ['push', 'gcr.io/$PROJECT_ID/fourkeys-grafana-dashboard:${_TAG}']
   id: push
 
 - # Deploy to Cloud Run
   name: google/cloud-sdk
-  args: ['gcloud', 'run', 'deploy', 'fourkeys-grafana',
-         '--image', 'gcr.io/$PROJECT_ID/fourkeys-grafana:${_TAG}',
+  args: ['gcloud', 'run', 'deploy', 'fourkeys-grafana-dashboard',
+         '--image', 'gcr.io/$PROJECT_ID/fourkeys-grafana-dashboard:${_TAG}',
          '--region', '${_REGION}',
          '--platform', 'managed', '--port', '3000',
          '--allow-unauthenticated'
