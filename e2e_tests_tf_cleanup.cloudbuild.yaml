@@ -33,6 +33,7 @@ steps:
         gcloud run services delete event-handler --platform=managed --region=us-central1 -q
         gcloud run services delete github --platform=managed --region=us-central1 -q
         gcloud run services delete cloud-build --platform=managed --region=us-central1 -q
+        gcloud run services delete fourkeys-grafana-dashboard --platform=managed --region=us-central1 -q
 
         echo "Delete Pub/Sub topics and subscriptions"
         gcloud pubsub topics delete github -q
