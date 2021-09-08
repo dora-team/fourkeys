@@ -59,7 +59,7 @@ if [[ ! -z "$CICD_SYSTEM" && "$CICD_SYSTEM" != "$GIT_SYSTEM" ]]; then
 fi
 
 # Dashboard image
-gcloud builds submit ../dashboard --tag=gcr.io/${FOURKEYS_PROJECT}/fourkeys-grafana-dashboard --project=${PARENT_PROJECT} > fourkeys-grafana.containerbuild.log & 
+gcloud builds submit ../dashboard --tag=gcr.io/${FOURKEYS_PROJECT}/fourkeys-grafana-dashboard --project=${PARENT_PROJECT} > fourkeys-grafana-dashboard.containerbuild.log & 
 
 # wait for containers to be built, then continue
 wait
