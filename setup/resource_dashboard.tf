@@ -1,4 +1,4 @@
-module "data_parser_service" {
+module "dashboard_service" {
   source                         = "./dashboard"
   google_project_id              = var.google_project_id
   google_region                  = var.google_region
