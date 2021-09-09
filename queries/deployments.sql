@@ -35,11 +35,23 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
       WHERE event_type = "dev.tekton.event.pipelinerun.successful.v1" 
       AND metadata like "%gitrevision%") e, e.params as param
     ),
+    deploys_circleci AS (# CircleCI pipelines
+      SELECT
+      source,
+      id AS deploy_id,
+      time_created,
+      JSON_EXTRACT_SCALAR(metadata, '$.pipeline.vcs.revision') AS main_commit,
+      ARRAY<string>[] AS additional_commits
+      FROM four_keys.events_raw
+      WHERE (source = "circleci" AND event_type = "job-completed" AND JSON_EXTRACT_SCALAR(metadata, '$.job.name') = "fourkeys_deploy" AND JSON_EXTRACT_SCALAR(metadata, '$.job.status') = "success")
+    ),
     deploys AS (
       SELECT * FROM
       deploys_cloudbuild_github_gitlab
       UNION ALL
       SELECT * FROM deploys_tekton
+      UNION ALL
+      SELECT * FROM deploys_circleci
     ),
     changes_raw AS (
       SELECT

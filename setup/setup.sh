@@ -58,9 +58,10 @@ else
     (1) Cloud Build
     (2) Tekton
     (3) GitLab
-    (4) Other
+    (4) CircleCI
+    (5) Other
 
-    Enter a selection (1 - 4): " cicd_system_id
+    Enter a selection (1 - 5): " cicd_system_id
 
     printf "\n"
 
@@ -118,7 +119,8 @@ case $cicd_system_id in
     1) CICD_SYSTEM="cloud-build" ;;
     2) CICD_SYSTEM="tekton" ;;
     3) CICD_SYSTEM="gitlab" ;;
-    *) echo "Please see the documentation to learn how to extend to CI/CD sources other than Cloud Build, Tekton, GitLab, or GitHub."
+    4) CICD_SYSTEM="circleci" ;;
+    *) echo "Please see the documentation to learn how to extend to CI/CD sources other than Cloud Build, Tekton, GitLab, CircleCI or GitHub."
 esac
 
 if [ $generate_mock_data == "y" ]; then

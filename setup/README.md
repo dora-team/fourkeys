@@ -186,6 +186,44 @@ And now, whenever a pull request is merged into master of your fork, Cloud Build
 
 This setup will trigger a deployment on any `push` to the `master` branch.
 
+#### Configuring CircleCI to deploy on GitHub or Gitlab merges
+                             
+1.  Add a `.circleci.yaml` file to your repo.
+    ```
+    jobs:
+      build:
+        ...
+      deploy:
+        ...
+      fourkeys_deploy:
+        executor: default
+        steps:
+          - run:
+            name: "Execute fourkeys deploy job"
+            command: date # This is the job to send the deploy event to fourkeys
+    workflows:
+      version: 1
+      build_and_deploy_on_master:
+        jobs:
+          - build:
+              name: build
+              filters: &master_filter
+                branches:
+                  only: master
+          - deploy:
+              name: deploy
+              filters: *master_filter
+              requires:
+                - build
+          - fourkeys_deploy:
+              name: fourkeys_deploy # The job name `fourkeys_deploy` will be used in queries to build the deployment table 
+              filters: *master_filter
+              requires:
+                - deploy # Run after deploy to send the deploy event to fourkeys
+    ```
+ 
+This setup will trigger a deployment on any `push` to the `master` branch.
+
 ### Collecting incident data
 
 Four Keys uses GitLab and/or GitHub issues to track incidents.  
