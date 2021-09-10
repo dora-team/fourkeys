@@ -43,7 +43,7 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
       JSON_EXTRACT_SCALAR(metadata, '$.pipeline.vcs.revision') AS main_commit,
       ARRAY<string>[] AS additional_commits
       FROM four_keys.events_raw
-      WHERE (source = "circleci" AND event_type = "job-completed" AND JSON_EXTRACT_SCALAR(metadata, '$.job.name') = "fourkeys_deploy" AND JSON_EXTRACT_SCALAR(metadata, '$.job.status') = "success")
+      WHERE (source = "circleci" AND event_type = "workflow-completed" AND JSON_EXTRACT_SCALAR(metadata, '$.workflow.name') LIKE "%deploy%" AND JSON_EXTRACT_SCALAR(metadata, '$.workflow.status') = "success")
     ),
     deploys AS (
       SELECT * FROM
