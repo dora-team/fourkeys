@@ -205,7 +205,7 @@ This setup will trigger a deployment on any `push` to the `master` branch.
           - run: make deploy
     workflows:
       version: 2
-      build_and_deploy_on_master: # A workflow whose name contains deploy will be used in the query to build the deployment table
+      build_and_deploy_on_master: # A workflow whose name contains 'deploy' will be used in the query to build the deployments view
         jobs:
           - build:
               name: build
