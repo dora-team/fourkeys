@@ -190,20 +190,22 @@ This setup will trigger a deployment on any `push` to the `master` branch.
                              
 1.  Add a `.circleci.yaml` file to your repo.
     ```
+    version: 2.1
+    executors:
+      default:
+        ...
     jobs:
       build:
-        ...
-      deploy:
-        ...
-      fourkeys_deploy:
         executor: default
         steps:
-          - run:
-            name: "Execute fourkeys deploy job"
-            command: date # This is the job to send the deploy event to fourkeys
+          - run: make build
+      deploy:
+        executor: default
+        steps:
+          - run: make deploy
     workflows:
-      version: 1
-      build_and_deploy_on_master:
+      version: 2
+      build_and_deploy_on_master: # A workflow whose name contains deploy will be used in the query to build the deployment table
         jobs:
           - build:
               name: build
@@ -215,11 +217,6 @@ This setup will trigger a deployment on any `push` to the `master` branch.
               filters: *master_filter
               requires:
                 - build
-          - fourkeys_deploy:
-              name: fourkeys_deploy # The job name `fourkeys_deploy` will be used in queries to build the deployment table 
-              filters: *master_filter
-              requires:
-                - deploy # Run after deploy to send the deploy event to fourkeys
     ```
  
 This setup will trigger a deployment on any `push` to the `master` branch.
