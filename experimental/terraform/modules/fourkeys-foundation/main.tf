@@ -108,14 +108,14 @@ resource "google_bigquery_routine" "func_json2array" {
     name      = "json"
     data_type = "{\"typeKind\" :  \"STRING\"}"
   }
-  definition_body = file("../queries/function_json2array.js")
+  definition_body = file("${path.module}/queries/function_json2array.js")
 }
 
 resource "google_bigquery_table" "view_deployments" {
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   table_id   = "deployments"
   view {
-    query          = file("../queries/deployments.sql")
+    query          = file("${path.module}/queries/deployments.sql")
     use_legacy_sql = false
   }
   deletion_protection = false
@@ -129,7 +129,7 @@ resource "google_bigquery_table" "view_incidents" {
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   table_id   = "incidents"
   view {
-    query          = file("../queries/incidents.sql")
+    query          = file("${path.module}/queries/incidents.sql")
     use_legacy_sql = false
   }
   deletion_protection = false
