@@ -16,7 +16,7 @@ def cli(githubtoken, owner, repo, webhookurl, webhooksecret):
 def addHook(githubtoken, owner, repo, webhookurl, webhooksecret):
     g = Github(githubtoken)
     repo = g.get_repo(f'{owner}/{repo}')
-    print(repo.name)
+
     EVENTS = ["*"]
     WEBHOOK_URL=f'{webhookurl}'  
     config = {
@@ -25,7 +25,10 @@ def addHook(githubtoken, owner, repo, webhookurl, webhooksecret):
     }
     if len(webhooksecret) >0:
         config["secret"]=webhooksecret
-    repo.create_hook("web", config, EVENTS, active=True)
+    try:
+        repo.create_hook("web", config, EVENTS, active=True)
+    except:
+        pass # hook already exists
 
 if __name__ == '__main__':
     cli()
