@@ -1,33 +1,31 @@
 #!/usr/bin/env python3
 
-import requests
-import os
-from pprint import pprint
-import json
+from github import Github
+import click
 
-owner = "faizando"
-repo = "playground-webhooks"
-github_base_url = "https://api.github.com"
-token = os.getenv('GITHUB_TOKEN', '...')
+@click.command()
+@click.option('--githubtoken', prompt='Github token', help='Github token')
+@click.option('--owner', prompt='Owner', help='The username of github user')
+@click.option('--repo', prompt='Repository name', help='The name of the repository')
+@click.option('--webhookurl', prompt='Webhook url', help='The url of webhook to add')
+@click.option('--webhooksecret', default='', prompt=False, help='The secret of webhook to add, leave blank if none')
+def cli(githubtoken, owner, repo, webhookurl, webhooksecret):
+    """Simple program that adds a webhook to github repo."""
+    addHook(githubtoken, owner, repo, webhookurl, webhooksecret)
+        
+def addHook(githubtoken, owner, repo, webhookurl, webhooksecret):
+    g = Github(githubtoken)
+    repo = g.get_repo(f'{owner}/{repo}')
+    print(repo.name)
+    EVENTS = ["*"]
+    WEBHOOK_URL=f'{webhookurl}'  
+    config = {
+        "url": "{webhook_url}".format(webhook_url=WEBHOOK_URL),
+        "content_type": "json"
+    }
+    if len(webhooksecret) >0:
+        config["secret"]=webhooksecret
+    repo.create_hook("web", config, EVENTS, active=True)
 
-hook_url = "https://github.com/faizando/playground-webhooks/settings/hooks/new"
-repo_url= f"https://api.github.com/repos/{owner}/{repo}"
-
-
-def listRepoHooks():
-    query_url = f"{repo_url}/hooks"
-    headers = {'Authorization': f'token {token}', 'accept': f'application/vnd.github.v3+json' }
-    r = requests.get(query_url, headers=headers)
-    pprint(r.json())
-    
-def addHook(repo_url):
-    query_url = f"{repo_url}/hooks"
-    headers = {'Authorization': f'token {token}', 'accept': f'application/vnd.github.v3+json' }
-    body =  {'name' : 'web', 'config' : { 'url':'https://api.github.cop', 'secret' : 'none', 'events' : [ "*" ] }}
-
-    # pprint(json.dumps(body))
-    r = requests.post(query_url, headers=headers, data=json.dumps(body))
-    pprint(r.json())
-
-# listRepoHooks()
-addHook(repo_url)
+if __name__ == '__main__':
+    cli()
