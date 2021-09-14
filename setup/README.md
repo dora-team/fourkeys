@@ -137,54 +137,7 @@ If you have an existing installation of The Four Keys, created using the now-dep
 
 ### Collecting deployment data
 
-#### Configuring Cloud Build to deploy on GitHub Pull Request merges
-
-1.  Go back to your repo's main page.
-1.  At the top of the GitHub page, click **Marketplace**.
-1.  Search for **Cloud Build**.
-1.  Select **Google Cloud Build**.
-1.  Click **Set Up Plan**.
-1.  Click **Set up with Google Cloud Build**.
-1.  Select **Only select repositories**.
-1.  Fill in your forked repo.
-1.  Log in to Google Cloud Platform.
-1.  Add your new Four Keys project named `fourkeys-XXXXX`.
-1.  Select your repo.
-1.  Click **Connect repository**.
-1.  Click **Create push trigger**.
-
-And now, whenever a pull request is merged into master of your fork, Cloud Build will trigger a deploy into prod and data will flow into your Four Keys project.
-
-#### Configuring Cloud Build to deploy on GitLab merges
-
-1.  Go to your Four Keys project and [create a service account](https://cloud.google.com/iam/docs/creating-managing-service-accounts#iam-service-accounts-create-console) called `gitlab-deploy`.
-1.  [Create a JSON service account key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#iam-service-account-keys-create-console) for your `gitlab-deploy` service account.
-1.  In your GitLab repo, navigate to `Settings` on the left-hand menu and then select `CI/CD`.
-1.  Save your account key under variables.
-    1.  In the **key** field, input `SERVICE_ACCOUNT`.
-    1.  In the **Value** field, input the JSON . 
-    1.  Select **Protect variable**.
-1.  Save your Google Cloud project-id under variables.
-    1.  In the **key** field, input `PROJECT_ID`.
-    1.  In the **value** field, input your `project-id`.
-1.  Add a `.gitlab-ci.yml` file to your repo.
-    ```
-    image: google/cloud-sdk:alpine
-
-    deploy_production:
-      stage: deploy
-      environment: Production
-      only:
-      - master
-      script:
-      - echo $SERVICE_ACCOUNT > /tmp/$CI_PIPELINE_ID.json
-      - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
-      - gcloud builds submit . --project $PROJECT_ID
-      after_script:
-      - rm /tmp/$CI_PIPELINE_ID.json
-    ```
-
-This setup will trigger a deployment on any `push` to the `master` branch.
+1.  For whichever CI/CD system you are using, set it up to send Webhook events to the event-handler.  
 
 ### Collecting incident data
 
