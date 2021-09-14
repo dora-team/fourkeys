@@ -51,7 +51,6 @@ This diagram shows the design of the Four Keys system:
   * Contains the code for the `event_handler`, which is the public service that accepts incoming webhooks.  
 * `queries/`
   * Contains the SQL queries for creating the derived tables.
-  * Contains a bash script for scheduling the queries.
 * `setup/`
   * Contains the code for setting up and tearing down the Four Keys pipeline. Also contains a script for extending the data sources.
 * `shared/`
