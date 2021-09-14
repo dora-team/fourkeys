@@ -9,7 +9,7 @@ This guide describes how to set up Four Keys with your GitHub or GitLab project.
     1.  [Collecting incident data](#collecting-incident-data)
 
 ## Before you begin
-
+> We recommend using [Cloud Shell](https://cloud.google.com/shell) to install Four Keys
 1.  Install [GCloud SDK](https://cloud.google.com/sdk/install).
 1. Install [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 1.  You must be owner on a Google Cloud project that has billing enabled. You may either use this project to house the architecture for the Four Keys, or you will be given the option to create new projects. If you create new projects, the original Google Cloud project will NOT be altered during set up, but **the billing information from this parent project will be applied to any projects created**.
