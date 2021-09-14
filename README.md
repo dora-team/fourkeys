@@ -33,7 +33,7 @@ For a quick baseline of your team's software delivery performance, you can also 
 1.  Events are sent to a webhook target hosted on Cloud Run. Events are any occurrence in your development environment (for example, GitHub or GitLab) that can be measured, such as a pull request or new issue. Four Keys defines events to measure, and you can add others that are relevant to your project.
 1.  The Cloud Run target publishes all events to Pub/Sub.
 1.  A Cloud Run instance is subscribed to the Pub/Sub topics, does some light data transformation, and inputs the data into BigQuery.
-1.  Nightly scripts are scheduled in BigQuery to complete the data transformations and feed into the dashboard.
+1.  The BigQuery view to complete the data transformations and feed into the dashboard.
 
 This diagram shows the design of the Four Keys system:
 
@@ -68,7 +68,7 @@ _The project uses Python 3 and supports data extraction for Cloud Build and GitH
     1.  Create and deploy the Cloud Run webhook target and ETL workers.
     1.  Create the Pub/Sub topics and subscriptions.
     1.  Enable the Google Secret Manager and create a secret for your GitHub repo.
-    1.  Create a BigQuery dataset and tables, and schedule the nightly scripts.
+    1.  Create a BigQuery dataset, tables and views.
     1.  Open up a browser tab to connect your data to a DataStudio dashboard template.
 1.  Set up your development environment to send events to the webhook created in the second step.
     1.  Add the secret to your GitHub webhook.
@@ -116,23 +116,22 @@ To run outside of the setup script:
 
 The scripts consider some events to be “changes”, “deploys”, and “incidents.” You may want to reclassify one or more of these events, for example, if you want to use a label for your incidents other than “incident.” To reclassify one of the events in the table, no changes are required on the architecture or code of the project.
 
-1.  Update the nightly scripts in BigQuery for the following tables:
+1.  Update the generated query in BigQuery for the following tables:
 
     *   `four_keys.changes`
     *   `four_keys.deployments`
     *   `four_keys.incidents`
 
-    To update the scripts, we recommend that you update the `sql` files in the `queries` folder, rather than in the BigQuery UI.
+    To update the generated query, we recommend that you update the `sql` files in the `queries` folder, rather than in the BigQuery UI.
 
-1.  Once you've edited the SQL, run the `schedule.sh` script to update the scheduled query that populates the table.  For example, if you wanted to update the `four_keys.changes` table, you'd run:
+1.  Once you've edited the SQL, run the `terraform apply` to update the generated query that populates the table.  For example, if you wanted to update the `four_keys.changes` table, you'd run:
 
     ```sh 
-    schedule.sh --query_file=changes.sql --table=changes --project_id=$FOURKEYS_PROJECT
+    cd ./setup && terraform apply
     ```
 
 Notes: 
 
-* The `query_file` flag should contain the relative path of the file.  
 * To feed into the dashboard, the table name should be one of `changes`, `deployments`, `incidents`. 
 
 
