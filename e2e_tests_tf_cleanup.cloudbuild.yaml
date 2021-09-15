@@ -10,7 +10,7 @@ steps:
         gsutil -m rm -r gs://$_TARGET_PROJECT-tf-state/terraform || true
 
         ### Delete all resources
-        ./experimental/project_cleaner.sh --project=$_TARGET_PROJECT || true
+        ./ci/project_cleaner.sh --project=$_TARGET_PROJECT || true
 
         echo "Turning off APIs"
         gcloud services disable compute.googleapis.com --project=$_TARGET_PROJECT --force
