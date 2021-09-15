@@ -76,7 +76,7 @@ def process_gitlab_event(headers, msg):
     if "Mock" in headers:
         source += "mock"
 
-    types = {"push", "merge_request", "note", "tag_push", "issue", "pipeline", "job"}
+    types = {"push", "merge_request", "note", "tag_push", "issue", "pipeline", "job", "deployment"}
 
     metadata = json.loads(base64.b64decode(msg["data"]).decode("utf-8").strip())
 
@@ -104,6 +104,10 @@ def process_gitlab_event(headers, msg):
         time_created = (
             event_object.get("finished_at") or
             event_object.get("started_at"))
+        
+    if event_type in ("deployment"):
+        e_id = metadata["deployment_id"]
+        time_created = metadata["status_changed_at"]
 
     gitlab_event = {
         "event_type": event_type,
