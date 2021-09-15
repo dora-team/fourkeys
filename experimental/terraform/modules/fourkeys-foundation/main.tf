@@ -5,6 +5,13 @@ data "google_project" "project" {
 
 locals {
   cloud_build_service_account = "${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
+  services = toset([
+    "cloudapis.googleapis.com",
+    "run.googleapis.com",
+    "cloudbuild.googleapis.com",
+    "containerregistry.googleapis.com"
+
+  ])
 }
 
 # Service Accounts and IAM
@@ -19,9 +26,6 @@ resource "google_project_iam_member" "storage_admin" {
   project = var.project_id
   role    = "roles/storage.admin"
   member  = "serviceAccount:${local.cloud_build_service_account}"
-  depends_on = [
-    google_project_service.cloud_build
-  ]
 }
 
 resource "google_project_iam_member" "bigquery_user" {
@@ -44,25 +48,10 @@ resource "google_project_iam_member" "cloud_run_invoker" {
 
 
 # Services and API's
-resource "google_project_service" "container_registry" {
+
+resource "google_project_service" "all" {
   project                    = var.project_id
-  service                    = "containerregistry.googleapis.com"
+  for_each                   = local.services
+  service                    = each.value
   disable_dependent_services = true
 }
-
-resource "google_project_service" "cloud_build" {
-  project = var.project_id
-  service = "cloudbuild.googleapis.com"
-}
-
-resource "google_project_service" "cloud_run" {
-  project = var.project_id
-  service = "run.googleapis.com"
-}
-
-resource "google_project_service" "cloud_apis" {
-  project                    = var.project_id
-  service                    = "cloudapis.googleapis.com"
-  disable_dependent_services = true
-}
-
