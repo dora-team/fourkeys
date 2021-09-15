@@ -91,7 +91,7 @@ fi
 
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
 echo "configuring Grafana dashboard…"
-DASHBOARD_URL="$(terraform output -raw dashboard_endpoint)d/yVtwoQ4nk/four-keys?orgId=1"
+DASHBOARD_URL="$(terraform output -raw dashboard_endpoint)/d/yVtwoQ4nk/four-keys?orgId=1"
 
 echo -e "Please visit ${GREEN}$DASHBOARD_URL${NOCOLOR} to view your data in the dashboard template."
 
