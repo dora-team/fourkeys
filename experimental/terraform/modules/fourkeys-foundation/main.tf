@@ -7,8 +7,7 @@ locals {
   cloud_build_service_account = "${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
 }
 
-# Service Accounts
-
+# Service Accounts and IAM
 
 resource "google_service_account" "fourkeys" {
   project      = var.project_id
@@ -61,20 +60,9 @@ resource "google_project_service" "cloud_run" {
   service = "run.googleapis.com"
 }
 
-resource "google_project_service" "bigquery" {
-  project                    = var.project_id
-  service                    = "bigquery.googleapis.com"
-  disable_dependent_services = true
-}
-
-resource "google_project_service" "bigquery_storage" {
-  project                    = var.project_id
-  service                    = "bigquerystorage.googleapis.com"
-  disable_dependent_services = true
-}
-
 resource "google_project_service" "cloud_apis" {
   project                    = var.project_id
   service                    = "cloudapis.googleapis.com"
   disable_dependent_services = true
 }
+
