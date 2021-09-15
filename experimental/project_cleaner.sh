@@ -8,16 +8,17 @@
 set -eEuo pipefail
 
 help() {
-    printf "Usage: project_cleaner.sh --project_id=<google_cloud_project_id>\n"
+    printf "Usage: project_cleaner.sh --project=<google_cloud_project_id>\n"
     exit 0
 }
 
-PROJECT_ID=""
+
 # PARSE INPUTS
+PROJECT_ID=""
 for i in "$@"
 do
 case $i in
-    -p=* | --project_id=*) PROJECT_ID="${i#*=}"; shift;;
+    -p=* | --project=*) PROJECT_ID="${i#*=}"; shift;;
     -h | --help ) help; exit 0; shift;;
     *) ;;  # unknown option
   esac
@@ -43,9 +44,12 @@ done
 set +x
 
 echo "🗑 Dropping Cloud Run services…"
+
 set -x
 for service in $(gcloud run services list --project=$PROJECT_ID --filter="metadata.labels.created_by:fourkeys" --format="value(name)"); do
-    gcloud run services delete $service --project=$PROJECT_ID --quiet
+    service_name = $service | cut -f1
+    service_region = $service | cut -f2
+    gcloud run services delete $service_name --region=$service_region --project=$PROJECT_ID --quiet
 done
 set +x
 
