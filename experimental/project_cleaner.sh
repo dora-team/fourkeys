@@ -31,7 +31,9 @@ then
 fi
 
 echo "🗑 Dropping BQ Resources…"
+set -x
 bq rm -r -f -d ${PROJECT_ID}:four_keys || true
+set +x
 
 echo "🗑 Dropping secret manager secrets…"
 set -x
