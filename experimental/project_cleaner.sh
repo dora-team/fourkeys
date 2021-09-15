@@ -31,7 +31,7 @@ then
 fi
 
 echo "🗑 Dropping BQ Resources…"
-bq rm -r -f -d ${PROJECT_ID}:four_keys
+bq rm -r -f -d ${PROJECT_ID}:four_keys || true
 
 echo "🗑 Dropping secret manager secrets…"
 for secret_name in $(gcloud secrets list --filter="labels.created_by:fourkeys" --format="value(name)"); do
