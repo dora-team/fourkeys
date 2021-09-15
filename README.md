@@ -116,15 +116,15 @@ To run outside of the setup script:
 
 The scripts consider some events to be “changes”, “deploys”, and “incidents.” You may want to reclassify one or more of these events, for example, if you want to use a label for your incidents other than “incident.” To reclassify one of the events in the table, no changes are required on the architecture or code of the project.
 
-1.  Update the generated query in BigQuery for the following tables:
+1.  Update the view in BigQuery for the following tables:
 
     *   `four_keys.changes`
     *   `four_keys.deployments`
     *   `four_keys.incidents`
 
-    To update the generated query, we recommend that you update the `sql` files in the `queries` folder, rather than in the BigQuery UI.
+    To update the view, we recommend that you update the `sql` files in the `queries` folder, rather than in the BigQuery UI.
 
-1.  Once you've edited the SQL, run the `terraform apply` to update the generated query that populates the table.  For example, if you wanted to update the `four_keys.changes` table, you'd run:
+1.  Once you've edited the SQL, run `terraform apply` to update the view that populates the table:
 
     ```sh 
     cd ./setup && terraform apply
