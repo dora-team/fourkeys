@@ -10,12 +10,12 @@ steps:
         gsutil -m rm -r gs://$_TARGET_PROJECT-tf-state/terraform || true
 
         ### Delete all resources
-        ./experimental/project_cleaner.sh --project_id=$_TARGET_PROJECT || true
+        ./experimental/project_cleaner.sh --project=$_TARGET_PROJECT || true
 
         echo "Turning off APIs"
-        gcloud services disable compute.googleapis.com --project_id=$_TARGET_PROJECT --force
-        gcloud services disable run.googleapis.com --project_id=$_TARGET_PROJECT --force
-        gcloud services disable bigquery.googleapis.com --project_id=$_TARGET_PROJECT --force 
-        gcloud services disable secretmanager.googleapis.com --project_id=$_TARGET_PROJECT --force
+        gcloud services disable compute.googleapis.com --project=$_TARGET_PROJECT --force
+        gcloud services disable run.googleapis.com --project=$_TARGET_PROJECT --force
+        gcloud services disable bigquery.googleapis.com --project=$_TARGET_PROJECT --force 
+        gcloud services disable secretmanager.googleapis.com --project=$_TARGET_PROJECT --force
 substitutions:
   _TARGET_PROJECT: fourkeys-tf-tests
