@@ -37,28 +37,28 @@ set +x
 
 echo "🗑 Dropping secret manager secrets…"
 set -x
-for secret_name in $(gcloud secrets list --filter="labels.created_by:fourkeys" --format="value(name)"); do
+for secret_name in $(gcloud secrets list --project=$PROJECT_ID --filter="labels.created_by:fourkeys" --format="value(name)"); do
     gcloud secrets delete $secret_name --project=$PROJECT_ID --quiet
 done
 set +x
 
 echo "🗑 Dropping Cloud Run services…"
 set -x
-for service in $(gcloud run services list --filter="metadata.labels.created_by:fourkeys" --format="value(name)"); do
+for service in $(gcloud run services list --project=$PROJECT_ID --filter="metadata.labels.created_by:fourkeys" --format="value(name)"); do
     gcloud run services delete $service --project=$PROJECT_ID --quiet
 done
 set +x
 
 echo "🗑 Dropping Pub/Sub topics…"
 set -x
-for topic in $(gcloud pubsub topics list --filter="labels.created_by:fourkeys" --format="value(name)"); do
+for topic in $(gcloud pubsub topics list --project=$PROJECT_ID --filter="labels.created_by:fourkeys" --format="value(name)"); do
     gcloud pubsub topics delete $topic --project=$PROJECT_ID --quiet
 done
 set +x
 
 echo "🗑 Dropping Pub/Sub subscriptions…"
 set -x
-for subscription in $(gcloud pubsub subscriptions list --filter="labels.created_by:fourkeys" --format="value(name)"); do
+for subscription in $(gcloud pubsub subscriptions list --project=$PROJECT_ID --filter="labels.created_by:fourkeys" --format="value(name)"); do
     gcloud pubsub subscriptions delete $subscription --project=$PROJECT_ID --quiet
 done
 set +x
