@@ -11,4 +11,5 @@ module "bigquery" {
   depends_on = [
     module.foundation
   ]
+  parser_service_name = "github"
 }
