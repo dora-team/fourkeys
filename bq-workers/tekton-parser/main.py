@@ -15,7 +15,6 @@
 import base64
 import os
 import json
-import sys
 
 import shared
 
@@ -63,8 +62,6 @@ def index():
             }
         print(json.dumps(entry))
 
-    # Flush the stdout to avoid log buffering.
-    sys.stdout.flush()
     return "", 204
 
 
