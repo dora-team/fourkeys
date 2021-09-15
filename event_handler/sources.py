@@ -52,6 +52,27 @@ def github_verification(signature, body):
     return hmac.compare_digest(signature, expected_signature)
 
 
+def circleci_verification(signature, body):
+    """
+    Verifies that the signature received from the circleci event is accurate
+    """
+    if not signature:
+        raise Exception("CircleCI signature is empty")
+
+    expected_signature = "v1="
+    try:
+        # Get secret from Cloud Secret Manager
+        secret = get_secret(PROJECT_NAME, "event-handler", "latest")
+        # Compute the hashed signature
+        hashed = hmac.new(secret, body, 'sha256')
+        expected_signature += hashed.hexdigest()
+
+    except Exception as e:
+        print(e)
+
+    return hmac.compare_digest(signature, expected_signature)
+
+
 def simple_token_verification(token, body):
     """
     Verifies that the token received from the event is accurate
@@ -91,6 +112,9 @@ def get_source(headers):
     if "GitHub-Hookshot" in headers.get("User-Agent", ""):
         return "github"
 
+    if "Circleci-Event-Type" in headers:
+        return "circleci"
+
     return headers.get("User-Agent")
 
 
@@ -103,5 +127,8 @@ AUTHORIZED_SOURCES = {
         ),
     "tekton": EventSource(
         "tekton-secret", simple_token_verification
-        )
+        ),
+    "circleci": EventSource(
+        "Circleci-Signature", circleci_verification
+        ),
 }
