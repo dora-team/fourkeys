@@ -1,7 +1,32 @@
+
+resource "google_project_service" "bigquery" {
+  project                    = var.project_id
+  service                    = "bigquery.googleapis.com"
+  disable_dependent_services = true
+
+}
+
+resource "google_project_service" "bigquery_storage" {
+  project                    = var.project_id
+  service                    = "bigquerystorage.googleapis.com"
+  disable_dependent_services = true
+}
+
+resource "google_project_service" "storage_component" {
+  project                    = var.project_id
+  service                    = "storage-component.googleapis.com"
+  disable_dependent_services = true
+}
+
+
+
 resource "google_bigquery_dataset" "four_keys" {
   project    = var.project_id
   dataset_id = "four_keys"
   location   = var.bigquery_region
+  depends_on = [
+    google_project_service.bigquery
+  ]
 }
 
 resource "google_bigquery_table" "events_raw" {
@@ -10,9 +35,13 @@ resource "google_bigquery_table" "events_raw" {
   table_id            = "events_raw"
   schema              = file("${path.module}/files/events_raw_schema.json")
   deletion_protection = false
+  depends_on = [
+    google_project_service.bigquery
+  ]
 }
 
 resource "google_bigquery_table" "view_changes" {
+  project    = var.project_id
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   table_id   = "changes"
   view {
@@ -21,11 +50,13 @@ resource "google_bigquery_table" "view_changes" {
   }
   deletion_protection = false
   depends_on = [
+    google_project_service.bigquery,
     google_bigquery_table.events_raw
   ]
 }
 
 resource "google_bigquery_routine" "func_json2array" {
+  project      = var.project_id
   dataset_id   = google_bigquery_dataset.four_keys.dataset_id
   routine_id   = "json2array"
   routine_type = "SCALAR_FUNCTION"
@@ -36,9 +67,13 @@ resource "google_bigquery_routine" "func_json2array" {
     data_type = "{\"typeKind\" :  \"STRING\"}"
   }
   definition_body = file("${path.module}/queries/function_json2array.js")
+  depends_on = [
+    google_project_service.bigquery
+  ]
 }
 
 resource "google_bigquery_table" "view_deployments" {
+  project    = var.project_id
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   table_id   = "deployments"
   view {
@@ -47,12 +82,14 @@ resource "google_bigquery_table" "view_deployments" {
   }
   deletion_protection = false
   depends_on = [
+    google_project_service.bigquery,
     google_bigquery_table.events_raw,
     google_bigquery_routine.func_json2array
   ]
 }
 
 resource "google_bigquery_table" "view_incidents" {
+  project    = var.project_id
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   table_id   = "incidents"
   view {
@@ -61,23 +98,27 @@ resource "google_bigquery_table" "view_incidents" {
   }
   deletion_protection = false
   depends_on = [
+    google_project_service.bigquery,
     google_bigquery_table.events_raw,
     google_bigquery_table.view_deployments
   ]
 }
 
 resource "google_project_iam_member" "parser_bq_project_access" {
-  role   = "roles/bigquery.user"
-  member = "serviceAccount:${var.fourkeys_service_account}"
+  project = var.project_id
+  role    = "roles/bigquery.user"
+  member  = "serviceAccount:${var.fourkeys_service_account}"
 }
 
 resource "google_bigquery_dataset_iam_member" "parser_bq" {
+  project    = var.project_id
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   role       = "roles/bigquery.dataEditor"
   member     = "serviceAccount:${var.fourkeys_service_account}"
 }
 
 resource "google_project_iam_member" "parser_run_invoker" {
-  member = "serviceAccount:${var.fourkeys_service_account}"
-  role   = "roles/run.invoker"
+  project = var.project_id
+  member  = "serviceAccount:${var.fourkeys_service_account}"
+  role    = "roles/run.invoker"
 }
