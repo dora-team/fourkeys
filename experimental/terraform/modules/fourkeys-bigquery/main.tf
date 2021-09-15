@@ -122,3 +122,11 @@ resource "google_project_iam_member" "parser_run_invoker" {
   member  = "serviceAccount:${var.fourkeys_service_account}"
   role    = "roles/run.invoker"
 }
+
+module "data_source" {
+  source                         = "../fourkeys-data-source"
+  parser_service_name            = "test"
+  project_id                     = var.project_id
+  region                         = var.bigquery_region
+  fourkeys_service_account_email = var.fourkeys_service_account
+}
