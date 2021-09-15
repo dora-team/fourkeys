@@ -51,6 +51,31 @@ def github_verification(signature, body):
 
     return hmac.compare_digest(signature, expected_signature)
 
+def pagerduty_verification(signatures, body):
+
+    # TODO pagerduty sends more than 1 signature
+    """
+    Verifies that the signature received from the pagerduty event is accurate
+    """
+    if not signatures:
+        raise Exception("Pagerduty signature is empty")
+
+    print(signatures)
+
+    expected_signature = "sha1="
+    try:
+        # Get secret from Cloud Secret Manager
+        secret = get_secret(PROJECT_NAME, "event-handler", "latest")
+        # Compute the hashed signature
+        hashed = hmac.new(secret, body, sha1)
+        expected_signature += hashed.hexdigest()
+
+    except Exception as e:
+        print(e)
+
+    signatureWithVersion = self.version + "=" + signature
+    signatureList = signatures.split(",")
+    return hmac.compare_digest(signature, expected_signature)
 
 def simple_token_verification(token, body):
     """
@@ -99,6 +124,9 @@ def get_source(headers):
     if "Argo-CD" in headers.get("User-Agent", ""):
         return "argocd"
 
+    if "X-PagerDuty-Signature" in headers:
+        return "pagerduty"
+
     return headers.get("User-Agent")
 
 
@@ -117,6 +145,9 @@ AUTHORIZED_SOURCES = {
         ),
     "argocd": EventSource(
         "Argo-Signature", simple_token_verification
+        ),
+    "pagerduty": EventSource(
+        "X-PagerDuty-Signature", pagerduty_verification
         )
         
 }
