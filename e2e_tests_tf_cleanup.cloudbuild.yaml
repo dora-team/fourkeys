@@ -10,42 +10,12 @@ steps:
         gsutil -m rm -r gs://$_TARGET_PROJECT-tf-state/terraform || true
 
         ### Delete all resources
-        gcloud config set project $_TARGET_PROJECT
-        echo "Dropping BQ Resources"
-        set -x
-        bq rm -r -f -d $_TARGET_PROJECT:four_keys
-        set +x
-        
-        for table in changes deployments incidents; do
-          config=$(bq ls --transfer_config --project_id=$_TARGET_PROJECT --transfer_location=US | grep "four_keys_${table}" -m 1 | awk '{print $1;}')
-          if [[ ! -z "$config" ]]; then 
-            bq rm -f --transfer_config $config 
-          fi
-        done
-
-        echo "Removing secret"
-        gcloud beta secrets delete event-handler -q
-
-        echo "Removing service account"
-        gcloud iam service-accounts delete fourkeys@$_TARGET_PROJECT.iam.gserviceaccount.com -q
-
-        echo "Delete Cloud Run services"
-        gcloud run services delete event-handler --platform=managed --region=us-central1 -q
-        gcloud run services delete github --platform=managed --region=us-central1 -q
-        gcloud run services delete cloud-build --platform=managed --region=us-central1 -q
-
-        echo "Delete Pub/Sub topics and subscriptions"
-        gcloud pubsub topics delete github -q
-        gcloud pubsub topics delete cloud-build -q
-        gcloud pubsub subscriptions delete github-subscription -q
-        gcloud pubsub subscriptions delete cloud-build-subscription -q
+        ./experimental/project_cleaner.sh --project_id=$_TARGET_PROJECT || true
 
         echo "Turning off APIs"
         gcloud services disable compute.googleapis.com --force
         gcloud services disable run.googleapis.com --force
         gcloud services disable bigquery.googleapis.com --force 
-        gcloud services disable bigquerydatatransfer.googleapis.com --force 
-        gcloud services disable bigqueryconnection.googleapis.com --force 
         gcloud services disable secretmanager.googleapis.com --force
 substitutions:
   _TARGET_PROJECT: fourkeys-tf-tests

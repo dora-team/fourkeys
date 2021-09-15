@@ -17,14 +17,9 @@ PROJECT_ID=""
 for i in "$@"
 do
 case $i in
-    -p=* | --project_id=*) 
-    PROJECT_ID="${i#*=}"
-    shift
-    ;;
+    -p=* | --project_id=*) PROJECT_ID="${i#*=}"; shift;;
     -h | --help ) help; exit 0; shift;;
-    *)
-          # unknown option
-    ;;
+    *) ;;  # unknown option
   esac
 done
 
@@ -35,28 +30,30 @@ then
     exit 1
 fi
 
-echo "Dropping BQ Resources:"
+echo "🗑 Dropping BQ Resources…"
 bq rm -r -f -d ${PROJECT_ID}:four_keys
 
-echo "Dropping secret manager secrets:"
+echo "🗑 Dropping secret manager secrets…"
 for secret_name in $(gcloud secrets list --filter="labels.created_by:fourkeys" --format="value(name)"); do
-    gcloud secrets delete $secret_name --quiet
+    gcloud secrets delete $secret_name --project=$PROJECT_ID --quiet
 done
 
-echo "Dropping Cloud Run services:"
+echo "🗑 Dropping Cloud Run services…"
 for service in $(gcloud run services list --filter="metadata.labels.created_by:fourkeys" --format="value(name)"); do
-    gcloud run services delete $service --quiet
+    gcloud run services delete $service --project=$PROJECT_ID --quiet
 done
 
-echo "Dropping Pub/Sub topics:"
+echo "🗑 Dropping Pub/Sub topics…"
 for topic in $(gcloud pubsub topics list --filter="labels.created_by:fourkeys" --format="value(name)"); do
-    gcloud pubsub topics delete $topic --quiet
+    gcloud pubsub topics delete $topic --project=$PROJECT_ID --quiet
 done
 
-echo "Dropping Pub/Sub subscriptions:"
+echo "🗑 Dropping Pub/Sub subscriptions…"
 for subscription in $(gcloud pubsub subscriptions list --filter="labels.created_by:fourkeys" --format="value(name)"); do
-    gcloud pubsub subscriptions delete $subscription --quiet
+    gcloud pubsub subscriptions delete $subscription --project=$PROJECT_ID --quiet
 done
 
-echo "Dropping service account:"
-gcloud iam service-accounts delete fourkeys@${PROJECT_ID}.iam.gserviceaccount.com --quiet 
+echo "🗑 Dropping service account…"
+gcloud iam service-accounts delete fourkeys@${PROJECT_ID}.iam.gserviceaccount.com --quiet || true
+
+echo "✅ Done."
