@@ -22,7 +22,9 @@ resource "google_cloud_run_service" "dashboard" {
     percent         = 100
     latest_revision = true
   }
-
+  metadata {
+    labels = {"created_by":"fourkeys"}
+  }
   autogenerate_revision_name = true
 }
 
