@@ -8,6 +8,8 @@ locals {
 }
 
 # Service Accounts
+
+
 resource "google_service_account" "fourkeys" {
   project      = var.project_id
   account_id   = "fourkeys"
@@ -44,8 +46,9 @@ resource "google_project_iam_member" "cloud_run_invoker" {
 
 # Services and API's
 resource "google_project_service" "container_registry" {
-  project = var.project_id
-  service = "cloudbuild.googleapis.com"
+  project                    = var.project_id
+  service                    = "containerregistry.googleapis.com"
+  disable_dependent_services = true
 }
 
 resource "google_project_service" "cloud_build" {
@@ -59,6 +62,19 @@ resource "google_project_service" "cloud_run" {
 }
 
 resource "google_project_service" "bigquery" {
-  project = var.project_id
-  service = "bigquery.googleapis.com"
+  project                    = var.project_id
+  service                    = "bigquery.googleapis.com"
+  disable_dependent_services = true
+}
+
+resource "google_project_service" "bigquery_storage" {
+  project                    = var.project_id
+  service                    = "bigquerystorage.googleapis.com"
+  disable_dependent_services = true
+}
+
+resource "google_project_service" "cloud_apis" {
+  project                    = var.project_id
+  service                    = "cloudapis.googleapis.com"
+  disable_dependent_services = true
 }
