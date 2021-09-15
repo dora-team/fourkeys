@@ -15,7 +15,8 @@
 import base64
 import os
 import json
-import sys
+
+import shared
 
 from flask import Flask, request
 
