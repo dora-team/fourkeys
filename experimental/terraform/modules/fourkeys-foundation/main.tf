@@ -5,12 +5,22 @@ data "google_project" "project" {
 
 locals {
   cloud_build_service_account = "${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
-  # services = toset([
-  #   "run.googleapis.com",
-  #   "cloudbuild.googleapis.com",
-  #   "containerregistry.googleapis.com",
-  #   "secretmanager.googleapis.com"
-  # ])
+}
+
+## Services
+resource "google_project_service" "cloud_build" {
+  project = var.project_id
+  service = "cloudbuild.googleapis.com"
+}
+
+resource "google_project_service" "cloud_run" {
+  project = var.project_id
+  service = "run.googleapis.com"
+}
+
+resource "google_project_service" "secret_manager" {
+  project = var.project_id
+  service = "secretmanager.googleapis.com"
 }
 
 # Service Accounts and IAM
@@ -25,6 +35,9 @@ resource "google_project_iam_member" "storage_admin" {
   project = var.project_id
   role    = "roles/storage.admin"
   member  = "serviceAccount:${local.cloud_build_service_account}"
+  depends_on = [
+    google_project_service.cloud_build
+  ]
 }
 
 resource "google_project_iam_member" "bigquery_user" {
@@ -54,15 +67,10 @@ module "gcloud_build_event_handler" {
   create_cmd_body        = "builds submit ${path.module}/files/event_handler --tag=gcr.io/${var.project_id}/event-handler --project=${var.project_id}"
   destroy_cmd_entrypoint = "gcloud"
   destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/event-handler --quiet"
+  skip_download          = true
+  module_depends_on      = [google_project_service.cloud_build]
 }
-resource "google_project_service" "cloud_run" {
-  project = var.project_id
-  service = "run.googleapis.com"
-}
-resource "google_project_service" "secret_manager" {
-  project = var.project_id
-  service = "secretmanager.googleapis.com"
-}
+
 resource "google_cloud_run_service" "event_handler" {
   name     = "event-handler"
   project  = var.project_id
@@ -88,7 +96,7 @@ resource "google_cloud_run_service" "event_handler" {
 
   autogenerate_revision_name = true
 
-  depends_on = [google_project_service.cloud_run]
+  depends_on = [google_project_service.cloud_run, module.gcloud_build_event_handler]
 }
 resource "google_cloud_run_service_iam_binding" "noauth" {
   location   = var.region
