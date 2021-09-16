@@ -2,15 +2,6 @@ data "google_project" "project" {
   project_id = var.project_id
 }
 
-module "gcloud_build_event_handler" {
-  source                 = "terraform-google-modules/gcloud/google"
-  version                = "~> 2.0"
-  create_cmd_entrypoint  = "gcloud"
-  create_cmd_body        = "builds submit ${path.module}/files/event_handler --tag=gcr.io/${var.project_id}/event-handler --project=${var.project_id}"
-  destroy_cmd_entrypoint = "gcloud"
-  destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/event-handler --quiet"
-}
-
 module "gcloud_build_data_source" {
   source  = "terraform-google-modules/gcloud/google"
   version = "~> 2.0"
@@ -76,7 +67,5 @@ resource "google_pubsub_subscription" "parser" {
     oidc_token {
       service_account_email = var.fourkeys_service_account_email
     }
-
   }
-
 }
