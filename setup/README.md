@@ -68,6 +68,12 @@ Terraform maintains information about infrastucture in persistent state storage,
 
 > To learn how to use a remote backend for robust storage of Terraform state, see: [Terraform Language: Backends](https://www.terraform.io/docs/language/settings/backends/index.html)
 
+### Purging resources created by Terraform
+If something goes wrong during Terraform setup, you may be able to run `terraform destroy` to delete the resources that were created. However, it's possible for the Terraform state to become inconsistent with your project, leaving Terraform unaware of resources (yet their existance will prevent subsequent installations from working). If that happens, the best option is usually to delete the GCP project and start a new one. If that's not possible, you can force-remove all of the four keys resources in your project by running:
+```shell
+./ci/project_cleaner.sh --project=<your_fourkeys_project>
+```
+
 ## Integrating with a live repo
 
 The setup script can create mock data, but it cannot integrate automatically with live projects.  To measure your team's performance, you need to integrate to your live GitHub or GitLab repo that has ongoing deployments. You can then measure the four key metrics, and experiment with how changes, successful deployments, and failed deployments affect your metrics.
