@@ -5,14 +5,12 @@ data "google_project" "project" {
 
 locals {
   cloud_build_service_account = "${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
-  services = toset([
-    "cloudapis.googleapis.com",
-    "run.googleapis.com",
-    "cloudbuild.googleapis.com",
-    "containerregistry.googleapis.com",
-    "secretmanager.googleapis.com"
-
-  ])
+  # services = toset([
+  #   "run.googleapis.com",
+  #   "cloudbuild.googleapis.com",
+  #   "containerregistry.googleapis.com",
+  #   "secretmanager.googleapis.com"
+  # ])
 }
 
 # Service Accounts and IAM
@@ -47,16 +45,24 @@ resource "google_project_iam_member" "cloud_run_invoker" {
   ]
 }
 
-
-# Services and API's
-
-resource "google_project_service" "all" {
-  project                    = var.project_id
-  for_each                   = local.services
-  service                    = each.value
-  disable_dependent_services = true
-}
 # Event handler resources
+
+module "gcloud_build_event_handler" {
+  source                 = "terraform-google-modules/gcloud/google"
+  version                = "~> 2.0"
+  create_cmd_entrypoint  = "gcloud"
+  create_cmd_body        = "builds submit ${path.module}/files/event_handler --tag=gcr.io/${var.project_id}/event-handler --project=${var.project_id}"
+  destroy_cmd_entrypoint = "gcloud"
+  destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/event-handler --quiet"
+}
+resource "google_project_service" "cloud_run" {
+  project = var.project_id
+  service = "run.googleapis.com"
+}
+resource "google_project_service" "secret_manager" {
+  project = var.project_id
+  service = "secretmanager.googleapis.com"
+}
 resource "google_cloud_run_service" "event_handler" {
   name     = "event-handler"
   project  = var.project_id
@@ -67,7 +73,7 @@ resource "google_cloud_run_service" "event_handler" {
       containers {
         image = "gcr.io/${var.project_id}/event-handler"
         env {
-          name  = "PROJECT_NAME"
+          name  = data.google_project.project.name
           value = var.project_id
         }
       }
@@ -82,17 +88,12 @@ resource "google_cloud_run_service" "event_handler" {
 
   autogenerate_revision_name = true
 
-  depends_on = [
-    google_project_service.all["run.googleapis.com"]
-  ]
-
+  depends_on = [google_project_service.cloud_run]
 }
-
 resource "google_cloud_run_service_iam_binding" "noauth" {
-  location = var.region
-  project  = var.project_id
-  service  = "event-handler"
-
+  location   = var.region
+  project    = var.project_id
+  service    = "event-handler"
   role       = "roles/run.invoker"
   members    = ["allUsers"]
   depends_on = [google_cloud_run_service.event_handler]
@@ -104,9 +105,7 @@ resource "google_secret_manager_secret" "event_handler" {
   replication {
     automatic = true
   }
-  depends_on = [
-    google_project_service.all["secretmanager.googleapis.com"]
-  ]
+  depends_on = [google_project_service.secret_manager]
 }
 
 resource "random_id" "event_handler_random_value" {
@@ -116,11 +115,13 @@ resource "random_id" "event_handler_random_value" {
 resource "google_secret_manager_secret_version" "event_handler" {
   secret      = google_secret_manager_secret.event_handler.id
   secret_data = random_id.event_handler_random_value.hex
+  depends_on  = [google_secret_manager_secret.event_handler]
 }
 
 resource "google_secret_manager_secret_iam_member" "event_handler" {
-  project   = var.project_id
-  secret_id = google_secret_manager_secret.event_handler.id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.fourkeys.email}"
+  project    = var.project_id
+  secret_id  = google_secret_manager_secret.event_handler.id
+  role       = "roles/secretmanager.secretAccessor"
+  member     = "serviceAccount:${google_service_account.fourkeys.email}"
+  depends_on = [google_secret_manager_secret.event_handler]
 }
