@@ -21,7 +21,9 @@ Non-goals:
 ## Roadmap
 
 * Short Term
-  * Rewriting the dashboard using [Grafana](https://grafana.com/)
+  * Enriching the dashboard
+    * [More data points](https://github.com/GoogleCloudPlatform/fourkeys/issues/77)
+    * New data views for drilling down into the metrics
 * Long Term
   * New Integrations
     * CI/CD Tools
@@ -41,6 +43,4 @@ Non-goals:
   * Custom deployment events
     * Support for different [deployment patterns](https://github.com/GoogleCloudPlatform/fourkeys/issues/46), eg multiple change sets in a single deployment
     * Canary and Blue/Green deployments
-  * Enriching the dashboard
-    * [More data points](https://github.com/GoogleCloudPlatform/fourkeys/issues/77)
-    * New data views for drilling down into the metrics
+

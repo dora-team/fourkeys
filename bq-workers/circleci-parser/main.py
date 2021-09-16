@@ -45,9 +45,14 @@ def index():
 
     try:
         attr = msg["attributes"]
-        # Process Cloud Build event
-        if "buildId" in attr:
-            event = process_cloud_build_event(attr, msg)
+
+        # Header Event info
+        if "headers" in attr:
+            headers = json.loads(attr["headers"])
+
+            # Process CircleCI Events
+            if "Circleci-Event-Type" in headers:
+                event = process_circleci_event(headers, msg)
 
         shared.insert_row_into_bigquery(event)
 
@@ -63,35 +68,26 @@ def index():
     return "", 204
 
 
-def process_cloud_build_event(attr, msg):
-    event_type = "build"
-    e_id = attr["buildId"]
-
-    # Unique hash for the event
-    signature = shared.create_unique_id(msg)
-
-    # Payload
+def process_circleci_event(headers, msg):
+    event_type = headers["Circleci-Event-Type"]
+    signature = headers["Circleci-Signature"]
     metadata = json.loads(base64.b64decode(msg["data"]).decode("utf-8").strip())
+    types = {"workflow-completed", "job-completed"}
 
-    # Most up to date timestamp for the event
-    if "finishTime" in metadata:
-        time_created = metadata["finishTime"]
-    if "startTime" in metadata:
-        time_created = metadata["startTime"]
-    if "createTime" in metadata:
-        time_created = metadata["createTime"]
+    if event_type not in types:
+        raise Exception("Unsupported CircleCI event: '%s'" % event_type)
 
-    build_event = {
+    circleci_event = {
         "event_type": event_type,
-        "id": e_id,
+        "id": metadata["id"],
         "metadata": json.dumps(metadata),
-        "time_created": time_created,
+        "time_created": metadata["happened_at"],
         "signature": signature,
         "msg_id": msg["message_id"],
-        "source": "cloud_build",
+        "source": "circleci",
     }
 
-    return build_event
+    return circleci_event
 
 
 if __name__ == "__main__":
