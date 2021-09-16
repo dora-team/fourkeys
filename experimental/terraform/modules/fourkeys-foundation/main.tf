@@ -9,18 +9,21 @@ locals {
 
 ## Services
 resource "google_project_service" "cloud_build" {
-  project = var.project_id
-  service = "cloudbuild.googleapis.com"
+  project            = var.project_id
+  service            = "cloudbuild.googleapis.com"
+  disable_on_destroy = false
 }
 
 resource "google_project_service" "cloud_run" {
-  project = var.project_id
-  service = "run.googleapis.com"
+  project            = var.project_id
+  service            = "run.googleapis.com"
+  disable_on_destroy = false
 }
 
 resource "google_project_service" "secret_manager" {
-  project = var.project_id
-  service = "secretmanager.googleapis.com"
+  project            = var.project_id
+  service            = "secretmanager.googleapis.com"
+  disable_on_destroy = false
 }
 
 # Service Accounts and IAM
@@ -67,7 +70,6 @@ module "gcloud_build_event_handler" {
   create_cmd_body        = "builds submit ${path.module}/files/event_handler --tag=gcr.io/${var.project_id}/event-handler --project=${var.project_id}"
   destroy_cmd_entrypoint = "gcloud"
   destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/event-handler --quiet"
-  skip_download          = true
   module_depends_on      = [google_project_service.cloud_build]
 }
 

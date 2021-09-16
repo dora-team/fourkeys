@@ -1,21 +1,20 @@
 
 resource "google_project_service" "bigquery" {
-  project                    = var.project_id
-  service                    = "bigquery.googleapis.com"
-  disable_dependent_services = true
-
+  project            = var.project_id
+  service            = "bigquery.googleapis.com"
+  disable_on_destroy = false
 }
 
 resource "google_project_service" "bigquery_storage" {
-  project                    = var.project_id
-  service                    = "bigquerystorage.googleapis.com"
-  disable_dependent_services = true
+  project            = var.project_id
+  service            = "bigquerystorage.googleapis.com"
+  disable_on_destroy = false
 }
 
 resource "google_project_service" "storage_component" {
-  project                    = var.project_id
-  service                    = "storage-component.googleapis.com"
-  disable_dependent_services = true
+  project            = var.project_id
+  service            = "storage-component.googleapis.com"
+  disable_on_destroy = false
 }
 
 
