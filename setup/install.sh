@@ -58,6 +58,9 @@ if [[ ! -z "$CICD_SYSTEM" && "$CICD_SYSTEM" != "$GIT_SYSTEM" ]]; then
     gcloud builds submit ../bq-workers/${CICD_SYSTEM}-parser --tag=gcr.io/${FOURKEYS_PROJECT}/${CICD_SYSTEM}-parser --project=${PARENT_PROJECT} > ${CICD_SYSTEM}-parser.containerbuild.log & 
 fi
 
+# Dashboard image
+gcloud builds submit ../dashboard --tag=gcr.io/${FOURKEYS_PROJECT}/fourkeys-grafana-dashboard --project=${PARENT_PROJECT} > fourkeys-grafana-dashboard.containerbuild.log & 
+
 # wait for containers to be built, then continue
 wait
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
@@ -87,9 +90,10 @@ if [ $GENERATE_DATA == "yes" ]; then
 fi
 
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
-echo "configuring Data Studio dashboard…"
-DATASTUDIO_URL="https://datastudio.google.com/datasources/create?connectorId=AKfycbxCOPCqhVOJQlRpOPgJ47dPZNdDu44MXbjsgKw_2-s"
-echo -e "Please visit ${GREEN}$DATASTUDIO_URL${NOCOLOR} to connect your data to the dashboard template."
+echo "configuring Grafana dashboard…"
+DASHBOARD_URL="$(terraform output -raw dashboard_endpoint)/d/yVtwoQ4nk/four-keys?orgId=1"
+
+echo -e "Please visit ${GREEN}$DASHBOARD_URL${NOCOLOR} to view your data in the dashboard template."
 
 if [[ ! -z "$CICD_SYSTEM" ]]; then
     echo "••••••••🔑••🔑••🔑••🔑••••••••"
