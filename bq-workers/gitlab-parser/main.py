@@ -76,8 +76,8 @@ def process_gitlab_event(headers, msg):
     if "Mock" in headers:
         source += "mock"
 
-    types = {"push", "merge_request", 
-             "note", "tag_push", "issue", 
+    types = {"push", "merge_request",
+             "note", "tag_push", "issue",
              "pipeline", "job", "deployment",
              "build"}
 
@@ -107,11 +107,11 @@ def process_gitlab_event(headers, msg):
         time_created = (
             event_object.get("finished_at") or
             event_object.get("started_at"))
-        
+
     if event_type in ("deployment"):
         e_id = metadata["deployment_id"]
         # Deployment timestamps come in a format like "2021-04-28 21:50:00 +0200"
-        # BigQuery does not accept this as a valid format 
+        # BigQuery does not accept this as a valid format
         # Removing the extra timezone information below
         time_created = metadata["status_changed_at"][:-6]
 
