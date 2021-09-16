@@ -145,6 +145,41 @@ If you have an existing installation of The Four Keys, created using the now-dep
 
 1.  For whichever CI/CD system you are using, set it up to send Webhook events to the event-handler.  
 
+#### Configuring CircleCI to deploy on GitHub or Gitlab merges
+                             
+1.  Add a `.circleci.yaml` file to your repo.
+    ```
+    version: 2.1
+    executors:
+      default:
+        ...
+    jobs:
+      build:
+        executor: default
+        steps:
+          - run: make build
+      deploy:
+        executor: default
+        steps:
+          - run: make deploy
+    workflows:
+      version: 2
+      build_and_deploy_on_master: # A workflow whose name contains 'deploy' will be used in the query to build the deployments view
+        jobs:
+          - build:
+              name: build
+              filters: &master_filter
+                branches:
+                  only: master
+          - deploy:
+              name: deploy
+              filters: *master_filter
+              requires:
+                - build
+    ```
+ 
+This setup will trigger a deployment on any `push` to the `master` branch.
+
 ### Collecting incident data
 
 Four Keys uses GitLab and/or GitHub issues to track incidents.  
