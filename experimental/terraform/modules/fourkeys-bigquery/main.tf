@@ -17,7 +17,24 @@ resource "google_project_service" "storage_component" {
   disable_on_destroy = false
 }
 
+resource "google_project_iam_member" "parser_bq_project_access" {
+  project = var.project_id
+  role    = "roles/bigquery.user"
+  member  = "serviceAccount:${var.fourkeys_service_account}"
+}
 
+resource "google_bigquery_dataset_iam_member" "parser_bq" {
+  project    = var.project_id
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  role       = "roles/bigquery.dataEditor"
+  member     = "serviceAccount:${var.fourkeys_service_account}"
+}
+
+resource "google_project_iam_member" "parser_run_invoker" {
+  project = var.project_id
+  member  = "serviceAccount:${var.fourkeys_service_account}"
+  role    = "roles/run.invoker"
+}
 
 resource "google_bigquery_dataset" "four_keys" {
   project    = var.project_id
@@ -101,31 +118,4 @@ resource "google_bigquery_table" "view_incidents" {
     google_bigquery_table.events_raw,
     google_bigquery_table.view_deployments
   ]
-}
-
-resource "google_project_iam_member" "parser_bq_project_access" {
-  project = var.project_id
-  role    = "roles/bigquery.user"
-  member  = "serviceAccount:${var.fourkeys_service_account}"
-}
-
-resource "google_bigquery_dataset_iam_member" "parser_bq" {
-  project    = var.project_id
-  dataset_id = google_bigquery_dataset.four_keys.dataset_id
-  role       = "roles/bigquery.dataEditor"
-  member     = "serviceAccount:${var.fourkeys_service_account}"
-}
-
-resource "google_project_iam_member" "parser_run_invoker" {
-  project = var.project_id
-  member  = "serviceAccount:${var.fourkeys_service_account}"
-  role    = "roles/run.invoker"
-}
-
-module "data_source" {
-  source                         = "../fourkeys-data-source"
-  parser_service_name            = var.parser_service_name
-  project_id                     = var.project_id
-  region                         = var.bigquery_region
-  fourkeys_service_account_email = var.fourkeys_service_account
 }
