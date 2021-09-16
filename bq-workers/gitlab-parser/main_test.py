@@ -101,7 +101,7 @@ def test_deployment_event_processed(client):
                        "short_sha": "279484c0",
                        "status_changed_at": "2021-04-28 21:50:00 +0200",
                        "deployment_id": 15,
-                        }).encode("utf-8")
+                       }).encode("utf-8")
 
     pubsub_msg = {
         "message": {
