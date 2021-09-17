@@ -46,6 +46,9 @@ def index():
     signature = signature_sources.get(auth_source.signature, None)
     body = request.data
 
+    # WIP checking signature passed in
+    print(signature)
+
     # Verify the signature
     verify_signature = auth_source.verification
     if not verify_signature(signature, body):
