@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import hmac
-from hashlib import sha1
+from hashlib import sha1, sha256
 import os
 
 from google.cloud import secretmanager
@@ -50,6 +50,34 @@ def github_verification(signature, body):
         print(e)
 
     return hmac.compare_digest(signature, expected_signature)
+
+def pagerduty_verification(signatures, body):
+    """
+    Verifies that the signature received from the pagerduty event is accurate
+    """
+    if not signatures:
+        print(signatures)
+        raise Exception("Pagerduty signature is empty")
+
+    signature_list = signatures.split(",")
+    if len(signature_list) is 0:
+        print(signature_list)
+        raise Exception("Pagerduty signature list is empty")
+
+    expected_signature = "v1="
+    try:
+        # Get secret from Cloud Secret Manager
+        secret = get_secret(PROJECT_NAME, "event-handler", "latest")
+        # Compute the hashed signature
+        hashed = hmac.new(secret, body, sha256)
+        expected_signature += hashed.hexdigest()
+    except Exception as e:
+        print(e)
+    
+    if expected_signature in signature_list:
+      return True
+    else:
+      return False
 
 
 def simple_token_verification(token, body):
@@ -99,6 +127,9 @@ def get_source(headers):
     if "Argo-CD" in headers.get("User-Agent", ""):
         return "argocd"
 
+    if "X-PagerDuty-Signature" in headers:
+        return "pagerduty"
+
     return headers.get("User-Agent")
 
 
@@ -117,6 +148,9 @@ AUTHORIZED_SOURCES = {
         ),
     "argocd": EventSource(
         "Argo-Signature", simple_token_verification
+        ),
+    "pagerduty": EventSource(
+        "X-PagerDuty-Signature", pagerduty_verification
         )
         
 }

@@ -132,7 +132,7 @@ substitutions:
   _FOURKEYS_LOOKER_SERVICE_ACCOUNT: 'false'
   _FOURKEYS_MAPPED_DOMAIN: ''
   _FOURKEYS_OWNER: 'GoogleCloudPlatform'
-  _FOURKEYS_PARSERS: '\"cloud-build\", \"github\", \"gitlab\", \"argocd\", \"tekton\"'
+  _FOURKEYS_PARSERS: '\"cloud-build\", \"github\", \"gitlab\", \"argocd\", \"tekton\", \"pagerduty\"'
   _FOURKEYS_PROVISION_BRANCH: 'main'
   _FOURKEYS_REGION: 'us-central1'
   _FOURKEYS_SERVICE_ACCOUNT_KEYS: 'false'
