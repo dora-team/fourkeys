@@ -16,19 +16,19 @@ steps:
 - # Build new-source worker image
   name: gcr.io/cloud-builders/docker:latest
   args: ['build', 
-         '--tag=gcr.io/$PROJECT_ID/${_SOURCE}-worker', '.']
+         '--tag=gcr.io/$PROJECT_ID/${_SOURCE}-parser', '.']
   id: build
 
 - # Push the container image to Container Registry
   name: gcr.io/cloud-builders/docker
-  args: ['push', 'gcr.io/$PROJECT_ID/${_SOURCE}-worker']
+  args: ['push', 'gcr.io/$PROJECT_ID/${_SOURCE}-parser']
   waitFor: build
   id: push
 
 - # Deploy to Cloud Run
   name: google/cloud-sdk
-  args: ['gcloud', 'run', 'deploy', '${_SOURCE}-worker',
-         '--image', 'gcr.io/$PROJECT_ID/${_SOURCE}-worker',
+  args: ['gcloud', 'run', 'deploy', '${_SOURCE}-parser',
+         '--image', 'gcr.io/$PROJECT_ID/${_SOURCE}-parser',
          '--region', '${_REGION}',
          '--platform', 'managed'
   ]
@@ -36,5 +36,5 @@ steps:
   waitFor: push
 
 images: [
-  'gcr.io/$PROJECT_ID/${_SOURCE}-worker'
+  'gcr.io/$PROJECT_ID/${_SOURCE}-parser'
 ]
