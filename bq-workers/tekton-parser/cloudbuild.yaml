@@ -16,19 +16,19 @@ steps:
 - # Build tekton worker image
   name: gcr.io/cloud-builders/docker:latest
   args: ['build', 
-         '--tag=gcr.io/$PROJECT_ID/tekton-worker', '.']
+         '--tag=gcr.io/$PROJECT_ID/tekton-parser', '.']
   id: build
 
 - # Push the container image to Container Registry
   name: gcr.io/cloud-builders/docker
-  args: ['push', 'gcr.io/$PROJECT_ID/tekton-worker']
+  args: ['push', 'gcr.io/$PROJECT_ID/tekton-parser']
   waitFor: build
   id: push
 
 - # Deploy to Cloud Run
   name: google/cloud-sdk
-  args: ['gcloud', 'run', 'deploy', 'tekton-worker',
-         '--image', 'gcr.io/$PROJECT_ID/tekton-worker',
+  args: ['gcloud', 'run', 'deploy', 'tekton-parser',
+         '--image', 'gcr.io/$PROJECT_ID/tekton-parser',
          '--region', '${_REGION}',
          '--platform', 'managed'
   ]
@@ -36,5 +36,5 @@ steps:
   waitFor: push
 
 images: [
-  'gcr.io/$PROJECT_ID/tekton-worker'
+  'gcr.io/$PROJECT_ID/tekton-parser'
 ]
