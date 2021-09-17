@@ -13,22 +13,22 @@
 # limitations under the License.
 
 steps:
-- # Build github-worker image
+- # Build github-parser image
   name: gcr.io/cloud-builders/docker:latest
   args: ['build', 
-         '--tag=gcr.io/$PROJECT_ID/github-worker:${_TAG}', '.']
+         '--tag=gcr.io/$PROJECT_ID/github-parser:${_TAG}', '.']
   id: build
 
 - # Push the container image to Container Registry
   name: gcr.io/cloud-builders/docker
-  args: ['push', 'gcr.io/$PROJECT_ID/github-worker:${_TAG}']
+  args: ['push', 'gcr.io/$PROJECT_ID/github-parser:${_TAG}']
   waitFor: build
   id: push
 
 - # Deploy to Cloud Run
   name: google/cloud-sdk
-  args: ['gcloud', 'run', 'deploy', 'github-worker',
-         '--image', 'gcr.io/$PROJECT_ID/github-worker:${_TAG}',
+  args: ['gcloud', 'run', 'deploy', 'github-parser',
+         '--image', 'gcr.io/$PROJECT_ID/github-parser:${_TAG}',
          '--region', '${_REGION}',
          '--platform', 'managed'
   ]
@@ -36,5 +36,5 @@ steps:
   waitFor: push
 
 images: [
-  'gcr.io/$PROJECT_ID/github-worker:${_TAG}'
+  'gcr.io/$PROJECT_ID/github-parser:${_TAG}'
 ]

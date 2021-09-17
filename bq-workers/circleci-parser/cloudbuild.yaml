@@ -16,19 +16,19 @@ steps:
 - # Build circleci worker image
   name: gcr.io/cloud-builders/docker:latest
   args: ['build', 
-         '--tag=gcr.io/$PROJECT_ID/circleci-worker', '.']
+         '--tag=gcr.io/$PROJECT_ID/circleci-parser', '.']
   id: build
 
 - # Push the container image to Container Registry
   name: gcr.io/cloud-builders/docker
-  args: ['push', 'gcr.io/$PROJECT_ID/circleci-worker']
+  args: ['push', 'gcr.io/$PROJECT_ID/circleci-parser']
   waitFor: build
   id: push
 
 - # Deploy to Cloud Run
   name: google/cloud-sdk
-  args: ['gcloud', 'run', 'deploy', 'circleci-worker',
-         '--image', 'gcr.io/$PROJECT_ID/circleci-worker',
+  args: ['gcloud', 'run', 'deploy', 'circleci-parser',
+         '--image', 'gcr.io/$PROJECT_ID/circleci-parser',
          '--region', '${_REGION}',
          '--platform', 'managed'
   ]
@@ -36,5 +36,5 @@ steps:
   waitFor: push
 
 images: [
-  'gcr.io/$PROJECT_ID/circleci-worker'
+  'gcr.io/$PROJECT_ID/circleci-parser'
 ]
