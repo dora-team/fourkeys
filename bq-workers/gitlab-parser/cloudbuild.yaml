@@ -16,19 +16,19 @@ steps:
 - # Build new-source worker image
   name: gcr.io/cloud-builders/docker:latest
   args: ['build', 
-         '--tag=gcr.io/$PROJECT_ID/gitlab-worker:${_TAG}', '.']
+         '--tag=gcr.io/$PROJECT_ID/gitlab-parser:${_TAG}', '.']
   id: build
 
 - # Push the container image to Container Registry
   name: gcr.io/cloud-builders/docker
-  args: ['push', 'gcr.io/$PROJECT_ID/gitlab-worker:${_TAG}']
+  args: ['push', 'gcr.io/$PROJECT_ID/gitlab-parser:${_TAG}']
   waitFor: build
   id: push
 
 - # Deploy to Cloud Run
   name: google/cloud-sdk
-  args: ['gcloud', 'run', 'deploy', 'gitlab-worker',
-         '--image', 'gcr.io/$PROJECT_ID/gitlab-worker:${_TAG}',
+  args: ['gcloud', 'run', 'deploy', 'gitlab-parser',
+         '--image', 'gcr.io/$PROJECT_ID/gitlab-parser:${_TAG}',
          '--region', '${_REGION}',
          '--platform', 'managed'
   ]
@@ -36,5 +36,5 @@ steps:
   waitFor: push
 
 images: [
-  'gcr.io/$PROJECT_ID/gitlab-worker'
+  'gcr.io/$PROJECT_ID/gitlab-parser'
 ]

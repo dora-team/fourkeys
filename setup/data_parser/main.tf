@@ -1,5 +1,5 @@
 resource "google_cloud_run_service" "parser" {
-  name     = var.parser_service_name
+  name     = "${var.parser_service_name}-parser"
   location = var.google_region
 
   template {
