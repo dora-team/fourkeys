@@ -101,7 +101,7 @@
           "orderByCol": "1",
           "orderBySort": "1",
           "rawQuery": true,
-          "rawSql": "SElECT\nday,\nPERCENTILE_CONT(\n  # Ignore automated changes\n  IF(time_to_change_minutes > 0,time_to_change_minutes, NULL), \n  0.5) # Median\n  OVER (partition by day)/50 median_time_to_change\nFROM\n(SELECT\n d.deploy_id,\n TIMESTAMP_TRUNC(d.time_created, DAY) as day,\n # Time to Change\n TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE) time_to_change_minutes\n FROM four_keys.deployments d, d.changes\n LEFT JOIN four_keys.changes c ON changes = c.change_id\n )\nGROUP BY day, time_to_change_minutes\nORDER BY day",
+          "rawSql": "SELECT\n day,\n IFNULL(ANY_VALUE(med_time_to_change)/60, 0) AS median_time_to_change, # Hours\nFROM (\n SELECT\n  d.deploy_id,\n  TIMESTAMP_TRUNC(d.time_created, DAY) AS day,\n  PERCENTILE_CONT(\n  IF(TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE) > 0, TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE), NULL), # Ignore automated pushes\n  0.5) # Median\n  OVER (PARTITION BY TIMESTAMP_TRUNC(d.time_created, DAY)) AS med_time_to_change, # Minutes\n FROM four_keys.deployments d, d.changes\n LEFT JOIN four_keys.changes c ON changes = c.change_id\n)\nGROUP BY day",
           "refId": "A",
           "select": [
             [
