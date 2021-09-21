@@ -25,6 +25,9 @@ Non-goals:
     * [More data points](https://github.com/GoogleCloudPlatform/fourkeys/issues/77)
     * New data views for drilling down into the metrics
 * Long Term
+  * CloudEvents migration 
+    * Migrate the `four_keys.events_raw` schema to CloudEvents schema
+    * Use the CloudEvents adapters to do the ETL rather than the current (parsers)[bq-workers/]
   * New Integrations
     * CI/CD Tools
       * [Jenkins](https://www.jenkins.io/)
