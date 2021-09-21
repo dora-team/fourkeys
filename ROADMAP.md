@@ -27,7 +27,7 @@ Non-goals:
 * Long Term
   * CloudEvents migration 
     * Migrate the `four_keys.events_raw` schema to CloudEvents schema
-    * Use the CloudEvents adapters to do the ETL rather than the current (parsers)[bq-workers/]
+    * Use the CloudEvents adapters to do the ETL rather than the current [workers](bq-workers/)
   * New Integrations
     * CI/CD Tools
       * [Jenkins](https://www.jenkins.io/)
