@@ -58,7 +58,7 @@ The agenda for our first meetup is **October 25th 9AM PT** is:
 
 ```
 Four Keys Community Meetup
-Monday, October 25 · 9:00 – 9:30am PT
+Monday, October 25 · 9:00 – 10:00am
 Google Meet joining info
 Video call link: https://meet.google.com/osg-onja-owo
 Or dial: ‪(US) +1 608-509-9094‬ PIN: ‪589 279 988‬#
