@@ -44,20 +44,21 @@ def index():
     if "attributes" not in msg:
         raise Exception("Missing pubsub attributes")
 
-    try:
-        event = process_pagerduty_event(msg)
+    for message in msg["messages"]:
+        try:
+            event = process_pagerduty_event(message)
+            if event:
+                # [Do not edit below]
+                shared.insert_row_into_bigquery(event)
 
-        # [Do not edit below]
-        shared.insert_row_into_bigquery(event)
-
-    except Exception as e:
-        entry = {
-                "severity": "WARNING",
-                "msg": "Data not saved to BigQuery",
-                "errors": str(e),
-                "json_payload": envelope
-            }
-        print(json.dumps(entry))
+        except Exception as e:
+            entry = {
+                    "severity": "WARNING",
+                    "msg": "Data not saved to BigQuery",
+                    "errors": str(e),
+                    "json_payload": envelope
+                }
+            print(json.dumps(entry))
 
     return "", 204
 
