@@ -120,14 +120,41 @@ If we have a list of all changes for every deployment, it is simple to calculate
 ```sql
 SELECT
   d.deploy_id,
-  TIMESTAMP_TRUNC(d.time_created, DAY) as day,
+  TIMESTAMP_TRUNC(d.time_created, DAY) AS day,
   #### Time to Change
-  TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE) time_to_change_minutes
+  TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE) AS time_to_change_minutes
 FROM four_keys.deployments d, d.changes
 LEFT JOIN four_keys.changes c ON changes = c.change_id;
 ```
 
 From this base, we want to extract the daily median lead time to change. 
+
+```sql
+SElECT
+  day,
+  median_time_to_change
+FROM (
+  SELECT
+    day,
+    PERCENTILE_CONT(
+      # Ignore automated changes
+      IF(time_to_change_minutes > 0, time_to_change_minutes, NULL), 
+      0.5) # Median
+      OVER (partition by day) AS median_time_to_change
+  FROM (
+    SELECT
+      d.deploy_id,
+      TIMESTAMP_TRUNC(d.time_created, DAY) AS day,
+      # Time to Change
+      TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE) AS time_to_change_minutes
+    FROM four_keys.deployments d, d.changes
+    LEFT JOIN four_keys.changes c ON changes = c.change_id
+  )
+)
+GROUP BY day, median_time_to_change;
+```
+
+Here is how we write it more efficiently for the dashboard.
 
 ```sql
 SELECT
@@ -145,8 +172,7 @@ FROM (
   FROM four_keys.deployments d, d.changes
   LEFT JOIN four_keys.changes c ON changes = c.change_id
 )
-GROUP BY day
-ORDER BY day
+GROUP BY day ORDER BY day;
 ```
 
 Automated changes are excluded from this metric.  This is a subject up for debate. Our rationale is that when we merge a Pull Request it creates a Push event in the main branch.  This Push event is not its own distinct change, but rather a link in the workflow.  If we trigger a deployment off of this push event, this artificially skews the metrics and does not give us a clear picture of developer velocity. 
