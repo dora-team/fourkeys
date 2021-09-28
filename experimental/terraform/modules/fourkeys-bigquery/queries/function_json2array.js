@@ -1,5 +1,1 @@
-if (json) {
-    return JSON.parse(json).map(x=>JSON.stringify(x));
-} else {
-    return [];
-}
+../../../../../queries/function_json2array.js
