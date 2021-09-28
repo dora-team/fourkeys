@@ -5,18 +5,6 @@ resource "google_project_service" "bigquery" {
   disable_on_destroy = false
 }
 
-resource "google_project_service" "bigquery_storage" {
-  project            = var.project_id
-  service            = "bigquerystorage.googleapis.com"
-  disable_on_destroy = false
-}
-
-resource "google_project_service" "storage_component" {
-  project            = var.project_id
-  service            = "storage-component.googleapis.com"
-  disable_on_destroy = false
-}
-
 resource "google_project_iam_member" "parser_bq_project_access" {
   project = var.project_id
   role    = "roles/bigquery.user"
