@@ -8,19 +8,19 @@ resource "google_project_service" "bigquery" {
 resource "google_project_iam_member" "parser_bq_project_access" {
   project = var.project_id
   role    = "roles/bigquery.user"
-  member  = "serviceAccount:${var.fourkeys_service_account}"
+  member  = "serviceAccount:${var.fourkeys_service_account_email}"
 }
 
 resource "google_bigquery_dataset_iam_member" "parser_bq" {
   project    = var.project_id
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   role       = "roles/bigquery.dataEditor"
-  member     = "serviceAccount:${var.fourkeys_service_account}"
+  member     = "serviceAccount:${var.fourkeys_service_account_email}"
 }
 
 resource "google_project_iam_member" "parser_run_invoker" {
   project = var.project_id
-  member  = "serviceAccount:${var.fourkeys_service_account}"
+  member  = "serviceAccount:${var.fourkeys_service_account_email}"
   role    = "roles/run.invoker"
 }
 
