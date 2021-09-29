@@ -130,7 +130,7 @@ LEFT JOIN four_keys.changes c ON changes = c.change_id;
 From this base, we want to extract the daily median lead time to change. 
 
 ```sql
-SElECT
+SELECT
   day,
   median_time_to_change
 FROM (
@@ -192,7 +192,7 @@ SELECT
     ELSE "One year"
     END as lead_time_to_change
 FROM (
-  SElECT
+  SELECT
     IFNULL(ANY_VALUE(med_time_to_change), 0) AS median_time_to_change
   FROM (
     SELECT
