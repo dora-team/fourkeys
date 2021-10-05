@@ -7,7 +7,27 @@ locals {
   cloud_build_service_account = "${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
 }
 
-# Service Accounts
+## Services
+resource "google_project_service" "cloud_build" {
+  project            = var.project_id
+  service            = "cloudbuild.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_project_service" "cloud_run" {
+  project            = var.project_id
+  service            = "run.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_project_service" "secret_manager" {
+  project            = var.project_id
+  service            = "secretmanager.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Service Accounts and IAM
+
 resource "google_service_account" "fourkeys" {
   project      = var.project_id
   account_id   = "fourkeys"
@@ -39,21 +59,4 @@ resource "google_project_iam_member" "cloud_run_invoker" {
   depends_on = [
     google_service_account.fourkeys
   ]
-}
-
-
-# Services and API's
-resource "google_project_service" "container_registry" {
-  project = var.project_id
-  service = "cloudbuild.googleapis.com"
-}
-
-resource "google_project_service" "cloud_build" {
-  project = var.project_id
-  service = "cloudbuild.googleapis.com"
-}
-
-resource "google_project_service" "cloud_run" {
-  project = var.project_id
-  service = "run.googleapis.com"
 }
