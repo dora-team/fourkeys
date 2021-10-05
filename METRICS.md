@@ -16,7 +16,7 @@ For each of the metrics, the dashboard shows a running daily calculation, as wel
 This is the simplest of the charts to create, with a very straightforward script.  We simply want the daily volume of distinct deployments.
 
 
-``` sql
+```sql
 SELECT
 TIMESTAMP_TRUNC(time_created, DAY) AS day,
 COUNT(distinct deploy_id) AS deployments
@@ -119,10 +119,10 @@ If we have a list of all changes for every deployment, it is simple to calculate
 
 ```sql
 SELECT
- d.deploy_id,
- TIMESTAMP_TRUNC(d.time_created, DAY) as day,
- ##### Time to Change
- TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE) time_to_change_minutes
+  d.deploy_id,
+  TIMESTAMP_TRUNC(d.time_created, DAY) AS day,
+  #### Time to Change
+  TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE) AS time_to_change_minutes
 FROM four_keys.deployments d, d.changes
 LEFT JOIN four_keys.changes c ON changes = c.change_id;
 ```
@@ -130,23 +130,49 @@ LEFT JOIN four_keys.changes c ON changes = c.change_id;
 From this base, we want to extract the daily median lead time to change. 
 
 ```sql
-SElECT
-day,
-PERCENTILE_CONT(
-  # Ignore automated changes
-  IF(time_to_change_minutes > 0,time_to_change_minutes, NULL), 
-  0.5) # Median
-  OVER (partition by day) median_time_to_change
-FROM
-(SELECT
- d.deploy_id,
- TIMESTAMP_TRUNC(d.time_created, DAY) as day,
- # Time to Change
- TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE) time_to_change_minutes
- FROM four_keys.deployments d, d.changes
- LEFT JOIN four_keys.changes c ON changes = c.change_id
- )
-GROUP BY day, time_to_change_minutes;
+SELECT
+  day,
+  median_time_to_change
+FROM (
+  SELECT
+    day,
+    PERCENTILE_CONT(
+      # Ignore automated changes
+      IF(time_to_change_minutes > 0, time_to_change_minutes, NULL), 
+      0.5) # Median
+      OVER (partition by day) AS median_time_to_change
+  FROM (
+    SELECT
+      d.deploy_id,
+      TIMESTAMP_TRUNC(d.time_created, DAY) AS day,
+      # Time to Change
+      TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE) AS time_to_change_minutes
+    FROM four_keys.deployments d, d.changes
+    LEFT JOIN four_keys.changes c ON changes = c.change_id
+  )
+)
+GROUP BY day, median_time_to_change;
+```
+
+Here is how we write it more efficiently for the dashboard.
+
+```sql
+SELECT
+  day,
+  IFNULL(ANY_VALUE(med_time_to_change)/60, 0) AS median_time_to_change, # Hours
+FROM (
+  SELECT
+    d.deploy_id,
+    TIMESTAMP_TRUNC(d.time_created, DAY) AS day,
+    PERCENTILE_CONT(
+      # Ignore automated pushes
+      IF(TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE) > 0, TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE), NULL),
+      0.5) # Median
+      OVER (PARTITION BY TIMESTAMP_TRUNC(d.time_created, DAY)) AS med_time_to_change, # Minutes
+  FROM four_keys.deployments d, d.changes
+  LEFT JOIN four_keys.changes c ON changes = c.change_id
+)
+GROUP BY day ORDER BY day;
 ```
 
 Automated changes are excluded from this metric.  This is a subject up for debate. Our rationale is that when we merge a Pull Request it creates a Push event in the main branch.  This Push event is not its own distinct change, but rather a link in the workflow.  If we trigger a deployment off of this push event, this artificially skews the metrics and does not give us a clear picture of developer velocity. 
@@ -158,33 +184,28 @@ To get the buckets, rather than aggregating daily, we look at the last 3 months 
 
 ```sql
 SELECT 
-CASE WHEN median_time_to_change < 24 * 60 then "One day"
-     WHEN median_time_to_change < 168 * 60 then "One week"
-     WHEN median_time_to_change < 730 * 60 then "One month"
-     WHEN median_time_to_change < 730 * 6 * 60 then "Six months"
-     ELSE "One year"
-     END as lead_time_to_change,
-FROM
-  (SElECT
-    PERCENTILE_CONT(
-    # Ignore automated changes
-    IF(time_to_change_minutes > 0,time_to_change_minutes, NULL), 
-    0.5) # Median
-    OVER () median_time_to_change
-      FROM
-      (SELECT
-       d.deploy_id,
-       TIMESTAMP_TRUNC(d.time_created, DAY) as day,
-       # Time to Change
-       TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE) time_to_change_minutes
-       FROM four_keys.deployments d, d.changes
-       LEFT JOIN four_keys.changes c ON changes = c.change_id
-       # Limit to 3 months
-       WHERE d.time_created > TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH))
-       )
-      GROUP BY day, time_to_change_minutes
-      )
-LIMIT 1;
+  CASE
+    WHEN median_time_to_change < 24 * 60 then "One day"
+    WHEN median_time_to_change < 168 * 60 then "One week"
+    WHEN median_time_to_change < 730 * 60 then "One month"
+    WHEN median_time_to_change < 730 * 6 * 60 then "Six months"
+    ELSE "One year"
+    END as lead_time_to_change
+FROM (
+  SELECT
+    IFNULL(ANY_VALUE(med_time_to_change), 0) AS median_time_to_change
+  FROM (
+    SELECT
+      PERCENTILE_CONT(
+        # Ignore automated pushes
+        IF(TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE) > 0, TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE), NULL),
+        0.5) # Median
+        OVER () AS med_time_to_change, # Minutes
+    FROM four_keys.deployments d, d.changes
+    LEFT JOIN four_keys.changes c ON changes = c.change_id
+    WHERE d.time_created > TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH)) # Limit to 3 months
+  )
+)
 ```
 
 ## Time to Restore Services ##
