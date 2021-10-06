@@ -74,12 +74,7 @@ def process_cloud_build_event(attr, msg):
     metadata = json.loads(base64.b64decode(msg["data"]).decode("utf-8").strip())
 
     # Most up to date timestamp for the event
-    if "finishTime" in metadata:
-        time_created = metadata["finishTime"]
-    if "startTime" in metadata:
-        time_created = metadata["startTime"]
-    if "createTime" in metadata:
-        time_created = metadata["createTime"]
+    time_created = (metadata.get("finishTime") or metadata.get("startTime") or metadata.get("createTime"))
 
     build_event = {
         "event_type": event_type,

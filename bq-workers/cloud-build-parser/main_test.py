@@ -58,7 +58,7 @@ def test_missing_msg_attributes(client):
 
 
 def test_cloud_build_event_processed(client):
-    data = json.dumps({"startTime":  0}).encode("utf-8")
+    data = json.dumps({"createTime": 1, "startTime": 2, "finishTime": 3}).encode("utf-8")
     pubsub_msg = {
         "message": {
             "data": base64.b64encode(data).decode("utf-8"),
@@ -70,8 +70,8 @@ def test_cloud_build_event_processed(client):
     build_event = {
         "event_type": "build",
         "id": "foo",
-        "metadata": '{"startTime": 0}',
-        "time_created": 0,
+        "metadata": '{"createTime": 1, "startTime": 2, "finishTime": 3}',
+        "time_created": 3,
         "signature": shared.create_unique_id(pubsub_msg["message"]),
         "msg_id": "foobar",
         "source": "cloud_build",
