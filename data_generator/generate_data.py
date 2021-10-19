@@ -120,7 +120,7 @@ def make_gitlab_issue(changes):
     return issue
 
 
-def make_webhook_request(vcs, webhook_url, secret, event_type, data):
+def make_webhook_request(vcs, webhook_url, secret, event_type, data, token=None):
     data = json.dumps(data, default=str).encode()
     request = Request(webhook_url, data)
 
@@ -137,16 +137,15 @@ def make_webhook_request(vcs, webhook_url, secret, event_type, data):
     request.add_header("Content-Type", "application/json")
     request.add_header("Mock", True)
 
-    token = os.environ.get("TOKEN")
     if token:
         request.add_header("Authorization", f"Bearer {token}")
 
     return request
 
 
-def post_to_webhook(vcs, webhook_url, secret, event_type, data):
+def post_to_webhook(vcs, webhook_url, secret, event_type, data, token=None):
 
-    request = make_webhook_request(vcs, webhook_url, secret, event_type, data)
+    request = make_webhook_request(vcs, webhook_url, secret, event_type, data, token)
 
     response = urlopen(request)
 
@@ -177,6 +176,7 @@ if __name__ == "__main__":
     # get environment vars
     webhook_url = os.environ.get("WEBHOOK")
     secret = os.environ.get("SECRET")
+    token = os.environ.get("TOKEN")
 
     if not webhook_url or not secret:
         print("Error: please ensure the following environment variables are set: WEBHOOK, SECRET")
@@ -199,19 +199,19 @@ if __name__ == "__main__":
                 curr_change = {"object_kind": "push", "checkout_sha": c['id'], "commits": [c]}
             if args.vc_system == "github":
                 curr_change = {"head_commit": c, "commits": [c]}
-            changes_sent += post_to_webhook(args.vc_system, webhook_url, secret, "push", curr_change)
+            changes_sent += post_to_webhook(args.vc_system, webhook_url, secret, "push", curr_change, token)
 
         # Send fully associated push event
-        post_to_webhook(args.vc_system, webhook_url, secret, "push", changeset)
+        post_to_webhook(args.vc_system, webhook_url, secret, "push", changeset, token)
 
         # Make and send a deployment
         if args.vc_system == "gitlab":
             pipeline = create_gitlab_pipeline_event(changeset)
-            post_to_webhook(args.vc_system, webhook_url, secret, "pipeline", pipeline)
+            post_to_webhook(args.vc_system, webhook_url, secret, "pipeline", pipeline, token)
 
         if args.vc_system == "github":
             deploy = create_github_deploy_event(changeset["head_commit"])
-            post_to_webhook(args.vc_system, webhook_url, secret, "deployment_status", deploy)
+            post_to_webhook(args.vc_system, webhook_url, secret, "deployment_status", deploy, token)
 
         all_changesets.append(changeset)
 
@@ -223,6 +223,6 @@ if __name__ == "__main__":
             issue = make_gitlab_issue(changeset)
         if args.vc_system == "github":
             issue = make_github_issue(changeset["head_commit"])
-        post_to_webhook(args.vc_system, webhook_url, secret, "issues", issue)
+        post_to_webhook(args.vc_system, webhook_url, secret, "issues", issue, token)
 
     print(f"{changes_sent} changes successfully sent to event-handler")
