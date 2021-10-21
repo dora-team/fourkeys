@@ -23,7 +23,7 @@ resource "google_cloud_run_service" "parser" {
       containers {
         image = "gcr.io/${var.project_id}/${var.parser_service_name}-parser"
         env {
-          name  = data.google_project.project.name
+          name  = "PROJECT_NAME"
           value = var.project_id
         }
       }
