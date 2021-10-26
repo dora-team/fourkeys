@@ -1,7 +1,9 @@
 data "google_project" "project" {
   project_id = var.project_id
 }
-
+data "google_service_account" "pubsub_service_account" {
+  account_id = "service-${data.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
 module "gcloud_build_data_source" {
   source                 = "terraform-google-modules/gcloud/google"
   version                = "~> 2.0"
@@ -66,4 +68,11 @@ resource "google_pubsub_subscription" "parser" {
       service_account_email = var.fourkeys_service_account_email
     }
   }
+}
+
+
+resource "google_project_iam_member" "pubsub_service_account_token_creator" {
+  project = var.project_id
+  member  = "serviceAccount:${data.pubsub_service_account.email}"
+  role    = "roles/iam.serviceAccountTokenCreator"
 }
