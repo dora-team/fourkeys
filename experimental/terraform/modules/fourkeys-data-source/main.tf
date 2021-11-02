@@ -2,6 +2,18 @@ data "google_project" "project" {
   project_id = var.project_id
 }
 
+resource "google_project_service" "cloud_run" {
+  project            = var.project_id
+  service            = "run.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_project_service" "cloud_build" {
+  project            = var.project_id
+  service            = "cloudbuild.googleapis.com"
+  disable_on_destroy = false
+}
+
 module "gcloud_build_data_source" {
   source                 = "terraform-google-modules/gcloud/google"
   version                = "~> 2.0"
@@ -11,6 +23,9 @@ module "gcloud_build_data_source" {
   create_cmd_body        = "builds submit ${path.module}/files/bq-workers/${var.parser_service_name}-parser --tag=gcr.io/${var.project_id}/${var.parser_service_name}-parser --project=${var.project_id}"
   destroy_cmd_entrypoint = "gcloud"
   destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/${var.parser_service_name}-parser --quiet"
+  module_depends_on = [
+    google_project_service.cloud_build
+  ]
 }
 
 resource "google_cloud_run_service" "parser" {
@@ -38,6 +53,7 @@ resource "google_cloud_run_service" "parser" {
 
   autogenerate_revision_name = true
   depends_on = [
+    google_project_service.cloud_run,
     module.gcloud_build_data_source
   ]
 }
