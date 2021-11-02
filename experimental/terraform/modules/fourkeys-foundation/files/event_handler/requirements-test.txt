@@ -1,1 +1,2 @@
-../../../../../../event_handler/requirements-test.txt
+-r requirements.txt
+pytest~=6.0.0
