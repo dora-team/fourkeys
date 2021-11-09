@@ -15,6 +15,21 @@ This guide describes how to set up Four Keys with your GitHub or GitLab project.
 1.  You must be owner on a Google Cloud project that has billing enabled. You may either use this project to house the architecture for the Four Keys, or you will be given the option to create new projects. If you create new projects, the original Google Cloud project will NOT be altered during set up, but **the billing information from this parent project will be applied to any projects created**.
 
 
+TODO: new setup instructions that don't create projects
+
+Tip: to create a new project in gcloud using the same billing account as your currently-active project, run the following commands:
+```
+export PARENT_PROJECT=$(gcloud config get-value project)
+export PARENT_FOLDER=$(gcloud projects describe ${PARENT_PROJECT} --format="value(parent.id)")
+export BILLING_ACCOUNT=$(gcloud beta billing projects describe ${PARENT_PROJECT} --format="value(billingAccountName)")
+export FOURKEYS_PROJECT=$(printf "fourkeys-%06d" $((RANDOM%999999)))
+gcloud projects create ${FOURKEYS_PROJECT} --folder=${PARENT_FOLDER}
+gcloud beta billing projects link ${FOURKEYS_PROJECT} --billing-account=${BILLING_ACCOUNT}
+echo "project created: "$FOURKEYS_PROJECT
+
+```
+
+
 ## Running the setup script
 
 1.  Once you have your Google Cloud project, run the following setup script from the top-level directory of this repository:

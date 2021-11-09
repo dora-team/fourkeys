@@ -35,16 +35,18 @@ PARENT_PROJECT=$(gcloud config get-value project 2>/dev/null)
 if [[ ${AUTO} == 'true' ]]
 then
     # populate setup variables (for use in testing/dev)
-    make_new_project='y'
     git_system_id=2
     cicd_system_id=1
     generate_mock_data=y
     CLEAN='true'
 else
-    read -p "Would you like to create a new project for The Four Keys (y/N): " make_new_project
-    make_new_project=${make_new_project:-no}
-
     printf "\n"
+    printf "Four Keys requires a Google Cloud project with billing enabled.\n"
+    printf "If you don't have a suitable project, exit this installer and create a project.\n"
+
+    read -p "Enter the project ID for Four Keys installation (ex: 'my-project'): " FOURKEYS_PROJECT
+    read -p "Enter the region for Four Keys resources (ex: 'us-central1'): " FOURKEYS_REGION
+    read -p "Enter the location for Four Keys BigQuery resources ('US' or 'EU'): " BIGQUERY_REGION
 
     read -p "Which version control system are you using? 
     (1) GitLab
@@ -73,35 +75,6 @@ if [[ ${CLEAN} == 'true' ]]
 then
     # purge all local terraform state
     rm -rf .terraform* *.containerbuild.log terraform.tfstate* terraform.tfvars
-fi
-
-if [ $make_new_project == 'y' ]; then
-    echo "Creating new project for Four Keys Dashboard…"
-    # PARENT_FOLDER=$(gcloud projects describe ${PARENT_PROJECT} --format="value(parent.id)")
-    BILLING_ACCOUNT=$(gcloud beta billing projects describe ${PARENT_PROJECT} --format="value(billingAccountName)" || sed -e 's/.*\///g')
-    FOURKEYS_PROJECT=$(printf "fourkeys-%06d" $((RANDOM%999999)))
-    FOURKEYS_REGION="us-central1"
-    BIGQUERY_REGION="US"
-    
-    # try to create project; if fail, exit script
-    set +e
-    gcloud projects create ${FOURKEYS_PROJECT}  # --folder=${PARENT_FOLDER}
-    if [ $? -ne 0 ]; then
-        echo "Unable to create project; try again, and specify an existing project during setup."
-        exit 1
-    fi
-
-    gcloud beta billing projects link ${FOURKEYS_PROJECT} --billing-account=${BILLING_ACCOUNT}
-    if [ $? -ne 0 ]; then
-        echo "Unable to link billing account ${BILLING_ACCOUNT} to project ${FOURKEYS_PROJECT}."
-        echo "Assign a billing account manually, then re-run setup and specify the project during setup."
-        exit 1
-    fi
-    set -e
-else
-    read -p "Enter the project ID for Four Keys installation (ex: 'my-project'): " FOURKEYS_PROJECT
-    read -p "Enter the region for Four Keys resources (ex: 'us-central1'): " FOURKEYS_REGION
-    read -p "Enter the location for Four Keys BigQuery resources ('US' or 'EU'): " BIGQUERY_REGION
 fi
 
 printf "\n"
