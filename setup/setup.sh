@@ -30,8 +30,6 @@ do
   esac
 done
 
-PARENT_PROJECT=$(gcloud config get-value project 2>/dev/null)
-
 if [[ ${AUTO} == 'true' ]]
 then
     # populate setup variables (for use in testing/dev)
@@ -123,4 +121,6 @@ echo "••••••••🔑••🔑••🔑••🔑•••••�
 printf "starting Four Keys setup…\n\n"
 
 terraform init
+
+PARENT_PROJECT=$(gcloud config get-value project 2>/dev/null)
 source install.sh
