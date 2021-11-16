@@ -10,24 +10,34 @@ This guide describes how to set up Four Keys with your GitHub or GitLab project.
 
 ## Before you begin
 > We recommend using [Cloud Shell](https://cloud.google.com/shell) to install Four Keys
-1.  Install [GCloud SDK](https://cloud.google.com/sdk/install).
+1. Install [GCloud SDK](https://cloud.google.com/sdk/install).
 1. Install [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli).
-1.  You must be owner on a Google Cloud project that has billing enabled. You may either use this project to house the architecture for the Four Keys, or you will be given the option to create new projects. If you create new projects, the original Google Cloud project will NOT be altered during set up, but **the billing information from this parent project will be applied to any projects created**.
+1. You must be owner on a Google Cloud project that has billing enabled. You can either use a currently active project or create a new project specifically to use with Four Keys.
+
+> :information_source: To create a new project using the same billing account as your currently-active gcloud project, run the following commands:
+> ```sh
+> export PARENT_PROJECT=$(gcloud config get-value project)
+> export PARENT_FOLDER=$(gcloud projects describe ${PARENT_PROJECT} --format="value(parent.id)")
+> export BILLING_ACCOUNT=$(gcloud beta billing projects describe ${PARENT_PROJECT} --format="value(billingAccountName)")
+> export FOURKEYS_PROJECT=$(printf "fourkeys-%06d" $((RANDOM%999999)))
+> gcloud projects create ${FOURKEYS_PROJECT} --folder=${PARENT_FOLDER}
+> gcloud beta billing projects link ${FOURKEYS_PROJECT} --billing-account=${BILLING_ACCOUNT}
+> echo "project created: "$FOURKEYS_PROJECT
+> 
+> ```
 
 
 ## Running the setup script
 
-1.  Once you have your Google Cloud project, run the following setup script from the top-level directory of this repository:
+1.  Run the following setup script from the top-level directory of this repository:
 
     ```bash
-    gcloud config set project <PARENT_PROJECT_ID>
     cd setup
     script setup.log -c ./setup.sh
     ```
 1.  Answer the setup script's questions:
 
-    *   Would you like to create a new Google Cloud Project for the four key metrics? (y/N)
-        * If you choose no, you will be asked later to provide info about the project you wish to use.
+    *   Enter the project ID and region information for the project in which you wish to install Four Keys
     *   Choose the event sources to configure...
         *   Which version control system are you using?
             * Choose the appropriate option for your VCS, or choose "other" to skip VCS integration
@@ -39,32 +49,23 @@ This guide describes how to set up Four Keys with your GitHub or GitLab project.
             *   To exclude the mock data from the dashboard, update the SQL script to filter out any source with the word mock in it by adding: `WHERE source not like "%mock"`.
 
 ### Making changes
-At some point after running the setup script, you may want to make modifications to your infrastructure. Or, the Four Keys project itself may be updated with a new configuration. If you make changes to the project outside of Terraform, they will not be tracked and cannot be managed by Terraform. This includes pub/sub topics, subscriptions, permissions, service accounts, services, etc. Therefore, it's recommended to make all infrastructure changes by updating your Terraform files and re-running Terraform, using `terraform apply`. You'll be prompted to confirm the planned changes; review them carefully, then type `yes` to proceed.
+At some point after running the setup script, you may want to make modifications to your infrastructure. Or, the Four Keys repo itself may be updated with a new configuration. If you make changes to your resources outside of Terraform, they will not be tracked and cannot be managed by Terraform. This includes pub/sub topics, subscriptions, permissions, service accounts, services, etc. Therefore, it's recommended to make all infrastructure changes by updating your Terraform files and re-running Terraform, using `terraform apply`. You'll be prompted to confirm the planned changes; review them carefully, then type `yes` to proceed.
 > Tip: The configurations in this repo will continue to evolve over time; if you want to be able to apply ongoing updates, **don't modify the tracked Terraform files**. Instead, consider using [Terraform Override Files](https://www.terraform.io/docs/language/files/override.html), which will allow you to customize the infrastructure to your needs without introducing potential merge conflicts the next time you pull from upstream.
-
-### New Google Cloud projects
-
-If you've chosen to create a new Google Cloud project, after the script finishes you will have a new project with an ID in the form of `fourkeys-XXXX`. If you ever want to remove the newly created projects and all associated data, you can run `cleanup.sh`.  **Only do this when you are done experimenting with Four Keys entirely, or want to start over. Running `cleanup.sh` will remove the projects and all the collected data.**
-
-> If you want to bulk delete many projects that you've created via the setup 
-> script, all of which will be named `fourkeys-XXXX`, pass a flag to the cleanup 
-> script: `./cleanup.sh -b`
 
 ### The setup explained
 The setup script does many things to help create the service architecture described in the `README.md`. These include a little bash scripting and a lot of [Terraform](https://www.terraform.io/intro/).
 
 Step by step, here's what's happening:
 1. `setup.sh` starts by collecting information from the system and the user to determine a number of configuration variables that will be provided to Terraform.
-1. If you choose to make a new project, `setup.sh` will use `gcloud` to create that project, with an ID in the form `fourkeys-XXXX`.
 1. It sets several environment variables, and writes a `terraform.tfvars` file to disk, containing inputs to Terraform.
 1. Then it invokes `install.sh`, which is responsible for provisioning the infrastructure.
 1. `install.sh` runs `gcloud builds submit` commands to build the application containers that will be used in Cloud Run services.
 1. Then it invokes Terraform, which processes the configuration files (ending in `.tf`) to provision all of the necessary infrastructure into the speficied Cloud project.
 1. If you've chosen to generate mock data, the script then calls the ["data generator" python application](/data_generator/) to submit several synthetic webhook events to the event-handler service that was just created.
-1. Finally, the script prints information about the remaining configurations, which must be done manually: adding a Data Studio dashboard and adding webhooks for VCS.
+1. Finally, the script prints information about next steps, including configuring webhooks and visiting the dashboard.
 
 ### Managing Terraform State
-Terraform maintains information about infrastucture in persistent state storage, known as a backend. By default, this is maintained in a file named `terraform.tfstate`, saved to the same directory that Terraform is executed from. This local backend is fine for a one-time setup, but if you plan to maintain and use your Four Keys infrastructure, it's recommended to choose a remote backend. (Alternatively, you may choose to use Terraform only for the initial setup, and then use other tools--like `gcloud` or the Cloud Console--for ongoing modifications. That's fine.)
+Terraform maintains information about infrastucture in persistent state storage, known as a backend. By default, this is maintained in a file named `terraform.tfstate`, saved to the same directory that Terraform is executed from. This local backend is fine for a one-time setup, but if you plan to maintain and use your Four Keys infrastructure, it's recommended to choose a remote backend. (Alternatively, you may choose to use Terraform only for the initial setup, and then use other tools--like `gcloud` or the Cloud Console--for ongoing modifications.)
 
 > To learn how to use a remote backend for robust storage of Terraform state, see: [Terraform Language: Backends](https://www.terraform.io/docs/language/settings/backends/index.html)
 
@@ -75,7 +76,6 @@ If something goes wrong during Terraform setup, you may be able to run `terrafor
 ```
 
 ## Integrating with a live repo
-
 The setup script can create mock data, but it cannot integrate automatically with live projects.  To measure your team's performance, you need to integrate to your live GitHub or GitLab repo that has ongoing deployments. You can then measure the four key metrics, and experiment with how changes, successful deployments, and failed deployments affect your metrics.
 
 To integrate Four Keys with a live repo, you need to:
