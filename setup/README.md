@@ -12,7 +12,7 @@ This guide describes how to set up Four Keys with your GitHub or GitLab project.
 > We recommend using [Cloud Shell](https://cloud.google.com/shell) to install Four Keys
 1. Install [GCloud SDK](https://cloud.google.com/sdk/install).
 1. Install [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli).
-1. You must be owner on a Google Cloud project that has billing enabled.
+1. You must be owner on a Google Cloud project that has billing enabled. You can either use a currently active project or create a new project specifically to use with Four Keys.
 
 > :information_source: To create a new project using the same billing account as your currently-active gcloud project, run the following commands:
 > ```sh
