@@ -26,17 +26,23 @@ def compare_dicts(dict_a, dict_b):
     flat_dict_b = flatten(dict_b)
 
     if flat_dict_a.keys() != flat_dict_b.keys():
-        errors.append('dictionary keys do not match')
+        errors.append("dictionary keys do not match")
 
     for key in flat_dict_a:
 
         if not isinstance(flat_dict_a[key], type(flat_dict_b[key])):
-            errors.append(f"type mismatch comparing '{key}': {type(flat_dict_a[key]).__name__} != {type(flat_dict_b[key]).__name__}")
+            errors.append(
+                f"type mismatch comparing '{key}': {type(flat_dict_a[key]).__name__} != {type(flat_dict_b[key]).__name__}"
+            )
 
-        if isinstance(flat_dict_a[key], str) and len(flat_dict_a[key]) != len(flat_dict_b[key]):
-            errors.append(f"length mismatch comparing strings in '{key}': {len(flat_dict_a[key])} != {len(flat_dict_b[key])}")
+        if isinstance(flat_dict_a[key], str) and len(flat_dict_a[key]) != len(
+            flat_dict_b[key]
+        ):
+            errors.append(
+                f"length mismatch comparing strings in '{key}': {len(flat_dict_a[key])} != {len(flat_dict_b[key])}"
+            )
 
     if errors:
-        return '\n'.join(errors)
+        return "\n".join(errors)
 
-    return 'pass'
+    return "pass"
