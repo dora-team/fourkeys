@@ -71,7 +71,7 @@ steps:
         TF_VAR_parsers='["cloud-build","github"]' \
         ./install.sh
 
-  - id: Check Tables are Populated
+  - id: Check Installation
     name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
     entrypoint: /bin/bash
     args:
@@ -104,6 +104,16 @@ steps:
         bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
         'SELECT count(*) as vol FROM four_keys.incidents' | \
          python3 -c "$result_check"
+
+        echo "Checking connection to dashboard..."
+        DASHBOARD_URL="$(terraform output -raw dashboard_endpoint)/d/yVtwoQ4nk/four-keys?orgId=1"
+        DASHBOARD_HTTP_RESPONSE_CODE=$(curl -LI $${DASHBOARD_URL} -o /dev/null -w '%{http_code}\n' -s)
+        if [ $${DASHBOARD_HTTP_RESPONSE_CODE} == "200" ]; then 
+            echo "success" 
+        else
+            echo "Error validating dashboard URL; received $${DASHBOARD_HTTP_RESPONSE_CODE} from $${DASHBOARD_URL}"
+            exit 1
+        fi
          
 substitutions:
   _TF_LOG: ERROR
