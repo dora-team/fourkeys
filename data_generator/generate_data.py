@@ -85,6 +85,20 @@ def create_gitlab_pipeline_event(changes):
             }
     return pipeline
 
+def create_gitlab_deploy_event(changes):
+    deployment = None
+    checkout_sha = changes["checkout_sha"]
+    for c in changes["commits"]:
+        if c["id"] == checkout_sha:
+            deployment = {
+                "object_kind": "deployment",
+                "status": "success",
+                "status_changed_at": c["timestamp"],
+                "deployment_id": random.randrange(0, 1000),
+                "commit_url": f"http://example.com/root/test/commit/{checkout_sha}"
+            }
+    return deployment
+
 
 def make_github_issue(root_cause):
     event = {
@@ -206,8 +220,8 @@ if __name__ == "__main__":
 
         # Make and send a deployment
         if args.vc_system == "gitlab":
-            pipeline = create_gitlab_pipeline_event(changeset)
-            post_to_webhook(args.vc_system, webhook_url, secret, "pipeline", pipeline, token)
+            deploy = create_gitlab_deploy_event(changeset)
+            post_to_webhook(args.vc_system, webhook_url, secret, "deployment", deploy, token)
 
         if args.vc_system == "github":
             deploy = create_github_deploy_event(changeset["head_commit"])
