@@ -32,7 +32,7 @@ def generate_deployment(vcs, generate_changes):
     if vcs == 'github':
         return generate_data.create_github_deploy_event(generate_changes['head_commit'])
     elif vcs == 'gitlab':
-        return generate_data.create_gitlab_pipeline_event(generate_changes)
+        return generate_data.create_gitlab_deploy_event(generate_changes)
 
 
 @pytest.fixture
@@ -89,12 +89,12 @@ def valid_deployment(vcs):
                  'id': '14cdd47757a1ef343c4e183b457ff5cbe85a173b', 'state': 'success'},
                 'deployment': {'sha': '189941869a9bee33fb03e1e18596ea55c4d892e2'}}
     elif vcs == 'gitlab':
-        return {'object_kind': 'pipeline',
-                'object_attributes':
-                    {'created_at': datetime.datetime(2021, 1, 31, 19, 18, 31, 977940),
-                     'id': 856, 'status': 'success'},
-                    'commit': {'id': '70f6356d837c981651e6abd2079dc6d4915bae24',
-                               'timestamp': datetime.datetime(2021, 1, 31, 19, 18, 31, 977940)}}
+        return {'object_kind': 'deployment',
+                'status': 'success',
+                'status_changed_at': datetime.datetime(2021, 1, 31, 19, 18, 31, 977940),
+                'deployment_id': 856,
+                'commit_url': 'http://example.com/root/test/commit/3c8427100e3dadd90daf1e01105b41284cf42c76'
+                }
 
 
 @pytest.fixture
