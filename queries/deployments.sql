@@ -14,7 +14,7 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
                                     # REGEX to get the commit sha from the URL
                                     REGEXP_EXTRACT(
                                       JSON_EXTRACT_SCALAR(metadata, '$.commit_url'), r".*commit\/(.*)")
-                                    ) end as main_commit,
+                                      ) end as main_commit,
       CASE WHEN source LIKE "github%" THEN ARRAY(
                 SELECT JSON_EXTRACT_SCALAR(string_element, '$')
                 FROM UNNEST(JSON_EXTRACT_ARRAY(metadata, '$.deployment.additional_sha')) AS string_element)
