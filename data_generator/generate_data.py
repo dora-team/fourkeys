@@ -93,7 +93,7 @@ def create_gitlab_deploy_event(changes):
             deployment = {
                 "object_kind": "deployment",
                 "status": "success",
-                "status_changed_at": c["timestamp"],
+                "status_changed_at": c["timestamp"].strftime("%F %T +0200"),
                 "deployment_id": random.randrange(0, 1000),
                 "commit_url": f"http://example.com/root/test/commit/{checkout_sha}"
             }

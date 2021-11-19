@@ -91,7 +91,7 @@ def valid_deployment(vcs):
     elif vcs == 'gitlab':
         return {'object_kind': 'deployment',
                 'status': 'success',
-                'status_changed_at': datetime.datetime(2021, 1, 31, 19, 18, 31, 977940),
+                'status_changed_at': "2021-04-28 21:50:00 +0200",
                 'deployment_id': 856,
                 'commit_url': 'http://example.com/root/test/commit/3c8427100e3dadd90daf1e01105b41284cf42c76'
                 }
