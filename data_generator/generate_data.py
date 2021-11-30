@@ -47,8 +47,11 @@ def make_changes(num_changes, vcs, event_timespan):
         changes.append(change)
 
     if vcs == "gitlab":
-        event = {"object_kind": "push",
-                 "checkout_sha": head_commit["id"], "commits": changes}
+        event = {
+            "object_kind": "push",
+            "checkout_sha": head_commit["id"],
+            "commits": changes,
+        }
     if vcs == "github":
         event = {"head_commit": head_commit, "commits": changes}
 
@@ -63,8 +66,8 @@ def create_github_deploy_event(change):
             "state": "success",
         },
         "deployment": {
-           "sha": change["id"],
-        }
+            "sha": change["id"],
+        },
     }
     return deployment
 
@@ -79,11 +82,26 @@ def create_gitlab_pipeline_event(changes):
                 "object_attributes": {
                     "created_at": c["timestamp"],
                     "id": random.randrange(0, 1000),
-                    "status": "success"
+                    "status": "success",
                 },
                 "commit": c,
             }
     return pipeline
+
+
+def create_gitlab_deploy_event(changes):
+    deployment = None
+    checkout_sha = changes["checkout_sha"]
+    for c in changes["commits"]:
+        if c["id"] == checkout_sha:
+            deployment = {
+                "object_kind": "deployment",
+                "status": "success",
+                "status_changed_at": c["timestamp"].strftime("%F %T +0200"),
+                "deployment_id": random.randrange(0, 1000),
+                "commit_url": f"http://example.com/root/test/commit/{checkout_sha}",
+            }
+    return deployment
 
 
 def make_github_issue(root_cause):
@@ -94,9 +112,9 @@ def make_github_issue(root_cause):
             "closed_at": datetime.datetime.now(),
             "number": random.randrange(0, 1000),
             "labels": [{"name": "Incident"}],
-            "body": "root cause: %s" % root_cause["id"]
+            "body": "root cause: %s" % root_cause["id"],
         },
-        "repository": {"name": "foobar"}
+        "repository": {"name": "foobar"},
     }
     return event
 
@@ -115,7 +133,7 @@ def make_gitlab_issue(changes):
                     "id": random.randrange(0, 1000),
                     "labels": [{"title": "Incident"}],
                     "description": "root cause: %s" % c["id"],
-                }
+                },
             }
     return issue
 
@@ -158,15 +176,35 @@ def post_to_webhook(vcs, webhook_url, secret, event_type, data, token=None):
 if __name__ == "__main__":
     # parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("--event_timespan", "-t", type=int, default=604800,
-                        help="time duration (in seconds) of timestamps of generated events \
-                        (from [Now-timespan] to [Now]); default=604800 (1 week)")
-    parser.add_argument("--num_events", "-e", type=int, default=20,
-                        help="number of events to generate; default=20")
-    parser.add_argument("--num_issues", "-i", type=int, default=2,
-                        help="number of issues to generate; default=2")
-    parser.add_argument("--vc_system", "-v", required=True, choices=['gitlab', 'github'],
-                        help="version control system (e.g. 'github', 'gitlab')",)
+    parser.add_argument(
+        "--event_timespan",
+        "-t",
+        type=int,
+        default=604800,
+        help="time duration (in seconds) of timestamps of generated events \
+                        (from [Now-timespan] to [Now]); default=604800 (1 week)",
+    )
+    parser.add_argument(
+        "--num_events",
+        "-e",
+        type=int,
+        default=20,
+        help="number of events to generate; default=20",
+    )
+    parser.add_argument(
+        "--num_issues",
+        "-i",
+        type=int,
+        default=2,
+        help="number of issues to generate; default=2",
+    )
+    parser.add_argument(
+        "--vc_system",
+        "-v",
+        required=True,
+        choices=["gitlab", "github"],
+        help="version control system (e.g. 'github', 'gitlab')",
+    )
     args = parser.parse_args()
 
     if args.num_issues > args.num_events:
@@ -179,7 +217,9 @@ if __name__ == "__main__":
     token = os.environ.get("TOKEN")
 
     if not webhook_url or not secret:
-        print("Error: please ensure the following environment variables are set: WEBHOOK, SECRET")
+        print(
+            "Error: please ensure the following environment variables are set: WEBHOOK, SECRET"
+        )
         sys.exit()
 
     all_changesets = []
@@ -190,28 +230,39 @@ if __name__ == "__main__":
         changeset = make_changes(
             random.randrange(1, 5),
             args.vc_system,
-            args.event_timespan,)
+            args.event_timespan,
+        )
 
         # Send individual changes data
         for c in changeset["commits"]:
             curr_change = None
             if args.vc_system == "gitlab":
-                curr_change = {"object_kind": "push", "checkout_sha": c['id'], "commits": [c]}
+                curr_change = {
+                    "object_kind": "push",
+                    "checkout_sha": c["id"],
+                    "commits": [c],
+                }
             if args.vc_system == "github":
                 curr_change = {"head_commit": c, "commits": [c]}
-            changes_sent += post_to_webhook(args.vc_system, webhook_url, secret, "push", curr_change, token)
+            changes_sent += post_to_webhook(
+                args.vc_system, webhook_url, secret, "push", curr_change, token
+            )
 
         # Send fully associated push event
         post_to_webhook(args.vc_system, webhook_url, secret, "push", changeset, token)
 
         # Make and send a deployment
         if args.vc_system == "gitlab":
-            pipeline = create_gitlab_pipeline_event(changeset)
-            post_to_webhook(args.vc_system, webhook_url, secret, "pipeline", pipeline, token)
+            deploy = create_gitlab_deploy_event(changeset)
+            post_to_webhook(
+                args.vc_system, webhook_url, secret, "deployment", deploy, token
+            )
 
         if args.vc_system == "github":
             deploy = create_github_deploy_event(changeset["head_commit"])
-            post_to_webhook(args.vc_system, webhook_url, secret, "deployment_status", deploy, token)
+            post_to_webhook(
+                args.vc_system, webhook_url, secret, "deployment_status", deploy, token
+            )
 
         all_changesets.append(changeset)
 

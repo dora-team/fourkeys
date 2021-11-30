@@ -7,16 +7,29 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
       time_created,
       CASE WHEN source = "cloud_build" then JSON_EXTRACT_SCALAR(metadata, '$.substitutions.COMMIT_SHA')
            WHEN source like "github%" then JSON_EXTRACT_SCALAR(metadata, '$.deployment.sha')
-           WHEN source like "gitlab%" then JSON_EXTRACT_SCALAR(metadata, '$.commit.id') end as main_commit,
+           WHEN source like "gitlab%" then COALESCE(
+                                    # Data structure from GitLab Pipelines
+                                    JSON_EXTRACT_SCALAR(metadata, '$.commit.id'),
+                                    # Data structure from GitLab Deployments
+                                    # REGEX to get the commit sha from the URL
+                                    REGEXP_EXTRACT(
+                                      JSON_EXTRACT_SCALAR(metadata, '$.commit_url'), r".*commit\/(.*)")
+                                      ) end as main_commit,
       CASE WHEN source LIKE "github%" THEN ARRAY(
                 SELECT JSON_EXTRACT_SCALAR(string_element, '$')
                 FROM UNNEST(JSON_EXTRACT_ARRAY(metadata, '$.deployment.additional_sha')) AS string_element)
            ELSE ARRAY<string>[] end as additional_commits
       FROM four_keys.events_raw 
-      WHERE ((source = "cloud_build"
-      AND JSON_EXTRACT_SCALAR(metadata, '$.status') = "SUCCESS")
+      WHERE (
+      # Cloud Build Deployments
+         (source = "cloud_build" AND JSON_EXTRACT_SCALAR(metadata, '$.status') = "SUCCESS")
+      # GitHub Deployments
       OR (source LIKE "github%" and event_type = "deployment_status" and JSON_EXTRACT_SCALAR(metadata, '$.deployment_status.state') = "success")
-      OR (source LIKE "gitlab%" and event_type = "pipeline" and JSON_EXTRACT_SCALAR(metadata, '$.object_attributes.status') = "success"))
+      # GitLab Pipelines 
+      OR (source LIKE "gitlab%" AND event_type = "pipeline" AND JSON_EXTRACT_SCALAR(metadata, '$.object_attributes.status') = "success")
+      # GitLab Deployments 
+      OR (source LIKE "gitlab%" AND event_type = "deployment" AND JSON_EXTRACT_SCALAR(metadata, '$.status') = "success")
+      )
     ),
     deploys_tekton AS (# Tekton Pipelines
       SELECT
