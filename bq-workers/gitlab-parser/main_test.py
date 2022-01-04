@@ -95,7 +95,7 @@ def test_gitlab_event_processed(client):
     assert r.status_code == 204
 
 
-def test_deployment_event_processed(client):
+def test_timestamp_timezone_event_processed(client):
     headers = {"X-Gitlab-Event": "deployment", "X-Gitlab-Token": "foo"}
     data = json.dumps({"object_kind": "deployment",
                        "short_sha": "279484c0",
