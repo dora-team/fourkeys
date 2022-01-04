@@ -127,7 +127,7 @@ def process_gitlab_event(headers, msg):
         dt = datetime.strptime(time_created, '%Y-%m-%d %H:%M:%S %z')
         time_created = dt.strftime('%Y-%m-%d %H:%M:%S')
 
-    # If the timestamp is not parsed correctly, 
+    # If the timestamp is not parsed correctly,
     # we will default to the string from the event payload
     except Exception:
         pass
