@@ -30,7 +30,7 @@ This project follows
 
 ## Discussion
 
-Feel free to join us on the #fourkeys channel on the [Google Cloud Platform Slack](goo.gle/gcp-slack)! 
+Feel free to join us on the #fourkeys channel on the [Google Cloud Platform Slack](https://goo.gle/gcp-slack)! 
 
 ## Office Hours
 
