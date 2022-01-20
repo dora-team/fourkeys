@@ -44,6 +44,19 @@ resource "google_bigquery_routine" "func_json2array" {
   definition_body = file("../queries/function_json2array.js")
 }
 
+resource "google_bigquery_routine" "func_multiFormatParseTimestamp" {
+  dataset_id   = google_bigquery_dataset.four_keys.dataset_id
+  routine_id   = "multiFormatParseTimestamp"
+  routine_type = "SCALAR_FUNCTION"
+  return_type = "{\"typeKind\" :  \"TIMESTAMP\"}"
+  language     = "SQL"
+  arguments {
+    name      = "input"
+    data_type = "{\"typeKind\" :  \"STRING\"}"
+  }
+  definition_body = file("../queries/function_multiFormatParseTimestamp.sql")
+}
+
 resource "google_bigquery_table" "view_deployments" {
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   table_id   = "deployments"
@@ -68,7 +81,8 @@ resource "google_bigquery_table" "view_incidents" {
   deletion_protection = false
   depends_on = [
     google_bigquery_table.events_raw,
-    google_bigquery_table.view_deployments
+    google_bigquery_table.view_deployments,
+    google_bigquery_routine.func_multiFormatParseTimestamp
   ]
 }
 
