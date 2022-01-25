@@ -44,7 +44,7 @@ module "github_parser" {
 }
 
 module "dashboard" {
-  source                         = "github.com/GoogleCloudPlatform/fourkeys//experimental/terraform/modules/fourkeys-data-source?ref=terraform"
+  source                         = "github.com/GoogleCloudPlatform/fourkeys//experimental/terraform/modules/fourkeys-dashboard?ref=terraform"
   project_id                     = var.project_id
   region                         = var.region
   fourkeys_service_account_email = module.foundation.fourkeys_service_account_email
