@@ -9,6 +9,11 @@ module "gcloud_build_dashboard" {
   destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/fourkeys-grafana-dashboard --quiet"
 }
 
+resource "time_sleep" "delay_30sec" {
+  depends_on = [module.gcloud_build_dashboard]
+  create_duration = "30s"
+}
+
 resource "google_cloud_run_service" "dashboard" {
   name     = "fourkeys-grafana-dashboard"
   location = var.region
@@ -17,6 +22,7 @@ resource "google_cloud_run_service" "dashboard" {
     spec {
       containers {
         ports {
+          name  = "http1"
           container_port = 3000
         }
         image = "gcr.io/${var.project_id}/fourkeys-grafana-dashboard"
@@ -38,7 +44,7 @@ resource "google_cloud_run_service" "dashboard" {
   }
   autogenerate_revision_name = true
   depends_on = [
-    module.gcloud_build_dashboard
+    time_sleep.delay_30sec
   ]
 }
 
