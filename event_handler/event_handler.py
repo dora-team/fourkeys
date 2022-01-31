@@ -43,7 +43,10 @@ def index():
     auth_source = sources.AUTHORIZED_SOURCES[source]
     signature_sources = {**request.headers, **request.args}
     print(f"request headers: {request.headers}")
-    signature = signature_sources.get(auth_source.signature, None)
+    print(f"request body: { request.data}")
+    dict_headers = dict(request.headers)
+    signature = signature_sources.get(auth_source.signature, dict_headers)
+    # print(f"request signature ***********************: {signature}")
     body = request.data
 
     # WIP checking signature passed in
@@ -51,6 +54,11 @@ def index():
 
     # Verify the signature
     verify_signature = auth_source.verification
+    # print(f" pagerduty signature :: {signature} ")
+    # print(f" pagerduty signature body:: {body} ")
+    
+
+    print(f" pagerduty signature pubsub_headers body:: {dict_headers} ")
     if not verify_signature(signature, body):
         raise Exception("EventHandler: Unverified Signature")
 
