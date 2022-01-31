@@ -127,7 +127,7 @@ def get_source(headers):
     if "Argo-CD" in headers.get("User-Agent", ""):
         return "argocd"
 
-    if "X-PagerDuty-Signature" in headers:
+    if "X-Pagerduty-Signature" in headers:
         return "pagerduty"
 
     return headers.get("User-Agent")
