@@ -55,11 +55,14 @@ def pagerduty_verification(signatures, body):
     """
     Verifies that the signature received from the pagerduty event is accurate
     """
+    print(f" pagerduty signature raw :: {signatures} ")
     if not signatures:
         print(signatures)
         raise Exception("Pagerduty signature is empty")
-
-    signature_list = signatures.split(",")
+    print(f" pagerduty signature :: {signatures.get('X-Pagerduty-Signature')} ")
+    # signature_list = signatures.split(",")
+    signature_list = signatures.items()
+    print(f" pagerduty signature list items :: {signature_list} ")
     if len(signature_list) is 0:
         print(signature_list)
         raise Exception("Pagerduty signature list is empty")
@@ -68,6 +71,8 @@ def pagerduty_verification(signatures, body):
     try:
         # Get secret from Cloud Secret Manager
         secret = get_secret(PROJECT_NAME, "event-handler", "latest")
+        print(f" secret :: {secret} in project {PROJECT_NAME}")
+        print(f" Body is processing :: {body}")
         # Compute the hashed signature
         hashed = hmac.new(secret, body, sha256)
         expected_signature += hashed.hexdigest()
