@@ -117,6 +117,7 @@ resource "google_secret_manager_secret_iam_member" "event_handler" {
   secret_id = each.value
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.fourkeys.email}"
+  depends_on = [google_secret_manager_secret.event_handler]
 }
 
 module "event_handler_cloudbuild_trigger" {
