@@ -1,6 +1,3 @@
-data "google_secret_manager_secret" "pager_duty" {
-  secret_id = "pager_duty_secret"
-}
 resource "google_project_service" "sm_api" {
   service = "secretmanager.googleapis.com"
 }
@@ -115,19 +112,12 @@ resource "google_secret_manager_secret_version" "event_handler" {
   secret_data = random_id.event_handler_random_value.hex
 }
 
-resource "google_secret_manager_secret_iam_member" "event_handler" {
-  for_each  = tolist(google_secret_manager_secret.event_handler.id, data.google_secret_manager_secret.pager_duty.secret_id)
+resource "google_secret_manager_secret_iam_member" "secret_accessor_iam" {
+  for_each  = toset([google_secret_manager_secret.event_handler.id, "pager_duty_secret"])
   secret_id = each.value
-  # google_secret_manager_secret.event_handler.id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.fourkeys.email}"
 }
-
-# resource "google_secret_manager_secret_iam_member" "pager_duty" {
-#   secret_id = "pager_duty_secret"
-#   role      = "roles/secretmanager.secretAccessor"
-#   member    = "serviceAccount:${google_service_account.fourkeys.email}"
-# }
 
 module "event_handler_cloudbuild_trigger" {
   source = "./cloudbuild-trigger"
