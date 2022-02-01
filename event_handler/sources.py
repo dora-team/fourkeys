@@ -70,7 +70,7 @@ def pagerduty_verification(signatures, body):
     expected_signature = "v1="
     try:
         # Get secret from Cloud Secret Manager
-        secret = get_secret(PROJECT_NAME, "event-handler", "latest")
+        secret = get_secret(PROJECT_NAME, "pager_duty_secret", "latest")
         print(f" secret :: {secret} in project {PROJECT_NAME}")
         print(f" Body is processing :: {body}")
         # Compute the hashed signature
