@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import hmac
+import hashlib
 from hashlib import sha1, sha256
 import os
 
@@ -74,12 +75,14 @@ def pagerduty_verification(signatures, body):
         print(f" secret :: {secret} in project {PROJECT_NAME}")
         print(f" Body is processing :: {body}")
         # Compute the hashed signature
-        hashed = hmac.new(secret.encode('ASCII'), body, sha256)
+        hashed = hmac.new(secret.encode('ASCII'), body, hashlib.sha256)
         expected_signature += hashed.hexdigest()
+        print(f"Expected_signature generated from secret :: {expected_signature}")
     except Exception as e:
         print(e)
     
     if expected_signature in signature_list:
+      print("Singature MATCHED!!")
       return True
     else:
       return False
