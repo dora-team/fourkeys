@@ -118,6 +118,12 @@ resource "google_secret_manager_secret_iam_member" "event_handler" {
   member    = "serviceAccount:${google_service_account.fourkeys.email}"
 }
 
+resource "google_secret_manager_secret_iam_member" "pager_duty" {
+  secret_id = "pager_duty_secret"
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.fourkeys.email}"
+}
+
 module "event_handler_cloudbuild_trigger" {
   source = "./cloudbuild-trigger"
 
