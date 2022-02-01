@@ -60,6 +60,7 @@ def pagerduty_verification(signatures, body):
         print(signatures)
         raise Exception("Pagerduty signature is empty")
     print(f" pagerduty signature :: {signatures.get('X-Pagerduty-Signature')} ")
+    pagerduty_signature = signatures.get('X-Pagerduty-Signature')
     # signature_list = signatures.split(",")
     signature_list = signatures.items()
     print(f" pagerduty signature list items :: {signature_list} ")
@@ -80,7 +81,7 @@ def pagerduty_verification(signatures, body):
     except Exception as e:
         print(e)
     
-    if expected_signature in signature_list:
+    if expected_signature == pagerduty_signature:
       print("Singature MATCHED!!")
       return True
     else:
