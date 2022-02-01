@@ -70,16 +70,18 @@ def pagerduty_verification(signatures, body):
     expected_signature = "v1="
     try:
         # Get secret from Cloud Secret Manager
-        secret = get_secret(PROJECT_NAME, "event-handler", "latest")
+        secret = get_secret(PROJECT_NAME, "pager_duty_secret", "latest")
         print(f" secret :: {secret} in project {PROJECT_NAME}")
         print(f" Body is processing :: {body}")
         # Compute the hashed signature
-        hashed = hmac.new(secret, body, sha256)
+        hashed = hmac.new(secret.encode('ASCII'), body, sha256)
         expected_signature += hashed.hexdigest()
+        print(f"Expected_signature generated from secret :: {expected_signature}")
     except Exception as e:
         print(e)
     
     if expected_signature in signature_list:
+      print("Singature MATCHED!!")
       return True
     else:
       return False
