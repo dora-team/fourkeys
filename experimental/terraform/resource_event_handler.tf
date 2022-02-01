@@ -113,7 +113,7 @@ resource "google_secret_manager_secret_version" "event_handler" {
 }
 
 resource "google_secret_manager_secret_iam_member" "event_handler" {
-  for_each  = tolist(google_secret_manager_secret.event_handler.id, data.google_secret_manager_secret.pager_duty.secret_id)
+  for_each  = tolist(google_secret_manager_secret.event_handler.id, "pager_duty_secret")
   secret_id = each.value
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.fourkeys.email}"
