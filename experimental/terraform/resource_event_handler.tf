@@ -113,11 +113,10 @@ resource "google_secret_manager_secret_version" "event_handler" {
 }
 
 resource "google_secret_manager_secret_iam_member" "event_handler" {
-  for_each  = tolist(google_secret_manager_secret.event_handler.id, "pager_duty_secret")
+  for_each  = [google_secret_manager_secret.event_handler.id, "pager_duty_secret"]
   secret_id = each.value
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.fourkeys.email}"
-  depends_on = [google_secret_manager_secret.event_handler]
 }
 
 module "event_handler_cloudbuild_trigger" {
