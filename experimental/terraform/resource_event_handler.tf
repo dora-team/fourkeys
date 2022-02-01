@@ -112,8 +112,9 @@ resource "google_secret_manager_secret_version" "event_handler" {
   secret_data = random_id.event_handler_random_value.hex
 }
 
-resource "google_secret_manager_secret_iam_member" "event_handler" {
-  secret_id = google_secret_manager_secret.event_handler.id
+resource "google_secret_manager_secret_iam_member" "secret_accessor_iam" {
+  for_each  = toset([google_secret_manager_secret.event_handler.id, "pager_duty_secret"])
+  secret_id = each.value
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.fourkeys.email}"
 }
