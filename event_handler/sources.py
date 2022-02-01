@@ -74,7 +74,7 @@ def pagerduty_verification(signatures, body):
         print(f" secret :: {secret} in project {PROJECT_NAME}")
         print(f" Body is processing :: {body}")
         # Compute the hashed signature
-        hashed = hmac.new(secret.encode('ASCII'), body, sha256)
+        hashed = hmac.new(secret, body, sha256)
         expected_signature += hashed.hexdigest()
         print(f"Expected_signature generated from secret :: {expected_signature}")
     except Exception as e:
