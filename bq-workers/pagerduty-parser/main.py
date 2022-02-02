@@ -68,16 +68,19 @@ def index():
 
 
 def process_pagerduty_event(msg):
+
+    print(f"Raw metadata :: {base64.b64decode(msg['data'])}")
     metadata = json.loads(base64.b64decode(msg["data"]).decode("utf-8").strip())
+    
 
     # WIP print statements
-    print(msg)
+    print(f"Metadata after decoding {metadata}")
     print(f"Metadata from message {metadata}")
 
     # Unique hash for the event
     signature = shared.create_unique_id(msg)
 
-    event_type = metadata["messages"][0]["event"]
+    event_type = metadata[0]["event"]["event_type"]
     types = {"incident.trigger", "incident.resolve"}
     print(f"Log event type from message :: {event_type}")
     if event_type not in types:
