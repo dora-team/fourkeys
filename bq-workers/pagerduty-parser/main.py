@@ -44,9 +44,13 @@ def index():
     if "attributes" not in msg:
         raise Exception("Missing pubsub attributes")
 
-    for message in msg["messages"]:
+
+    print(f"Incoming Message !! {msg}")
+    for message in msg["message"]:
+        
         try:
             event = process_pagerduty_event(message)
+            print(f" Event which is to be inserted into Big query {event}")
             if event:
                 # [Do not edit below]
                 shared.insert_row_into_bigquery(event)
@@ -68,14 +72,14 @@ def process_pagerduty_event(msg):
 
     # WIP print statements
     print(msg)
-    print(metadata)
+    print(f"Metadata from message {metadata}")
 
     # Unique hash for the event
     signature = shared.create_unique_id(msg)
 
     event_type = metadata["messages"][0]["event"]
     types = {"incident.trigger", "incident.resolve"}
-
+    print(f"Log event type from message :: {event_type}")
     if event_type not in types:
         raise Warning("Unsupported PagerDuty event: '%s'" % event_type)
 
