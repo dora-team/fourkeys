@@ -15,7 +15,6 @@
 import base64
 import os
 import json
-from types import SimpleNamespace
 
 import shared
 
@@ -70,7 +69,7 @@ def process_pagerduty_event(msg):
     signature = shared.create_unique_id(msg)
     event = metadata['event']
     event_type = event["event_type"]
-    types = {"incident.trigger", "incident.resolved"}
+    types = {"incident.triggered", "incident.resolved"}
     if event_type not in types:
         raise Warning("Unsupported PagerDuty event: '%s'" % event_type)
 
