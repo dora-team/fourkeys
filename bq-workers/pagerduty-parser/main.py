@@ -46,7 +46,7 @@ def index():
 
 
     print(f"Incoming Message !! {msg}")
-    for message in msg["message"]:
+    for message in msg:
         
         try:
             event = process_pagerduty_event(message)
