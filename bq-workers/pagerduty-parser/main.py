@@ -15,6 +15,7 @@
 import base64
 import os
 import json
+from types import SimpleNamespace
 
 import shared
 
@@ -31,8 +32,6 @@ def index():
     """
     event = None
     envelope = request.get_json()
-    print(f"envelope received: {envelope}")
-
     # Check that data has been posted
     if not envelope:
         raise Exception("Expecting JSON payload")
@@ -44,59 +43,48 @@ def index():
     if "attributes" not in msg:
         raise Exception("Missing pubsub attributes")
 
+    try:
+        event = process_pagerduty_event(msg)
+        print(f" Event which is to be inserted into Big query {event}")
+        if event:
+            # [Do not edit below]
+            shared.insert_row_into_bigquery(event)
 
-    print(f"Incoming Message !! {msg}")
-    for message in msg:
-        
-        try:
-            event = process_pagerduty_event(message)
-            print(f" Event which is to be inserted into Big query {event}")
-            if event:
-                # [Do not edit below]
-                shared.insert_row_into_bigquery(event)
-
-        except Exception as e:
-            entry = {
-                    "severity": "WARNING",
-                    "msg": "Data not saved to BigQuery",
-                    "errors": str(e),
-                    "json_payload": envelope
-                }
-            print(json.dumps(entry))
-
+    except Exception as e:
+        entry = {
+                "severity": "WARNING",
+                "msg": "Data not saved to BigQuery",
+                "errors": str(e),
+                "json_payload": envelope
+            }
+        print(f"EXCEPTION raised  {json.dumps(entry)}")
     return "", 204
 
 
 def process_pagerduty_event(msg):
-
-    print(f"Raw metadata :: {base64.b64decode(msg['data'])}")
     metadata = json.loads(base64.b64decode(msg["data"]).decode("utf-8").strip())
-    
 
-    # WIP print statements
     print(f"Metadata after decoding {metadata}")
-    print(f"Metadata from message {metadata}")
-
+   
     # Unique hash for the event
     signature = shared.create_unique_id(msg)
-
-    event_type = metadata[0]["event"]["event_type"]
-    types = {"incident.trigger", "incident.resolve"}
-    print(f"Log event type from message :: {event_type}")
+    event = metadata['event']
+    event_type = event["event_type"]
+    types = {"incident.trigger", "incident.resolved"}
     if event_type not in types:
         raise Warning("Unsupported PagerDuty event: '%s'" % event_type)
 
     pagerduty_event = {
-        "event_type": event_type,  # Event type, eg "push", "pull_reqest", etc
-        "id": metadata["messages"][0]["id"],  # Object ID, eg pull request ID
+        "event_type": event_type,  # Event type, eg "incident.trigger", "incident.resolved", etc
+        "id": event['id'],  # Event ID,
         "metadata": json.dumps(metadata),  # The body of the msg
-        "time_created": metadata["messages"][0]["created_on"],  # The timestamp of with the event
+        "time_created": event['data']['created_at'],  # The timestamp of with the event
         "signature": signature,  # The unique event signature
         "msg_id": msg["message_id"],  # The pubsub message id
-        "source": "pagerduty",  # The name of the source, eg "github"
+        "source": "pagerduty",  # The name of the source, eg "pagerduty"
     }
 
-    print(pagerduty_event)
+    print(f"Pager Duty event to metrics--------> {pagerduty_event}")
     return pagerduty_event
 
 
