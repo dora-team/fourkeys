@@ -213,7 +213,7 @@ The "name_of_session" will be something like "py-3.6(folder='.....').
    </td>
   </tr>
   <tr>
-   <td>🔑id
+   <td>id
    </td>
    <td>STRING
    </td>
@@ -245,7 +245,7 @@ The "name_of_session" will be something like "py-3.6(folder='.....').
    </td>
   </tr>
   <tr>
-   <td>msg_id
+   <td>🔑msg_id
    </td>
    <td>STRING
    </td>
