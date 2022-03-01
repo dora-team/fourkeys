@@ -24,5 +24,6 @@ datasources:
   jsonData:
        authenticationType: gce
        queryPriority: INTERACTIVE
+       processingLocation: $BQ_DATASET_LOCATION
   version: 3
   readOnly: false
