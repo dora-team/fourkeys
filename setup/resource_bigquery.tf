@@ -48,7 +48,7 @@ resource "google_bigquery_routine" "func_multiFormatParseTimestamp" {
   dataset_id   = google_bigquery_dataset.four_keys.dataset_id
   routine_id   = "multiFormatParseTimestamp"
   routine_type = "SCALAR_FUNCTION"
-  return_type = "{\"typeKind\" :  \"TIMESTAMP\"}"
+  return_type  = "{\"typeKind\" :  \"TIMESTAMP\"}"
   language     = "SQL"
   arguments {
     name      = "input"

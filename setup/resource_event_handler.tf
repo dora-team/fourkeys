@@ -31,7 +31,7 @@ resource "google_cloud_run_service" "event_handler" {
   ]
 
   metadata {
-    labels = {"created_by":"fourkeys"}
+    labels = { "created_by" : "fourkeys" }
   }
 }
 
@@ -51,7 +51,7 @@ resource "google_secret_manager_secret" "event_handler" {
     automatic = true
   }
   depends_on = [google_project_service.sm_api]
-  labels = {"created_by":"fourkeys"}
+  labels     = { "created_by" : "fourkeys" }
 }
 
 resource "random_id" "event_handler_random_value" {
