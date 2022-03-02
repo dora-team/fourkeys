@@ -14,7 +14,7 @@ resource "google_cloud_run_service" "dashboard" {
           value = var.google_project_id
         }
         env {
-          name  = "BQ_DATASET_LOCATION"
+          name  = "BQ_REGION"
           value = var.bigquery_region
         }
       }
