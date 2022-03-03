@@ -1,4 +1,4 @@
-# Four Keys 2021 Roadmap
+# Four Keys 2022 Roadmap
 
 ## Mission and Vision
 
@@ -24,6 +24,8 @@ Non-goals:
   * Enriching the dashboard
     * [More data points](https://github.com/GoogleCloudPlatform/fourkeys/issues/77)
     * New data views for drilling down into the metrics
+  * More native Terraform installation 
+    * Currently, the setup is a mix of `gcloud` commands and Terraform configuration.  We will move away from `gcloud` commands and rely more on the declarative Terraform setup.
 * Long Term
   * CloudEvents migration 
     * Migrate the `four_keys.events_raw` schema to [CloudEvents](https://github.com/cloudevents/spec) schema
