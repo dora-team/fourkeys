@@ -11,7 +11,7 @@ variable "region" {
 
 variable "bigquery_region" {
   type        = string
-  default     = "us-central1"
+  default     = "US"
   description = "Region to deploy BigQuery resources in."
   validation {
     condition     = can(regex("^(US|EU)$", var.bigquery_region))
