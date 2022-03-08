@@ -25,7 +25,7 @@ module "gcloud_build_data_source" {
   destroy_cmd_entrypoint = "gcloud"
   destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/${var.parser_service_name}-parser --quiet"
   module_depends_on = [
-    google_project_service.cloud_build
+    google_project_service.data_source_services
   ]
 }
 
@@ -54,7 +54,7 @@ resource "google_cloud_run_service" "parser" {
 
   autogenerate_revision_name = true
   depends_on = [
-    google_project_service.cloud_run,
+    google_project_service.data_source_services,
     module.gcloud_build_data_source
   ]
 }
