@@ -32,7 +32,7 @@ resource "google_project_iam_member" "storage_admin" {
   role    = "roles/storage.admin"
   member  = "serviceAccount:${local.cloud_build_service_account}"
   depends_on = [
-    google_project_service.cloud_build
+    google_project_service.foundation_services
   ]
 }
 

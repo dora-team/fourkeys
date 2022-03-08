@@ -8,7 +8,7 @@ module "gcloud_build_event_handler" {
   create_cmd_body        = "builds submit ${path.module}/files/event_handler --tag=gcr.io/${var.project_id}/event-handler --project=${var.project_id}"
   destroy_cmd_entrypoint = "gcloud"
   destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/event-handler --quiet"
-  module_depends_on      = [google_project_service.cloud_build]
+  module_depends_on      = [google_project_service.foundation_services]
 }
 
 resource "google_cloud_run_service" "event_handler" {
@@ -36,7 +36,7 @@ resource "google_cloud_run_service" "event_handler" {
 
   autogenerate_revision_name = true
 
-  depends_on = [google_project_service.cloud_run, module.gcloud_build_event_handler]
+  depends_on = [google_project_service.foundation_services, module.gcloud_build_event_handler]
 }
 
 resource "google_cloud_run_service_iam_binding" "noauth" {
@@ -54,7 +54,7 @@ resource "google_secret_manager_secret" "event_handler" {
   replication {
     automatic = true
   }
-  depends_on = [google_project_service.secret_manager]
+  depends_on = [google_project_service.foundation_services]
 }
 
 resource "random_id" "event_handler_random_value" {
