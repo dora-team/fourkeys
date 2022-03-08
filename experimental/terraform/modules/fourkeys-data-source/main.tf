@@ -2,16 +2,17 @@ data "google_project" "project" {
   project_id = var.project_id
 }
 
-resource "google_project_service" "cloud_run" {
-  project            = var.project_id
-  service            = "run.googleapis.com"
-  disable_on_destroy = false
+locals {
+    services = var.enable_apis ? [
+    "run.googleapis.com",
+    "cloudbuild.googleapis.com"
+  ] : []
 }
 
-resource "google_project_service" "cloud_build" {
-  project            = var.project_id
-  service            = "cloudbuild.googleapis.com"
-  disable_on_destroy = false
+resource "google_project_service" "data_source_services" {
+  for_each                   = toset(local.services)
+  service                    = each.value
+  disable_on_destroy         = false
 }
 
 module "gcloud_build_data_source" {

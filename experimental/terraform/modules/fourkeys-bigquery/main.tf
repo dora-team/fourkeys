@@ -1,8 +1,13 @@
+locals {
+    services = var.enable_apis ? [
+    "bigquery.googleapis.com"
+  ] : []
+}
 
-resource "google_project_service" "bigquery" {
-  project            = var.project_id
-  service            = "bigquery.googleapis.com"
-  disable_on_destroy = false
+resource "google_project_service" "bigquery_services" {
+  for_each                   = toset(local.services)
+  service                    = each.value
+  disable_on_destroy         = false
 }
 
 resource "google_project_iam_member" "parser_bq_project_access" {
