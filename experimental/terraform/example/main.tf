@@ -8,7 +8,7 @@ terraform {
 }
 
 module "fourkeys" {
-  source = "../modules/fourkeys-complete"
+  source = "../modules/fourkeys"
   project_id = var.project_id
   region = var.region
   bigquery_region = var.bigquery_region
