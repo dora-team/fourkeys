@@ -1,6 +1,7 @@
 module "foundation" {
   source     = "../fourkeys-foundation"
   project_id = var.project_id
+  enable_apis = var.enable_apis
 }
 output "event_handler_endpoint" {
   value = module.foundation.event_handler_endpoint
@@ -23,6 +24,7 @@ module "bigquery" {
   depends_on = [
     module.foundation
   ]
+  enable_apis = var.enable_apis
 }
 
 module "github_parser" {
@@ -32,6 +34,7 @@ module "github_parser" {
   parser_service_name            = each.value
   region                         = var.region
   fourkeys_service_account_email = module.foundation.fourkeys_service_account_email
+  enable_apis = var.enable_apis
 }
 
 module "dashboard" {
@@ -39,4 +42,5 @@ module "dashboard" {
   project_id                     = var.project_id
   region                         = var.region
   fourkeys_service_account_email = module.foundation.fourkeys_service_account_email
+  enable_apis = var.enable_apis
 }

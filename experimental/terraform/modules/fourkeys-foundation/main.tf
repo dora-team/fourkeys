@@ -5,25 +5,18 @@ data "google_project" "project" {
 
 locals {
   cloud_build_service_account = "${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
+  services = var.enable_apis ? [
+    "cloudbuild.googleapis.com",
+    "run.googleapis.com",
+    "secretmanager.googleapis.com",
+  ] : []
 }
 
 ## Services
-resource "google_project_service" "cloud_build" {
-  project            = var.project_id
-  service            = "cloudbuild.googleapis.com"
-  disable_on_destroy = false
-}
-
-resource "google_project_service" "cloud_run" {
-  project            = var.project_id
-  service            = "run.googleapis.com"
-  disable_on_destroy = false
-}
-
-resource "google_project_service" "secret_manager" {
-  project            = var.project_id
-  service            = "secretmanager.googleapis.com"
-  disable_on_destroy = false
+resource "google_project_service" "foundation_services" {
+  for_each                   = toset(local.services)
+  service                    = each.value
+  disable_on_destroy         = false
 }
 
 # Service Accounts and IAM
