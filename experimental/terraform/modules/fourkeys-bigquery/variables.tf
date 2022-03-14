@@ -12,3 +12,9 @@ variable "fourkeys_service_account_email" {
   type = string
   description = "Service account for fourkeys."
 }
+
+variable "enable_apis" {
+  type        = bool
+  description = "Toggle to include required APIs."
+  default     = false
+}

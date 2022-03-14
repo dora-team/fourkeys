@@ -2,16 +2,17 @@ data "google_project" "project" {
   project_id = var.project_id
 }
 
-resource "google_project_service" "cloud_run" {
-  project            = var.project_id
-  service            = "run.googleapis.com"
-  disable_on_destroy = false
+locals {
+    services = var.enable_apis ? [
+    "run.googleapis.com",
+    "cloudbuild.googleapis.com"
+  ] : []
 }
 
-resource "google_project_service" "cloud_build" {
-  project            = var.project_id
-  service            = "cloudbuild.googleapis.com"
-  disable_on_destroy = false
+resource "google_project_service" "data_source_services" {
+  for_each                   = toset(local.services)
+  service                    = each.value
+  disable_on_destroy         = false
 }
 
 module "gcloud_build_data_source" {
@@ -24,7 +25,7 @@ module "gcloud_build_data_source" {
   destroy_cmd_entrypoint = "gcloud"
   destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/${var.parser_service_name}-parser --quiet"
   module_depends_on = [
-    google_project_service.cloud_build
+    google_project_service.data_source_services
   ]
 }
 
@@ -53,7 +54,7 @@ resource "google_cloud_run_service" "parser" {
 
   autogenerate_revision_name = true
   depends_on = [
-    google_project_service.cloud_run,
+    google_project_service.data_source_services,
     module.gcloud_build_data_source
   ]
 }
