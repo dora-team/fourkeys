@@ -8,7 +8,7 @@ variable "enable_apis" {
   default     = false
 }
 
-variable "parser_service_name" {
-  type        = string
-  description = "Data source name. Must be 'github', 'gitlab', 'cloud-build', or 'tekton'"
+variable "parsers" {
+  type        = list(string)
+  description = "List of data parsers to configure. Acceptable values are: 'github', 'gitlab', 'cloud-build', 'tekton'"
 }
