@@ -28,3 +28,16 @@ module "gcloud_build_data_source" {
 output "parser_gcr_url" {
     value = "gcr.io/${var.project_id}/${var.parser_service_name}-parser"
 }
+
+module "gcloud_build_event_handler" {
+  source                 = "terraform-google-modules/gcloud/google"
+  version                = "~> 2.0"
+  create_cmd_entrypoint  = "gcloud"
+  create_cmd_body        = "builds submit ${path.module}/files/event_handler --tag=gcr.io/${var.project_id}/event-handler --project=${var.project_id}"
+  destroy_cmd_entrypoint = "gcloud"
+  destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/event-handler --quiet"
+}
+
+output "event_handler_gcr_url" {
+    value = "gcr.io/${var.project_id}/event-handler"
+}
