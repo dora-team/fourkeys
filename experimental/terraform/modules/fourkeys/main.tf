@@ -1,7 +1,17 @@
-module "foundation" {
-  source     = "../fourkeys-foundation"
-  project_id = var.project_id
+module "fourkeys_images" {
+  source      = "../fourkeys-images"
+  project_id  = var.project_id
   enable_apis = var.enable_apis
+  parsers     = var.parsers
+}
+
+module "foundation" {
+  source      = "../fourkeys-foundation"
+  project_id  = var.project_id
+  enable_apis = var.enable_apis
+  depends_on = [
+    module.fourkeys_images
+  ]
 }
 output "event_handler_endpoint" {
   value = module.foundation.event_handler_endpoint
@@ -34,7 +44,10 @@ module "github_parser" {
   parser_service_name            = each.value
   region                         = var.region
   fourkeys_service_account_email = module.foundation.fourkeys_service_account_email
-  enable_apis = var.enable_apis
+  enable_apis                    = var.enable_apis
+  depends_on = [
+    module.fourkeys_images
+  ]
 }
 
 module "dashboard" {
@@ -42,5 +55,8 @@ module "dashboard" {
   project_id                     = var.project_id
   region                         = var.region
   fourkeys_service_account_email = module.foundation.fourkeys_service_account_email
-  enable_apis = var.enable_apis
+  enable_apis                    = var.enable_apis
+  depends_on = [
+    module.fourkeys_images
+  ]
 }

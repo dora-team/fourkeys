@@ -1,6 +1,5 @@
 module "gcloud_build_dashboard" {
   source                 = "terraform-google-modules/gcloud/google"
-#   count = 0
   version                = "~> 2.0"
   platform               = "linux"
   additional_components  = []
@@ -10,23 +9,16 @@ module "gcloud_build_dashboard" {
   destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/fourkeys-grafana-dashboard --quiet"
 }
 
-output "dashboard_gcr_url" {
-    value = "gcr.io/${var.project_id}/fourkeys-grafana-dashboard"
-}
-
 module "gcloud_build_data_source" {
   source                 = "terraform-google-modules/gcloud/google"
+  for_each               = toset(var.parsers)
   version                = "~> 2.0"
   platform               = "linux"
   additional_components  = []
   create_cmd_entrypoint  = "gcloud"
-  create_cmd_body        = "builds submit ${path.module}/files/bq-workers/${var.parser_service_name}-parser --tag=gcr.io/${var.project_id}/${var.parser_service_name}-parser --project=${var.project_id}"
+  create_cmd_body        = "builds submit ${path.module}/files/bq-workers/${each.value}-parser --tag=gcr.io/${var.project_id}/${each.value}-parser --project=${var.project_id}"
   destroy_cmd_entrypoint = "gcloud"
-  destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/${var.parser_service_name}-parser --quiet"
-}
-
-output "parser_gcr_url" {
-    value = "gcr.io/${var.project_id}/${var.parser_service_name}-parser"
+  destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/${each.value}-parser --quiet"
 }
 
 module "gcloud_build_event_handler" {
@@ -36,8 +28,4 @@ module "gcloud_build_event_handler" {
   create_cmd_body        = "builds submit ${path.module}/files/event_handler --tag=gcr.io/${var.project_id}/event-handler --project=${var.project_id}"
   destroy_cmd_entrypoint = "gcloud"
   destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/event-handler --quiet"
-}
-
-output "event_handler_gcr_url" {
-    value = "gcr.io/${var.project_id}/event-handler"
 }
