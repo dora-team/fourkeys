@@ -1,12 +1,12 @@
 locals {
-  event_handler_container_url = var.enable_build_images ? "gcr.io/${var.project_id}/event-handler" : ""
-  dashboard_container_url     = var.enable_build_images ? "gcr.io/${var.project_id}/fourkeys-grafana-dashboard" : ""
+  event_handler_container_url = var.enable_build_images ? "gcr.io/${var.project_id}/event-handler" : var.event_handler_container_url
+  dashboard_container_url     = var.enable_build_images ? "gcr.io/${var.project_id}/fourkeys-grafana-dashboard" : var.dashboard_container_url
   parser_container_urls = var.enable_build_images ? {
     "github" = "gcr.io/${var.project_id}/github-parser",
     "gitlab" = "gcr.io/${var.project_id}/gitlab-parser",
     "cloud-build" = "gcr.io/${var.project_id}/cloud-build-parser",
     "tekton" = "gcr.io/${var.project_id}/tekton-parser",
-  } : {}
+  } : var.parser_container_urls
 }
 
 module "fourkeys_images" {
