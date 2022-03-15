@@ -15,3 +15,8 @@ variable "enable_apis" {
   description = "Toggle to include required APIs."
   default     = false
 }
+
+variable "dashboard_container_url" {
+  type = string
+  description = "URL of dashboard container for Cloud Run configuration"
+}

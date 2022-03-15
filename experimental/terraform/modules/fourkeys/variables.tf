@@ -29,3 +29,9 @@ variable "enable_apis" {
   description = "Toggle to include required APIs."
   default     = false
 }
+
+variable "enable_build_images" {
+  type        = bool
+  description = "Toggle to build fourkeys images and upload to container registry. If set to false, URLs for images must be provided."
+  default     = true
+}

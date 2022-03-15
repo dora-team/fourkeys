@@ -4,8 +4,7 @@ data "google_project" "project" {
 
 locals {
     services = var.enable_apis ? [
-    "run.googleapis.com",
-    "cloudbuild.googleapis.com"
+    "run.googleapis.com"
   ] : []
 }
 
@@ -23,7 +22,7 @@ resource "google_cloud_run_service" "parser" {
   template {
     spec {
       containers {
-        image = "gcr.io/${var.project_id}/${var.parser_service_name}-parser"
+        image = var.parser_container_url
         env {
           name  = "PROJECT_NAME"
           value = var.project_id
