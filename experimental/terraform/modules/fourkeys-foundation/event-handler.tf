@@ -11,7 +11,7 @@ resource "google_cloud_run_service" "event_handler" {
   template {
     spec {
       containers {
-        image = "gcr.io/${var.project_id}/event-handler"
+        image = var.event_handler_container_url
         env {
           name  = "PROJECT_NAME"
           value = var.project_id
