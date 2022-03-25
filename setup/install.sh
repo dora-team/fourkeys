@@ -43,6 +43,8 @@ echo "••••••••🔑••🔑••🔑••🔑•••••�
 echo "Building containers…"
 gcloud services enable cloudbuild.googleapis.com
 gcloud services enable containerregistry.googleapis.com --project=${FOURKEYS_PROJECT}
+gcloud services enable secretmanager.googleapis.com
+
 PARENT_PROJECTNUM=$(gcloud projects describe $(gcloud config get-value project) --format='value(projectNumber)')
 FOURKEYS_PROJECTNUM=$(gcloud projects describe ${FOURKEYS_PROJECT} --format='value(projectNumber)')
 gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} --member="serviceAccount:${PARENT_PROJECTNUM}@cloudbuild.gserviceaccount.com" --role="roles/storage.admin"
@@ -56,6 +58,10 @@ fi
 
 if [[ ! -z "$CICD_SYSTEM" && "$CICD_SYSTEM" != "$GIT_SYSTEM" ]]; then
     gcloud builds submit ../bq-workers/${CICD_SYSTEM}-parser --tag=gcr.io/${FOURKEYS_PROJECT}/${CICD_SYSTEM}-parser --project=${PARENT_PROJECT} > ${CICD_SYSTEM}-parser.containerbuild.log & 
+fi
+
+if [[ ! -z "$INCIDENT_SYSTEM" ]]; then
+    gcloud builds submit ../bq-workers/${INCIDENT_SYSTEM}-parser --tag=gcr.io/${FOURKEYS_PROJECT}/${CICD_SYSTEM}-parser --project=${PARENT_PROJECT} > ${INCIDENT_SYSTEM}-parser.containerbuild.log & 
 fi
 
 # Dashboard image
