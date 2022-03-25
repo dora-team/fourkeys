@@ -35,6 +35,7 @@ then
     # populate setup variables (for use in testing/dev)
     git_system_id=2
     cicd_system_id=1
+    incident_system_id=1
     generate_mock_data=y
     CLEAN='true'
 else
@@ -63,6 +64,13 @@ else
 
     Enter a selection (1 - 5): " cicd_system_id
 
+    read -p "
+    Which incident management system(s) are you using? 
+    (1) PagerDuty
+    (2) Other
+
+    Enter a selection (1 - 2): " incident_system_id
+
     printf "\n"
 
     read -p "Would you like to generate mock data? (y/N): " generate_mock_data
@@ -79,6 +87,8 @@ printf "\n"
 
 GIT_SYSTEM=""
 CICD_SYSTEM=""
+INCIDENT_SYSTEM=""
+PAGERDUTY_SECRET=""
 
 case $git_system_id in
     1) GIT_SYSTEM="gitlab" ;;
@@ -94,6 +104,17 @@ case $cicd_system_id in
     *) echo "Please see the documentation to learn how to extend to CI/CD sources other than Cloud Build, Tekton, GitLab, CircleCI or GitHub."
 esac
 
+case $incident_system_id in
+    1) INCIDENT_SYSTEM="pagerduty"; read -p "Please enter the PagerDuty Signature Verification Token: " PAGERDUTY_SECRET ;;
+    *) echo "Please see the documentation to learn how to extend to incident sources other than PagerDuty."
+esac
+
+if [ $PAGERDUTY_SECRET != "" ]; then
+    echo $PAGERDUTY_SECRET | tr -d '\n' | gcloud secrets create pager_duty_secret \
+    --replication-policy=user-managed --locations ${FOURKEYS_REGION} \
+    --data-file=-
+fi
+
 if [ $generate_mock_data == "y" ]; then
     GENERATE_DATA="yes"
 else
@@ -101,7 +122,7 @@ else
 fi
 
 PARSERS=""
-for PARSER in ${GIT_SYSTEM} ${CICD_SYSTEM}; do
+for PARSER in ${GIT_SYSTEM} ${CICD_SYSTEM} ${INCIDENT_SYSTEM}; do
     if [ "${PARSERS}" == "" ]; then
         PARSERS="\"${PARSER}\""
     else
