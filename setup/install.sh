@@ -61,7 +61,7 @@ if [[ ! -z "$CICD_SYSTEM" && "$CICD_SYSTEM" != "$GIT_SYSTEM" ]]; then
 fi
 
 if [[ ! -z "$INCIDENT_SYSTEM" ]]; then
-    gcloud builds submit ../bq-workers/${INCIDENT_SYSTEM}-parser --tag=gcr.io/${FOURKEYS_PROJECT}/${CICD_SYSTEM}-parser --project=${PARENT_PROJECT} > ${INCIDENT_SYSTEM}-parser.containerbuild.log & 
+    gcloud builds submit ../bq-workers/${INCIDENT_SYSTEM}-parser --tag=gcr.io/${FOURKEYS_PROJECT}/${INCIDENT_SYSTEM}-parser --project=${PARENT_PROJECT} > ${INCIDENT_SYSTEM}-parser.containerbuild.log & 
 fi
 
 # Dashboard image
