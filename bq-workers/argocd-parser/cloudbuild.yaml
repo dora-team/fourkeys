@@ -30,7 +30,7 @@ steps:
   name: google/cloud-sdk
   args: ['gcloud', 'run', 'deploy', 'argocd-parser',
          '--image', 'gcr.io/$PROJECT_ID/argocd-parser:${_TAG}',
-         '--region', '${_FOURKEYS_REGION}',
+         '--region', '${_REGION}',
          '--platform', 'managed'
   ]
   id: deploy
