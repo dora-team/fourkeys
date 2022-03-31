@@ -15,7 +15,7 @@
 steps:
 - # Build argocd-parser image
   name: gcr.io/cloud-builders/docker:latest
-  args: ['build', 
+  args: ['build',
          '--tag=gcr.io/$PROJECT_ID/argocd-parser:${_TAG}', '.']
   dir: 'bq-workers/argocd-parser'
   id: build
@@ -30,7 +30,7 @@ steps:
   name: google/cloud-sdk
   args: ['gcloud', 'run', 'deploy', 'argocd-parser',
          '--image', 'gcr.io/$PROJECT_ID/argocd-parser:${_TAG}',
-         '--region', '${_REGION}',
+         '--region', '${_FOURKEYS_REGION}',
          '--platform', 'managed'
   ]
   id: deploy

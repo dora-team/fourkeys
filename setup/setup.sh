@@ -66,7 +66,7 @@ else
     Enter a selection (1 - 6): " cicd_system_id
 
     read -p "
-    Which incident management system(s) are you using? 
+    Which incident management system(s) are you using?
     (1) PagerDuty
     (2) Other
 

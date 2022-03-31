@@ -23,7 +23,7 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
                 FROM UNNEST(JSON_EXTRACT_ARRAY(metadata, '$.deployment.additional_sha')) AS string_element)
            WHEN source LIKE "github%" AND event_type = "pull_request" then REGEXP_EXTRACT_ALL(JSON_EXTRACT_SCALAR(metadata, '$.pull_request.body'), 'https://github.com/indykite/jarvis-proto/commit/([[:alnum:]]{40})')
            ELSE ARRAY<string>[] end as additional_commits
-      FROM four_keys.events 
+      FROM four_keys.events
       WHERE (
       # Cloud Build Deployments
          (source = "cloud_build" AND JSON_EXTRACT_SCALAR(metadata, '$.status') = "SUCCESS")
@@ -111,7 +111,7 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
     time_created,
     REGEXP_REPLACE(repo_name, "jarvis-infrastructure-proto", "jarvis-proto") as repo_name,
     env,
-    main_commit,   
+    main_commit,
     ARRAY_AGG(DISTINCT JSON_EXTRACT_SCALAR(array_commits, '$.id')) changes,    
     FROM deployment_changes
     CROSS JOIN deployment_changes.array_commits
