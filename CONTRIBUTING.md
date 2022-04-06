@@ -38,20 +38,20 @@ We'll be hosting office hours every two weeks at **11AM PT**. Please come if you
 
 ```
 Four Keys Office Hours
-Tuesday, January 4 · 11:00 – 11:30am PT
+Biweekly · 11:00 – 11:30am PT
 Google Meet joining info
 Video call link: https://meet.google.com/rcc-qepb-jya
-Or dial: ‪(US) +1 316-512-1050‬ PIN: ‪132 793 518‬#
+Or dial: (US) +1 316-512-1050 PIN: 132 793 518#
 More phone numbers: https://tel.meet/rcc-qepb-jya?pin=3556509734950
 ```
 
 Upcoming dates:
-- January 18
-- Feb 1
-- Feb 15
-- Mar 1
-- Mar 15
-- Mar 29
+- Apr 12, 2022
+- Apr 26, 2022
+- May 10, 2022
+- May 24, 2022
+- Jun 07, 2022
+- Jun 21, 2022
 
 ## Meetups
 
