@@ -41,7 +41,7 @@ Four Keys Office Hours
 Biweekly · 11:00 – 11:30am PT
 Google Meet joining info
 Video call link: https://meet.google.com/rcc-qepb-jya
-Or dial: ‪(US) +1 316-512-1050‬ PIN: ‪132 793 518‬#
+Or dial: (US) +1 316-512-1050 PIN: 132 793 518#
 More phone numbers: https://tel.meet/rcc-qepb-jya?pin=3556509734950
 ```
 
