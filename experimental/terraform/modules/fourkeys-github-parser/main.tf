@@ -1,7 +1,3 @@
-data "google_project" "project" {
-  project_id = var.project_id
-}
-
 locals {
     services = var.enable_apis ? [
     "run.googleapis.com"
@@ -67,10 +63,4 @@ resource "google_pubsub_subscription" "github" {
       service_account_email = var.fourkeys_service_account_email
     }
   }
-}
-
-resource "google_project_iam_member" "pubsub_service_account_token_creator" {
-  project = var.project_id
-  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
-  role    = "roles/iam.serviceAccountTokenCreator"
 }

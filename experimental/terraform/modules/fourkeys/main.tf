@@ -1,3 +1,7 @@
+data "google_project" "project" {
+  project_id = var.project_id
+}
+
 locals {
   event_handler_container_url = var.enable_build_images ? format("gcr.io/%s/event-handler", var.project_id) : var.event_handler_container_url
   dashboard_container_url     = var.enable_build_images ? format("gcr.io/%s/fourkeys-grafana-dashboard", var.project_id) : var.dashboard_container_url
@@ -15,6 +19,12 @@ module "fourkeys_images" {
   project_id  = var.project_id
   enable_apis = var.enable_apis
   parsers     = var.parsers
+}
+
+resource "google_project_iam_member" "pubsub_service_account_token_creator" {
+  project = var.project_id
+  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+  role    = "roles/iam.serviceAccountTokenCreator"
 }
 
 module "foundation" {
