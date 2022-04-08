@@ -61,12 +61,24 @@ module "bigquery" {
 }
 
 module "github_parser" {
-  source                         = "../fourkeys-data-source"
-  for_each                       = toset(var.parsers)
-  project_id                     = var.project_id
-  parser_service_name            = each.value
-  parser_container_url           = local.parser_container_urls[each.value]
-  region                         = var.region
+  source = "../fourkeys-github-parser"
+  count = contains(var.parsers, "github") ? 1 : 0
+  project_id  = var.project_id
+  parser_container_url = local.parser_container_urls["github"]
+  region  = var.region
+  fourkeys_service_account_email = module.foundation.fourkeys_service_account_email
+  enable_apis                    = var.enable_apis
+  depends_on = [
+    module.fourkeys_images
+  ]
+}
+
+module "gitlab_parser" {
+  source = "../fourkeys-gitlab-parser"
+  count = contains(var.parsers, "gitlab") ? 1 : 0
+  project_id  = var.project_id
+  parser_container_url = local.parser_container_urls["gitlab"]
+  region  = var.region
   fourkeys_service_account_email = module.foundation.fourkeys_service_account_email
   enable_apis                    = var.enable_apis
   depends_on = [
