@@ -19,9 +19,6 @@ module "gcloud_build_dashboard" {
   create_cmd_body        = "builds submit ${path.module}/files/dashboard --tag=gcr.io/${var.project_id}/fourkeys-grafana-dashboard --project=${var.project_id}"
   destroy_cmd_entrypoint = "gcloud"
   destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/fourkeys-grafana-dashboard --quiet"
-  depends_on = [
-    google_project_service.images_services
-  ]
 }
 
 module "gcloud_build_data_source" {
@@ -34,9 +31,6 @@ module "gcloud_build_data_source" {
   create_cmd_body        = "builds submit ${path.module}/files/bq-workers/${each.value}-parser --tag=gcr.io/${var.project_id}/${each.value}-parser --project=${var.project_id}"
   destroy_cmd_entrypoint = "gcloud"
   destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/${each.value}-parser --quiet"
-  depends_on = [
-    google_project_service.images_services
-  ]
 }
 
 module "gcloud_build_event_handler" {
@@ -46,7 +40,4 @@ module "gcloud_build_event_handler" {
   create_cmd_body        = "builds submit ${path.module}/files/event_handler --tag=gcr.io/${var.project_id}/event-handler --project=${var.project_id}"
   destroy_cmd_entrypoint = "gcloud"
   destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/event-handler --quiet"
-  depends_on = [
-    google_project_service.images_services
-  ]
 }
