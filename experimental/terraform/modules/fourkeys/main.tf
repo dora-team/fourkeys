@@ -89,6 +89,19 @@ module "tekton_parser" {
   ]
 }
 
+module "cloud_build_parser" {
+  source = "../fourkeys-cloud-build-parser"
+  count = contains(var.parsers, "cloud-build") ? 1 : 0
+  project_id  = var.project_id
+  parser_container_url = local.parser_container_urls["cloud-build"]
+  region  = var.region
+  fourkeys_service_account_email = module.foundation.fourkeys_service_account_email
+  enable_apis                    = var.enable_apis
+  depends_on = [
+    module.fourkeys_images
+  ]
+}
+
 module "dashboard" {
   source                         = "../fourkeys-dashboard"
   project_id                     = var.project_id
