@@ -122,4 +122,4 @@ steps:
 substitutions:
   _TF_LOG: ERROR
   _TARGET_PROJECT: fourkeys-tf-tests
-  _CLEAN_ONLY: false
+  _CLEAN_ONLY: "false"
