@@ -25,7 +25,6 @@
   "links": [],
   "panels": [
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -90,7 +89,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -128,7 +128,6 @@
       "type": "timeseries"
     },
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -138,17 +137,25 @@
             {
               "options": {
                 "One day": {
-                  "color": "green",
+                  "color": "purple",
                   "index": 0,
                   "text": "Elite Performance"
                 },
                 "One month": {
-                  "color": "red",
+                  "color": "yellow",
                   "index": 2
                 },
                 "One week": {
-                  "color": "yellow",
+                  "color": "green",
                   "index": 1
+                },
+                "One year": {
+                  "color": "red",
+                  "index": 4
+                },
+                "Six months": {
+                  "color": "red",
+                  "index": 3
                 }
               },
               "type": "value"
@@ -192,7 +199,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.4.0",
       "targets": [
         {
           "format": "table",
@@ -228,7 +235,6 @@
       "type": "stat"
     },
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -294,7 +300,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -332,7 +339,6 @@
       "type": "timeseries"
     },
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -341,17 +347,17 @@
           "mappings": [
             {
               "options": {
-                "One day": {
-                  "color": "green",
+                "Daily": {
+                  "color": "blue",
                   "index": 0,
                   "text": "Elite Performance"
                 },
-                "One month": {
-                  "color": "red",
+                "Monthly": {
+                  "color": "yellow",
                   "index": 2
                 },
-                "One week": {
-                  "color": "yellow",
+                "Weekly": {
+                  "color": "green",
                   "index": 1
                 },
                 "Yearly": {
@@ -400,7 +406,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.4.0",
       "targets": [
         {
           "format": "table",
@@ -436,7 +442,6 @@
       "type": "stat"
     },
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -501,7 +506,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -539,7 +545,6 @@
       "type": "timeseries"
     },
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -560,7 +565,11 @@
                   "color": "yellow",
                   "index": 1
                 },
-                "Yearly": {
+                "One year": {
+                  "color": "red",
+                  "index": 4
+                },
+                "Six months": {
                   "color": "red",
                   "index": 3
                 }
@@ -606,7 +615,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.4.0",
       "targets": [
         {
           "format": "table",
@@ -642,7 +651,6 @@
       "type": "stat"
     },
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -707,7 +715,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -718,7 +727,7 @@
           "orderByCol": "1",
           "orderBySort": "1",
           "rawQuery": true,
-          "rawSql": "SELECT\nTIMESTAMP_TRUNC(d.time_created, DAY) as day,\nSUM(IF(i.incident_id is NULL, 0, 1)) / COUNT(DISTINCT change_id) as change_fail_rate\nFROM four_keys.deployments d, d.changes\nLEFT JOIN four_keys.changes c ON changes = c.change_id\nLEFT JOIN(SELECT\n        incident_id,\n        change,\n        time_resolved\n        FROM four_keys.incidents i,\n        i.changes change) i ON i.change = changes\nGROUP BY day",
+          "rawSql": "SELECT\nTIMESTAMP_TRUNC(d.time_created, DAY) as day,\n  IF(COUNT(DISTINCT change_id) = 0,0, SUM(IF(i.incident_id is NULL, 0, 1)) / COUNT(DISTINCT change_id)) as change_fail_rate\nFROM four_keys.deployments d, d.changes\nLEFT JOIN four_keys.changes c ON changes = c.change_id\nLEFT JOIN(SELECT\n        incident_id,\n        change,\n        time_resolved\n        FROM four_keys.incidents i,\n        i.changes change) i ON i.change = changes\nGROUP BY day",
           "refId": "A",
           "select": [
             [
@@ -745,7 +754,6 @@
       "type": "timeseries"
     },
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -754,21 +762,17 @@
           "mappings": [
             {
               "options": {
-                "One day": {
+                "0-15%": {
                   "color": "green",
                   "index": 0
                 },
-                "One month": {
-                  "color": "red",
-                  "index": 2
-                },
-                "One week": {
+                "16-45%": {
                   "color": "yellow",
                   "index": 1
                 },
-                "Yearly": {
+                "46-60%": {
                   "color": "red",
-                  "index": 3
+                  "index": 2
                 }
               },
               "type": "value"
@@ -812,7 +816,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.4.0",
       "targets": [
         {
           "format": "table",
@@ -821,7 +825,7 @@
           "orderByCol": "1",
           "orderBySort": "1",
           "rawQuery": true,
-          "rawSql": "SELECT\nCASE WHEN change_fail_rate <= .15 then \"0-15%\"\n     WHEN change_fail_rate < .46 then \"16-45%\"\n     ELSE \"46-60%\" end as change_fail_rate\nFROM \n (SELECT\n  SUM(IF(i.incident_id is NULL, 0, 1)) / COUNT(DISTINCT change_id) as change_fail_rate\n  FROM four_keys.deployments d, d.changes\n  LEFT JOIN four_keys.changes c ON changes = c.change_id\n  LEFT JOIN(SELECT\n          incident_id,\n          change,\n          time_resolved\n          FROM four_keys.incidents i,\n          i.changes change) i ON i.change = changes\n  # Limit to 3 months\n  WHERE d.time_created > TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH))\n  )\nLIMIT 1",
+          "rawSql": "SELECT\nCASE WHEN change_fail_rate <= .15 then \"0-15%\"\n     WHEN change_fail_rate < .46 then \"16-45%\"\n     ELSE \"46-60%\" end as change_fail_rate\nFROM \n (SELECT\n    IF(COUNT(DISTINCT change_id) = 0,0, SUM(IF(i.incident_id is NULL, 0, 1)) / COUNT(DISTINCT change_id)) as change_fail_rate\n  FROM four_keys.deployments d, d.changes\n  LEFT JOIN four_keys.changes c ON changes = c.change_id\n  LEFT JOIN(SELECT\n          incident_id,\n          change,\n          time_resolved\n          FROM four_keys.incidents i,\n          i.changes change) i ON i.change = changes\n  # Limit to 3 months\n  WHERE d.time_created > TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH))\n  )\nLIMIT 1",
           "refId": "A",
           "select": [
             [
@@ -849,14 +853,14 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 30,
+  "schemaVersion": 35,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now/y",
+    "from": "now-90d",
     "to": "now"
   },
   "timepicker": {
@@ -889,5 +893,6 @@
   "timezone": "browser",
   "title": "Four Keys",
   "uid": "yVtwoQ4nk",
-  "version": 3
+  "version": 13,
+  "weekStart": ""
 }
