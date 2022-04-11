@@ -1,50 +1,58 @@
 steps:
-    # remove any detritus left from prior runs
-  - id: Clean
-    name: gcr.io/$PROJECT_ID/fourkeys-builder
-    entrypoint: /bin/bash
+  - name: gcr.io/$PROJECT_ID/fourkeys-builder
     args:
       - '-c'
-      - |
+      - >
         ### Purge state using Terraform
-        
+
         # configure remote terraform backend GCS
+
         cat > backend.tf <<EOF
+
         terraform {
           backend "gcs" {
             bucket  = "$_TARGET_PROJECT-tf-state"
             prefix  = "terraform/state"
           }
         }
+
         EOF
 
         terraform init
+
         TF_LOG=$_TF_LOG \
         TF_VAR_google_project_id='$_TARGET_PROJECT' \
         TF_VAR_google_region='us-central1' \
         TF_VAR_bigquery_region='US' \
         TF_VAR_parsers='["cloud-build","github"]' \
+
         terraform destroy --auto-approve
 
         ### Delete Terraform state
         gsutil -m rm -r gs://$_TARGET_PROJECT-tf-state/terraform || true
 
+
         ### Use gcloud to ensure all resources are gone
         ./ci/project_cleaner.sh --project=$_TARGET_PROJECT || true
 
-        gcloud services disable compute.googleapis.com --project=$_TARGET_PROJECT --force
-        gcloud services disable run.googleapis.com --project=$_TARGET_PROJECT --force
-        gcloud services disable bigquery.googleapis.com --project=$_TARGET_PROJECT --force 
-        gcloud services disable secretmanager.googleapis.com --project=$_TARGET_PROJECT --force
+        gcloud services disable compute.googleapis.com
+        --project=$_TARGET_PROJECT --force
 
-  - id: Install
-    name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+        gcloud services disable run.googleapis.com --project=$_TARGET_PROJECT
+        --force
+
+        gcloud services disable bigquery.googleapis.com
+        --project=$_TARGET_PROJECT --force 
+
+        gcloud services disable secretmanager.googleapis.com
+        --project=$_TARGET_PROJECT --force
+    id: Clean
     entrypoint: /bin/bash
-    dir: "setup"
+  - name: gcr.io/$PROJECT_ID/fourkeys-builder
     args:
       - '-c'
       - |
-        if [ "$_CLEAN_ONLY" = "true" ]; then exit 0
+        if [[ "$_CLEAN_ONLY" == "true" ]]; then exit 0; fi
 
         # configure remote terraform backend GCS
         cat > backend.tf <<EOF
@@ -72,17 +80,20 @@ steps:
         TF_VAR_bigquery_region='US' \
         TF_VAR_parsers='["cloud-build","github"]' \
         ./install.sh
-
-  - id: Check Installation
-    name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+    dir: setup
+    id: Install
     entrypoint: /bin/bash
+  - name: gcr.io/$PROJECT_ID/fourkeys-builder
     args:
       - '-c'
-      - |
-        if [ "$_CLEAN_ONLY" = "true" ]; then exit 0
-        
+      - >
+        if [[ "$_CLEAN_ONLY" == "true" ]]; then exit 0; fi
+
+
         result_check="import sys, json
+
         results = int(json.load(sys.stdin)[0]['vol'])
+
         try:
           if results < 1:
             sys.exit('Table is empty')
@@ -90,36 +101,55 @@ steps:
           sys.exit(e)"
 
         echo "Checking events_raw table"
-        bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
+
+        bq query --format=json --project_id=$_TARGET_PROJECT
+        --use_legacy_sql=false \
+
         'SELECT count(*) as vol FROM four_keys.events_raw' | \
          python3 -c "$result_check"
 
         echo "Checking deployments table"
-        bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
+
+        bq query --format=json --project_id=$_TARGET_PROJECT
+        --use_legacy_sql=false \
+
         'SELECT count(*) as vol FROM four_keys.deployments' | \
          python3 -c "$result_check"
 
         echo "Checking changes table"
-        bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
+
+        bq query --format=json --project_id=$_TARGET_PROJECT
+        --use_legacy_sql=false \
+
         'SELECT count(*) as vol FROM four_keys.changes' | \
          python3 -c "$result_check"
 
         echo "Checking incidents table"
-        bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
+
+        bq query --format=json --project_id=$_TARGET_PROJECT
+        --use_legacy_sql=false \
+
         'SELECT count(*) as vol FROM four_keys.incidents' | \
          python3 -c "$result_check"
 
         echo "Checking connection to dashboard..."
-        DASHBOARD_URL="$(terraform output -raw dashboard_endpoint)/d/yVtwoQ4nk/four-keys?orgId=1"
-        DASHBOARD_HTTP_RESPONSE_CODE=$(curl -LI $${DASHBOARD_URL} -o /dev/null -w '%{http_code}\n' -s)
+
+        DASHBOARD_URL="$(terraform output -raw
+        dashboard_endpoint)/d/yVtwoQ4nk/four-keys?orgId=1"
+
+        DASHBOARD_HTTP_RESPONSE_CODE=$(curl -LI $${DASHBOARD_URL} -o /dev/null
+        -w '%{http_code}\n' -s)
+
         if [ $${DASHBOARD_HTTP_RESPONSE_CODE} == "200" ]; then 
             echo "success" 
         else
             echo "Error validating dashboard URL; received $${DASHBOARD_HTTP_RESPONSE_CODE} from $${DASHBOARD_URL}"
             exit 1
         fi
-         
+    id: Check Installation
+    entrypoint: /bin/bash
+
 substitutions:
-  _TF_LOG: "ERROR"
-  _TARGET_PROJECT: "fourkeys-tf-tests"
-  _CLEAN_ONLY: "false"
+  _TF_LOG: ERROR
+  _TARGET_PROJECT: fourkeys-tf-tests
+  _CLEAN_ONLY: 'false'
