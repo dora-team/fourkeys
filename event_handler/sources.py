@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import hmac
-from hashlib import sha1
+from hashlib import sha256
 import os
 
 from google.cloud import secretmanager
@@ -38,12 +38,12 @@ def github_verification(signature, body):
     if not signature:
         raise Exception("Github signature is empty")
 
-    expected_signature = "sha1="
+    expected_signature = "sha256="
     try:
         # Get secret from Cloud Secret Manager
         secret = get_secret(PROJECT_NAME, "event-handler", "latest")
         # Compute the hashed signature
-        hashed = hmac.new(secret, body, sha1)
+        hashed = hmac.new(secret, body, sha256)
         expected_signature += hashed.hexdigest()
 
     except Exception as e:
@@ -120,7 +120,7 @@ def get_source(headers):
 
 AUTHORIZED_SOURCES = {
     "github": EventSource(
-        "X-Hub-Signature", github_verification
+        "X-Hub-Signature-256", github_verification
         ),
     "gitlab": EventSource(
         "X-Gitlab-Token", simple_token_verification
