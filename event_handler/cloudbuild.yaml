@@ -25,7 +25,7 @@ steps:
   id: push
 
 - # Deploy to Cloud Run
-  name: google/cloud-sdk
+  name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
   args: ['gcloud', 'run', 'deploy', 'event-handler',
          '--image', 'gcr.io/$PROJECT_ID/event-handler:${_TAG}',
          '--region', '${_REGION}',
