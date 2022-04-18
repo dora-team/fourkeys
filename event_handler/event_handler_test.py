@@ -28,23 +28,21 @@ def client():
 
 
 def test_unauthorized_source(client):
-    with pytest.raises(Exception) as e:
-        client.post("/")
+    r = client.post("/", data="Hello")
+    assert r.status_code == 403
 
-    assert "Source not authorized" in str(e.value)
+    r = client.get("/", data="Hello")
+    assert r.status_code == 403
 
 
 def test_missing_signature(client):
-    with pytest.raises(Exception) as e:
-        client.post("/", headers={"User-Agent": "GitHub-Hookshot"})
-
-    assert "Github signature is empty" in str(e.value)
+    r = client.post("/", headers={"User-Agent": "GitHub-Hookshot"})
+    assert r.status_code == 403
 
 
 @mock.patch("sources.get_secret", mock.MagicMock(return_value=b"foo"))
 def test_unverified_signature(client):
-    with pytest.raises(Exception) as e:
-        client.post(
+    r = client.post(
             "/",
             headers={
                 "User-Agent": "GitHub-Hookshot",
@@ -52,7 +50,7 @@ def test_unverified_signature(client):
             },
         )
 
-    assert "Unverified Signature" in str(e.value)
+    assert r.status_code == 403
 
 
 @mock.patch("sources.get_secret", mock.MagicMock(return_value=b"foo"))
