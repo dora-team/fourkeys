@@ -48,8 +48,6 @@ def index():
     verify_signature = auth_source.verification
     try:
         verify_signature(signature, body)
-        if not verify_signature(signature, body):
-            raise Exception("Unable to verify signature")
     except Exception as e:
         abort(403, str(e))
 
