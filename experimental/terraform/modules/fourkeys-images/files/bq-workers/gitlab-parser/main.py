@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import base64
+from datetime import datetime
 import os
 import json
 
@@ -76,7 +77,10 @@ def process_gitlab_event(headers, msg):
     if "Mock" in headers:
         source += "mock"
 
-    types = {"push", "merge_request", "note", "tag_push", "issue", "pipeline", "job"}
+    types = {"push", "merge_request",
+             "note", "tag_push", "issue",
+             "pipeline", "job", "deployment",
+             "build"}
 
     metadata = json.loads(base64.b64decode(msg["data"]).decode("utf-8").strip())
 
@@ -104,6 +108,29 @@ def process_gitlab_event(headers, msg):
         time_created = (
             event_object.get("finished_at") or
             event_object.get("started_at"))
+
+    if event_type in ("deployment"):
+        e_id = metadata["deployment_id"]
+        time_created = metadata["status_changed_at"]
+
+    if event_type in ("build"):
+        e_id = metadata["build_id"]
+        time_created = (
+            metadata.get("build_finished_at") or
+            metadata.get("build_started_at") or
+            metadata.get("build_created_at"))
+
+    # Some timestamps come in a format like "2021-04-28 21:50:00 +0200"
+    # BigQuery does not accept this as a valid format
+    # Removing the extra timezone information below
+    try:
+        dt = datetime.strptime(time_created, '%Y-%m-%d %H:%M:%S %z')
+        time_created = dt.strftime('%Y-%m-%d %H:%M:%S')
+
+    # If the timestamp is not parsed correctly,
+    # we will default to the string from the event payload
+    except Exception:
+        pass
 
     gitlab_event = {
         "event_type": event_type,
