@@ -1,0 +1,20 @@
+on:
+  pull_request:
+    paths:
+      - '**.py'
+  push:
+    paths:
+      - '**.py'
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.7'
+      - run: pip install nox
+      - run: python3 -m nox
