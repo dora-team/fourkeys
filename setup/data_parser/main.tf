@@ -21,16 +21,16 @@ resource "google_cloud_run_service" "parser" {
   }
 
   autogenerate_revision_name = true
-  
+
   metadata {
-    labels = {"created_by":"fourkeys"}
+    labels = { "created_by" : "fourkeys" }
   }
 
 }
 
 resource "google_pubsub_topic" "parser" {
-  name = var.parser_service_name
-  labels = {"created_by":"fourkeys"}
+  name   = var.parser_service_name
+  labels = { "created_by" : "fourkeys" }
 }
 
 resource "google_pubsub_topic_iam_member" "event_handler" {
@@ -51,6 +51,6 @@ resource "google_pubsub_subscription" "parser" {
     }
 
   }
-  labels = {"created_by":"fourkeys"}
+  labels = { "created_by" : "fourkeys" }
 
 }
