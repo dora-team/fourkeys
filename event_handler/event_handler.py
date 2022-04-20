@@ -44,7 +44,7 @@ def index():
     signature = signature_sources.get(auth_source.signature, None)
 
     if not signature:
-        abort(403, "Signature not found in requet headers")
+        abort(403, "Signature not found in request headers")
 
     body = request.data
 
