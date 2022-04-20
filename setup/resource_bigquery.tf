@@ -3,11 +3,21 @@ resource "google_project_service" "bq_api" {
   disable_dependent_services = true
 }
 
+# The BigQuery API can take time to become interactive, so add a delay 
+# before attempting to create resources
+resource "time_sleep" "wait_for_bq_api" {
+  depends_on = [
+    google_project_service.bq_api
+  ]
+
+  create_duration = "30s" # adjust this duration as needed
+}
+
 resource "google_bigquery_dataset" "four_keys" {
   dataset_id = "four_keys"
   location   = var.bigquery_region
   depends_on = [
-    google_project_service.bq_api
+    time_sleep.wait_for_bq_api
   ]
 }
 
@@ -48,7 +58,7 @@ resource "google_bigquery_routine" "func_multiFormatParseTimestamp" {
   dataset_id   = google_bigquery_dataset.four_keys.dataset_id
   routine_id   = "multiFormatParseTimestamp"
   routine_type = "SCALAR_FUNCTION"
-  return_type = "{\"typeKind\" :  \"TIMESTAMP\"}"
+  return_type  = "{\"typeKind\" :  \"TIMESTAMP\"}"
   language     = "SQL"
   arguments {
     name      = "input"
