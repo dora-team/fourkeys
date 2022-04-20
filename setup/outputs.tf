@@ -8,5 +8,5 @@ output "event_handler_secret" {
 }
 
 output "dashboard_endpoint" {
-  value = module.dashboard_service.dashboard_endpoint
+  value = "${module.dashboard_service.dashboard_endpoint}/d/yVtwoQ4nk/four-keys?orgId=1"
 }
