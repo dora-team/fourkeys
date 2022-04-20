@@ -42,15 +42,16 @@ def index():
     auth_source = sources.AUTHORIZED_SOURCES[source]
     signature_sources = {**request.headers, **request.args}
     signature = signature_sources.get(auth_source.signature, None)
+
+    if not signature:
+        abort(403, "Signature not found in requet headers")
+
     body = request.data
 
     # Verify the signature
     verify_signature = auth_source.verification
-    try:
-        if not verify_signature(signature, body):
-            raise Exception("Unable to verify signature")
-    except Exception as e:
-        abort(403, str(e))
+    if not verify_signature(signature, body):
+        abort(403, "Signature does not match expected signature")
 
     # Remove the Auth header so we do not publish it to Pub/Sub
     pubsub_headers = dict(request.headers)
