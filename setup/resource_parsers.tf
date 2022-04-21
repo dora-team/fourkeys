@@ -7,6 +7,7 @@ module "data_parser_service" {
   fourkeys_service_account_email = google_service_account.fourkeys.email
 
   depends_on = [
-    google_project_service.run_api
+    google_project_service.run_api,
+    google_bigquery_dataset.four_keys
   ]
 }
