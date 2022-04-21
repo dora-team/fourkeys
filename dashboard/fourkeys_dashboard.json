@@ -139,8 +139,7 @@
               "options": {
                 "One day": {
                   "color": "purple",
-                  "index": 0,
-                  "text": "Elite Performance"
+                  "index": 0
                 },
                 "One month": {
                   "color": "yellow",
