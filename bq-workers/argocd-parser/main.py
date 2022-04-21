@@ -30,6 +30,8 @@ def index():
     Parses the message, and inserts it into BigQuery.
     """
     event = None
+    if not request.is_json:
+        raise Exception("Expecting JSON payload")
     envelope = request.get_json()
     print(f"envelope recieved: {envelope}")
 
