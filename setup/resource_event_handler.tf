@@ -28,6 +28,7 @@ resource "google_cloud_run_service" "event_handler" {
 
   depends_on = [
     google_project_service.run_api,
+    google_bigquery_dataset.four_keys
   ]
 
   metadata {
