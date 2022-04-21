@@ -1,1 +1,0 @@
-../../../../../../../bq-workers/cloud-build-parser/Dockerfile

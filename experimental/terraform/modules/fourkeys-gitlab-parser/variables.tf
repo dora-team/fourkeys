@@ -1,8 +1,3 @@
-variable "parser_service_name" {
-  type = string
-  description = "Data source name. Must be 'github', 'gitlab', 'cloud-build', or 'tekton'"
-}
-
 variable "project_id" {
   type = string
   description = "Project ID of the target project."
