@@ -16,7 +16,7 @@ import json
 import os
 import sys
 
-from flask import Flask, request
+from flask import abort, Flask, request
 from google.cloud import pubsub_v1
 
 import sources
@@ -37,17 +37,21 @@ def index():
     source = sources.get_source(request.headers)
 
     if source not in sources.AUTHORIZED_SOURCES:
-        raise Exception(f"Source not authorized: {source}")
+        abort(403, f"Source not authorized: {source}")
 
     auth_source = sources.AUTHORIZED_SOURCES[source]
     signature_sources = {**request.headers, **request.args}
     signature = signature_sources.get(auth_source.signature, None)
+
+    if not signature:
+        abort(403, "Signature not found in request headers")
+
     body = request.data
 
     # Verify the signature
     verify_signature = auth_source.verification
     if not verify_signature(signature, body):
-        raise Exception("Unverified Signature")
+        abort(403, "Signature does not match expected signature")
 
     # Remove the Auth header so we do not publish it to Pub/Sub
     pubsub_headers = dict(request.headers)
