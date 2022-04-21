@@ -90,10 +90,7 @@ if [ $GENERATE_DATA == "yes" ]; then
 fi
 
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
-echo "configuring Grafana dashboard…"
-DASHBOARD_URL="$(terraform output -raw dashboard_endpoint)/d/yVtwoQ4nk/four-keys?orgId=1"
-
-echo -e "Please visit ${GREEN}$DASHBOARD_URL${NOCOLOR} to view your data in the dashboard template."
+echo -e "Visit ${GREEN}$(terraform output -raw dashboard_endpoint)${NOCOLOR} to view your data in the dashboard template."
 
 if [[ ! -z "$CICD_SYSTEM" ]]; then
     echo "••••••••🔑••🔑••🔑••🔑••••••••"
