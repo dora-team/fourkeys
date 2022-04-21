@@ -139,7 +139,7 @@
               "options": {
                 "One day": {
                   "color": "purple",
-                  "index": 0,
+                  "index": 0
                 },
                 "One month": {
                   "color": "yellow",
