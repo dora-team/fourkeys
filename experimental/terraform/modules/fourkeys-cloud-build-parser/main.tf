@@ -9,14 +9,15 @@ locals {
 }
 
 resource "google_project_service" "data_source_services" {
+  project                    = var.project_id
   for_each                   = toset(local.services)
   service                    = each.value
   disable_on_destroy         = false
 }
 
-resource "google_cloud_run_service" "parser" {
+resource "google_cloud_run_service" "cloudbuild_parser" {
   project  = var.project_id
-  name     = var.parser_service_name
+  name     = "fourkeys-cloudbuild-parser"
   location = var.region
 
   template {
@@ -43,25 +44,25 @@ resource "google_cloud_run_service" "parser" {
   ]
 }
 
-resource "google_pubsub_topic" "parser" {
+resource "google_pubsub_topic" "cloudbuild" {
   project = var.project_id
-  name    = var.parser_service_name
+  name    = "fourkeys-cloudbuild"
 }
 
-resource "google_pubsub_topic_iam_member" "event_handler" {
+resource "google_pubsub_topic_iam_member" "service_account_editor" {
   project = var.project_id
-  topic   = google_pubsub_topic.parser.id
+  topic   = google_pubsub_topic.cloudbuild.id
   role    = "roles/editor"
   member  = "serviceAccount:${var.fourkeys_service_account_email}"
 }
 
-resource "google_pubsub_subscription" "parser" {
+resource "google_pubsub_subscription" "cloudbuild" {
   project = var.project_id
-  name    = "${var.parser_service_name}-subscription"
-  topic   = google_pubsub_topic.parser.id
+  name    = "fourkeys-cloudbuild"
+  topic   = google_pubsub_topic.cloudbuild.id
 
   push_config {
-    push_endpoint = google_cloud_run_service.parser.status[0]["url"]
+    push_endpoint = google_cloud_run_service.cloudbuild_parser.status[0]["url"]
 
     oidc_token {
       service_account_email = var.fourkeys_service_account_email
