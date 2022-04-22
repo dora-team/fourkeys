@@ -105,6 +105,20 @@ resource "google_bigquery_table" "view_incidents" {
   ]
 }
 
+resource "google_project_iam_member" "parser_bq_project_access" {
+  project = google_service_account.fourkeys.project
+  role   = "roles/bigquery.user"
+  member = "serviceAccount:${google_service_account.fourkeys.email}"
+}
+
+resource "google_bigquery_dataset_iam_member" "parser_bq" {
+  project = google_service_account.fourkeys.project
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  role       = "roles/bigquery.dataEditor"
+  member     = "serviceAccount:${google_service_account.fourkeys.email}"
+}
+
+
 resource "google_project_iam_member" "parser_run_invoker" {
   project = google_service_account.fourkeys.project
   member  = "serviceAccount:${google_service_account.fourkeys.email}"
