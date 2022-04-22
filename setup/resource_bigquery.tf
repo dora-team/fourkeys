@@ -14,8 +14,17 @@ resource "time_sleep" "wait_for_bq_api" {
 }
 
 resource "google_bigquery_dataset" "four_keys" {
-  dataset_id = "four_keys"
-  location   = var.bigquery_region
+  dataset_id                 = "four_keys"
+  delete_contents_on_destroy = false
+  location                   = var.bigquery_region
+  access {
+    role          = "OWNER"
+    special_group = "projectOwners"
+  }
+  access {
+    role          = "WRITER"
+    user_by_email = google_service_account.fourkeys.email
+  }
   depends_on = [
     time_sleep.wait_for_bq_api
   ]
@@ -96,18 +105,8 @@ resource "google_bigquery_table" "view_incidents" {
   ]
 }
 
-resource "google_project_iam_member" "parser_bq_project_access" {
-  role   = "roles/bigquery.user"
-  member = "serviceAccount:${google_service_account.fourkeys.email}"
-}
-
-resource "google_bigquery_dataset_iam_member" "parser_bq" {
-  dataset_id = google_bigquery_dataset.four_keys.dataset_id
-  role       = "roles/bigquery.dataEditor"
-  member     = "serviceAccount:${google_service_account.fourkeys.email}"
-}
-
 resource "google_project_iam_member" "parser_run_invoker" {
-  member = "serviceAccount:${google_service_account.fourkeys.email}"
-  role   = "roles/run.invoker"
+  project = google_service_account.fourkeys.project
+  member  = "serviceAccount:${google_service_account.fourkeys.email}"
+  role    = "roles/run.invoker"
 }

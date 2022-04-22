@@ -2,12 +2,14 @@ terraform {
   required_version = ">= 1.0"
   required_providers {
     google = {
-      version = "~> 3.85.0"
+      source  = "hashicorp/google"
+      version = "4.18.0"
     }
   }
 }
 
 resource "google_project_service" "run_api" {
+  project = var.google_project_id
   service = "run.googleapis.com"
 }
 
