@@ -4,8 +4,7 @@ data "google_project" "project" {
 
 locals {
     services = var.enable_apis ? [
-    "run.googleapis.com",
-    "cloudbuild.googleapis.com"
+    "run.googleapis.com"
   ] : []
 }
 
@@ -13,20 +12,6 @@ resource "google_project_service" "data_source_services" {
   for_each                   = toset(local.services)
   service                    = each.value
   disable_on_destroy         = false
-}
-
-module "gcloud_build_data_source" {
-  source                 = "terraform-google-modules/gcloud/google"
-  version                = "~> 2.0"
-  platform               = "linux"
-  additional_components  = []
-  create_cmd_entrypoint  = "gcloud"
-  create_cmd_body        = "builds submit ${path.module}/files/bq-workers/${var.parser_service_name}-parser --tag=gcr.io/${var.project_id}/${var.parser_service_name}-parser --project=${var.project_id}"
-  destroy_cmd_entrypoint = "gcloud"
-  destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/${var.parser_service_name}-parser --quiet"
-  module_depends_on = [
-    google_project_service.data_source_services
-  ]
 }
 
 resource "google_cloud_run_service" "parser" {
@@ -37,7 +22,7 @@ resource "google_cloud_run_service" "parser" {
   template {
     spec {
       containers {
-        image = "gcr.io/${var.project_id}/${var.parser_service_name}-parser"
+        image = var.parser_container_url
         env {
           name  = "PROJECT_NAME"
           value = var.project_id
@@ -54,8 +39,7 @@ resource "google_cloud_run_service" "parser" {
 
   autogenerate_revision_name = true
   depends_on = [
-    google_project_service.data_source_services,
-    module.gcloud_build_data_source
+    google_project_service.data_source_services
   ]
 }
 

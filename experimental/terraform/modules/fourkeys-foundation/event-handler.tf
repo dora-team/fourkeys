@@ -1,15 +1,7 @@
 
 # Event handler resources
 
-module "gcloud_build_event_handler" {
-  source                 = "terraform-google-modules/gcloud/google"
-  version                = "~> 2.0"
-  create_cmd_entrypoint  = "gcloud"
-  create_cmd_body        = "builds submit ${path.module}/files/event_handler --tag=gcr.io/${var.project_id}/event-handler --project=${var.project_id}"
-  destroy_cmd_entrypoint = "gcloud"
-  destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/event-handler --quiet"
-  module_depends_on      = [google_project_service.foundation_services]
-}
+
 
 resource "google_cloud_run_service" "event_handler" {
   name     = "event-handler"
@@ -19,7 +11,7 @@ resource "google_cloud_run_service" "event_handler" {
   template {
     spec {
       containers {
-        image = "gcr.io/${var.project_id}/event-handler"
+        image = var.event_handler_container_url
         env {
           name  = "PROJECT_NAME"
           value = var.project_id
@@ -35,8 +27,6 @@ resource "google_cloud_run_service" "event_handler" {
   }
 
   autogenerate_revision_name = true
-
-  depends_on = [google_project_service.foundation_services, module.gcloud_build_event_handler]
 }
 
 resource "google_cloud_run_service_iam_binding" "noauth" {

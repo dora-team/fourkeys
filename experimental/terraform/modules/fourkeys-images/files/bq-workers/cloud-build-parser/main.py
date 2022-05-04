@@ -30,11 +30,11 @@ def index():
     Parses the message, and inserts it into BigQuery.
     """
     event = None
+    # Check request for JSON
+    if not request.is_json:
+        raise Exception("Expecting JSON payload")
     envelope = request.get_json()
 
-    # Check that data has been posted
-    if not envelope:
-        raise Exception("Expecting JSON payload")
     # Check that message is a valid pub/sub message
     if "message" not in envelope:
         raise Exception("Not a valid Pub/Sub Message")
@@ -45,14 +45,9 @@ def index():
 
     try:
         attr = msg["attributes"]
-
-        # Header Event info
-        if "headers" in attr:
-            headers = json.loads(attr["headers"])
-
-            # Process Gitlab Events
-            if "X-Gitlab-Event" in headers:
-                event = process_gitlab_event(headers, msg)
+        # Process Cloud Build event
+        if "buildId" in attr:
+            event = process_cloud_build_event(attr, msg)
 
         shared.insert_row_into_bigquery(event)
 
@@ -68,55 +63,30 @@ def index():
     return "", 204
 
 
-def process_gitlab_event(headers, msg):
+def process_cloud_build_event(attr, msg):
+    event_type = "build"
+    e_id = attr["buildId"]
+
     # Unique hash for the event
     signature = shared.create_unique_id(msg)
-    source = "gitlab"
 
-    if "Mock" in headers:
-        source += "mock"
-
-    types = {"push", "merge_request", "note", "tag_push", "issue", "pipeline", "job"}
-
+    # Payload
     metadata = json.loads(base64.b64decode(msg["data"]).decode("utf-8").strip())
 
-    event_type = metadata["object_kind"]
+    # Most up to date timestamp for the event
+    time_created = (metadata.get("finishTime") or metadata.get("startTime") or metadata.get("createTime"))
 
-    if event_type not in types:
-        raise Exception("Unsupported Gitlab event: '%s'" % event_type)
-
-    if event_type in ("push", "tag_push"):
-        e_id = metadata["checkout_sha"]
-        for commit in metadata["commits"]:
-            if commit["id"] == e_id:
-                time_created = commit["timestamp"]
-
-    if event_type in ("merge_request", "note", "issue", "pipeline"):
-        event_object = metadata["object_attributes"]
-        e_id = event_object["id"]
-        time_created = (
-            event_object.get("updated_at") or
-            event_object.get("finished_at") or
-            event_object.get("created_at"))
-
-    if event_type in ("job"):
-        e_id = metadata["build_id"]
-        time_created = (
-            event_object.get("finished_at") or
-            event_object.get("started_at"))
-
-    gitlab_event = {
+    build_event = {
         "event_type": event_type,
         "id": e_id,
         "metadata": json.dumps(metadata),
-        # If time_created not supplied by event, default to pub/sub publishTime
-        "time_created": time_created or msg["publishTime"],
+        "time_created": time_created,
         "signature": signature,
         "msg_id": msg["message_id"],
-        "source": source,
+        "source": "cloud_build",
     }
 
-    return gitlab_event
+    return build_event
 
 
 if __name__ == "__main__":

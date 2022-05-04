@@ -13,6 +13,10 @@ resource "google_cloud_run_service" "dashboard" {
           name  = "PROJECT_NAME"
           value = var.google_project_id
         }
+        env {
+          name  = "BQ_REGION"
+          value = var.bigquery_region
+        }
       }
       service_account_name = var.fourkeys_service_account_email
     }
@@ -23,7 +27,7 @@ resource "google_cloud_run_service" "dashboard" {
     latest_revision = true
   }
   metadata {
-    labels = {"created_by":"fourkeys"}
+    labels = { "created_by" : "fourkeys" }
   }
   autogenerate_revision_name = true
 }

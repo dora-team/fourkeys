@@ -29,3 +29,27 @@ variable "enable_apis" {
   description = "Toggle to include required APIs."
   default     = false
 }
+
+variable "enable_build_images" {
+  type        = bool
+  description = "Toggle to build fourkeys images and upload to container registry. If set to false, URLs for images must be provided via the container_url variables"
+  default     = true
+}
+
+variable "event_handler_container_url" {
+  type = string
+  description = "If 'enable_build_images' is set to false, this is the URL for the event_handler container image."
+  default = ""
+}
+
+variable "dashboard_container_url" {
+  type = string
+  description = "If 'enable_build_images' is set to false, this is the URL for the dashboard container image."
+  default = ""
+}
+
+variable "parser_container_urls" {
+  type = map(any)
+  description = "If 'enable_build_images' is set to false, this is the URL for the parser container images. e.g: {'github': 'gcr.io/youproject/github-parser', 'gitlab': 'gcr.io/youproject/gitlab-parser'} "
+  default = {}
+}

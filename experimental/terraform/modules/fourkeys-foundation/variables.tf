@@ -14,3 +14,8 @@ variable "enable_apis" {
   description = "Toggle to include required APIs."
   default = false
 }
+
+variable "event_handler_container_url" {
+  type = string
+  description = "URL of event handler container for Cloud Run configuration"
+}
