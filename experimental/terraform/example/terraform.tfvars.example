@@ -1,0 +1,11 @@
+project_id = "<PROJECT_ID>"
+enable_apis = <ENABLE_APIS>
+enable_build_images = <ENABLE_BUILD_IMAGES>
+region = "<REGION>"
+bigquery_region = "<BIGQUERY_REGION>"
+parsers = ["<PARSER>", "<PARSER>"]
+event_handler_container_url = "<EVENT_HANDLER_CONTAINER_URL>"
+dashboard_container_url = "<DASHBOARD_CONTAINER_URL>"
+parser_container_urls = {
+    '<PARSER_NAME>': '<PARSER_URL>'
+}

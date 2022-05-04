@@ -35,8 +35,6 @@ def github_verification(signature, body):
     """
     Verifies that the signature received from the github event is accurate
     """
-    if not signature:
-        raise Exception("Github signature is empty")
 
     expected_signature = "sha1="
     try:
@@ -56,8 +54,6 @@ def circleci_verification(signature, body):
     """
     Verifies that the signature received from the circleci event is accurate
     """
-    if not signature:
-        raise Exception("CircleCI signature is empty")
 
     expected_signature = "v1="
     try:
