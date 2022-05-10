@@ -64,6 +64,7 @@ steps:
         FOURKEYS_REGION='us-central1' \
         BIGQUERY_REGION='US' \
         GENERATE_DATA='yes' \
+        INCIDENT_SYSTEM='pagerduty' \
         TF_LOG=$_TF_LOG \
         TF_VAR_google_project_id='$_TARGET_PROJECT' \
         TF_VAR_google_region='us-central1' \
