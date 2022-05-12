@@ -191,3 +191,46 @@ Four Keys uses GitLab and/or GitHub issues to track incidents.
 1.  In the body of the issue, input `root cause: {SHA of the commit}`.
 
 When the incident is resolved, close the issue. Four Keys will measure the incident from the time of the deployment to when the issue is closed.
+
+#### Pager Duty Support
+If Pager Duty support is enabled (passed via the `parsers` variable), this secret is required and used for verifying Pager Duty events received belong to us.
+
+To create this secret:
+
+1. You will need a [Pager Duty General Access REST API Key](https://support.pagerduty.com/docs/api-access-keys#section-generate-a-general-access-rest-api-key). These can only be created by users that are >=Global Admin.
+2. Using said API key, [create a webhook subscription](https://developer.pagerduty.com/api-reference/b3A6MjkyNDc4NA-create-a-webhook-subscription). The example below creates an account-wide subscription, but depending on your Four Keys architecture, you could choose to create individual subscriptions per-project or service.
+
+```
+API_TOKEN=<your_api_token>
+FOURKEYS_ENDPOINT=<your_fourkeys_endpoint>
+curl-- location-- request POST
+  'https://api.pagerduty.com/webhook_subscriptions'-- header
+  'Authorization: Token token=${API_TOKEN}'-- header
+  'Content-Type: application/json'-- header
+  'Accept: application/vnd.pagerduty+json;version=2'-- data - raw '{
+    "webhook_subscription": {
+      "delivery_method": {
+        "type": "http_delivery_method",
+        "url": "${FOURKEYS_ENDPOINT}"
+      },
+      "description": "Sends PagerDuty v3 webhook events to DORA metrics.",
+      "events": [
+        "incident.resolved",
+        "incident.triggered"
+      ],
+      "filter": {
+        "type": "account_reference"
+      },
+      "type": "webhook_subscription"
+    }
+  }'
+```
+
+3. The Pager Duty webhook subscription creation API response will include a secret (_only_ returned on creation). This secret needs to be stored in Secret Manager in your Four Keys project as `pager_duty_secret`.
+
+```
+SECRET=<your_pager_duty_secret>
+echo $SECRET | tr -d '\n' | gcloud beta secrets create pager_duty_secret \
+    --replication-policy=automatic \
+    --data-file=-
+```
