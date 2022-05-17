@@ -44,8 +44,8 @@ This diagram shows the design of the Four Keys system:
 
 * `bq-workers/`
   * Contains the code for the individual BigQuery workers.  Each data source has its own worker service with the logic for parsing the data from the Pub/Sub message. For example, GitHub has its own worker which only looks at events pushed to the GitHub-Hookshot Pub/Sub topic
-* `connectors/`
-  * Contains the code for the DataStudio Connector which generates the Four Keys Dashboard
+* `dashboard/`
+  * Contains the code for the Grafana dashboard displaying the Four Keys metrics
 * `data_generator/`
   * Contains a Python script for generating mock GitHub or Gitlab data.
 * `event_handler/`
@@ -69,7 +69,7 @@ _The project uses Python 3 and supports data extraction for Cloud Build and GitH
     1.  Create the Pub/Sub topics and subscriptions.
     1.  Enable the Google Secret Manager and create a secret for your GitHub repo.
     1.  Create a BigQuery dataset, tables and views.
-    1.  Open up a browser tab to connect your data to a DataStudio dashboard template.
+    1.  Output a URL for the newly generated Grafana dashboard. 
 1.  Set up your development environment to send events to the webhook created in the second step.
     1.  Add the secret to your GitHub webhook.
 
