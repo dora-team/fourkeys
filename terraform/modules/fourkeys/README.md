@@ -1,6 +1,18 @@
+## Usage
+Deploy FourKeys with Github parser and default values:
+
+```hcl
+module "fourkeys" {
+  source    = "github.com/GoogleCloudPlatform/fourkeys//terraform/modules/fourkeys"
+  parsers   = ['github']
+}
+```
+
 ## Requirements
 
-No requirements.
+| Name | Version |
+|------|---------|
+| <a name="requirement_google"></a> [google](#requirement\_google) | >= 4.17.0 |
 
 ## Providers
 
