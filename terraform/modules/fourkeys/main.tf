@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = ">= 4.17.0"
+    }
+  }
+}
+
 locals {
   event_handler_container_url = var.enable_build_images ? format("gcr.io/%s/event-handler", var.project_id) : var.event_handler_container_url
   dashboard_container_url     = var.enable_build_images ? format("gcr.io/%s/fourkeys-grafana-dashboard", var.project_id) : var.dashboard_container_url
@@ -51,11 +60,11 @@ module "bigquery" {
 }
 
 module "github_parser" {
-  source = "../fourkeys-github-parser"
-  count = contains(var.parsers, "github") ? 1 : 0
-  project_id  = var.project_id
-  parser_container_url = local.parser_container_urls["github"]
-  region  = var.region
+  source                         = "../fourkeys-github-parser"
+  count                          = contains(var.parsers, "github") ? 1 : 0
+  project_id                     = var.project_id
+  parser_container_url           = local.parser_container_urls["github"]
+  region                         = var.region
   fourkeys_service_account_email = module.foundation.fourkeys_service_account_email
   enable_apis                    = var.enable_apis
   depends_on = [
@@ -64,11 +73,11 @@ module "github_parser" {
 }
 
 module "gitlab_parser" {
-  source = "../fourkeys-gitlab-parser"
-  count = contains(var.parsers, "gitlab") ? 1 : 0
-  project_id  = var.project_id
-  parser_container_url = local.parser_container_urls["gitlab"]
-  region  = var.region
+  source                         = "../fourkeys-gitlab-parser"
+  count                          = contains(var.parsers, "gitlab") ? 1 : 0
+  project_id                     = var.project_id
+  parser_container_url           = local.parser_container_urls["gitlab"]
+  region                         = var.region
   fourkeys_service_account_email = module.foundation.fourkeys_service_account_email
   enable_apis                    = var.enable_apis
   depends_on = [
@@ -77,11 +86,11 @@ module "gitlab_parser" {
 }
 
 module "tekton_parser" {
-  source = "../fourkeys-tekton-parser"
-  count = contains(var.parsers, "tekton") ? 1 : 0
-  project_id  = var.project_id
-  parser_container_url = local.parser_container_urls["tekton"]
-  region  = var.region
+  source                         = "../fourkeys-tekton-parser"
+  count                          = contains(var.parsers, "tekton") ? 1 : 0
+  project_id                     = var.project_id
+  parser_container_url           = local.parser_container_urls["tekton"]
+  region                         = var.region
   fourkeys_service_account_email = module.foundation.fourkeys_service_account_email
   enable_apis                    = var.enable_apis
   depends_on = [
@@ -90,11 +99,11 @@ module "tekton_parser" {
 }
 
 module "cloud_build_parser" {
-  source = "../fourkeys-cloud-build-parser"
-  count = contains(var.parsers, "cloud-build") ? 1 : 0
-  project_id  = var.project_id
-  parser_container_url = local.parser_container_urls["cloud-build"]
-  region  = var.region
+  source                         = "../fourkeys-cloud-build-parser"
+  count                          = contains(var.parsers, "cloud-build") ? 1 : 0
+  project_id                     = var.project_id
+  parser_container_url           = local.parser_container_urls["cloud-build"]
+  region                         = var.region
   fourkeys_service_account_email = module.foundation.fourkeys_service_account_email
   enable_apis                    = var.enable_apis
   depends_on = [
