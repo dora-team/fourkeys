@@ -1,1 +1,1 @@
-../../../../../queries/changes.sql
+../../../../queries/changes.sql
