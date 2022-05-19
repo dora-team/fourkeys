@@ -1,1 +1,1 @@
-../../../../../queries/incidents.sql
+../../../../queries/incidents.sql

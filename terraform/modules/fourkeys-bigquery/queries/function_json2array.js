@@ -1,1 +1,1 @@
-../../../../../queries/function_json2array.js
+../../../../queries/function_json2array.js

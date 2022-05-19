@@ -1,1 +1,1 @@
-../../../../../queries/deployments.sql
+../../../../queries/deployments.sql
