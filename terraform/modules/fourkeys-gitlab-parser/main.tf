@@ -3,7 +3,7 @@ data "google_project" "project" {
 }
 
 locals {
-    services = var.enable_apis ? [
+  services = var.enable_apis ? [
     "run.googleapis.com"
   ] : []
 }
@@ -46,7 +46,7 @@ resource "google_cloud_run_service" "gitlab_parser" {
 
 resource "google_pubsub_topic" "gitlab" {
   project = var.project_id
-  name    = "fourkeys-gitlab"
+  name    = "gitlab"
 }
 
 resource "google_pubsub_topic_iam_member" "service_account_editor" {
@@ -58,7 +58,7 @@ resource "google_pubsub_topic_iam_member" "service_account_editor" {
 
 resource "google_pubsub_subscription" "gitlab" {
   project = var.project_id
-  name    = "fourkeys-gitlab"
+  name    = "gitlab"
   topic   = google_pubsub_topic.gitlab.id
 
   push_config {
