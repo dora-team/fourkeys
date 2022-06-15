@@ -8,5 +8,5 @@ output "event_handler_secret" {
 }
 
 output "dashboard_endpoint" {
-  value = module.dashboard.dashboard_endpoint
+  value = google_cloud_run_service.dashboard.status[0]["url"]
 }
