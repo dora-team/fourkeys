@@ -1,12 +1,12 @@
 resource "google_cloud_run_service" "dashboard" {
   name     = "fourkeys-grafana-dashboard"
   location = var.region
-  project = var.project_id
+  project  = var.project_id
   template {
     spec {
       containers {
         ports {
-          name  = "http1"
+          name           = "http1"
           container_port = 3000
         }
         image = local.dashboard_container_url
@@ -24,7 +24,7 @@ resource "google_cloud_run_service" "dashboard" {
     latest_revision = true
   }
   metadata {
-    labels = {"created_by":"fourkeys"}
+    labels = { "created_by" : "fourkeys" }
   }
   autogenerate_revision_name = true
   depends_on = [
