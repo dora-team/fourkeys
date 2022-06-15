@@ -1,6 +1,6 @@
 # Four Keys Terraform
 
-**This Terraform is still under developement and may be missing some resources that would be deployed with [`setup.sh`](https://github.com/GoogleCloudPlatform/fourkeys/blob/main/setup/setup.sh)**
+🚧 **This Terraform is still under developement and may be missing some resources that would be deployed with [`setup.sh`](https://github.com/GoogleCloudPlatform/fourkeys/blob/main/setup/setup.sh)**
 
 This directory contains modules and examples for deploying Four Keys with Terraform. The primary module `modules/fourkeys` uses the other sub-modules to deploy resources to a provided Google Cloud Project.  
 
@@ -26,12 +26,13 @@ module "fourkeys" {
 }
 ```
 
-## Deploying with Terraform
-
+## Before you begin
 To deploy Four Keys with Terraform, you will first need:
-* A Google Cloud project
-* Terraform installed on your local machine. We recommend deploying from [Cloud Shell](https://shell.cloud.google.com/?show=ide%2Cterminal) on your Google Cloud project.
+* A Google Cloud project with billing enabled
+* The owner role assigned to you on the project
+* The [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) and [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli) installed on your local machine. We recommend deploying from [Cloud Shell](https://shell.cloud.google.com/?show=ide%2Cterminal) on your Google Cloud project.
 
+## Deploying with Terraform
 1. Clone the fourkeys git repository, or copy the files in the `terraform/example` directory to your working directory
 
 1. Rename `terraform.tfvars.example` to `terraform.tfvars`
@@ -47,7 +48,6 @@ To deploy Four Keys with Terraform, you will first need:
     `terraform apply` to deploy the resources.
 
 ## Generating mock data
-
 To test your Four Keys deployment, you can generate mock data that simulates events from a Github repository.  
 
 1. Export your event handler URL an environment variable. This the webhook URL that will receive events:
