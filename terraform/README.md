@@ -1,9 +1,11 @@
 # Four Keys Terraform
 
+**This Terraform is still under developement and may be missing some resources that would be deployed with [`setup.sh`](https://github.com/GoogleCloudPlatform/fourkeys/blob/main/setup/setup.sh)**
+
 This directory contains modules and examples for deploying Four Keys with Terraform. The primary module `modules/fourkeys` uses the other sub-modules to deploy resources to a provided Google Cloud Project.  
 
 ## Usage
-Simple usage:
+This is an example of deploying fourkeys as a remote Terraform module from [this GitHub project](https://github.com/GoogleCloudPlatform/fourkeys):
 
 ```hcl
 module "fourkeys" {
@@ -13,6 +15,16 @@ module "fourkeys" {
 }
 ```
 The example above will deploy Four Keys with a Github parser for Github events. See the `terraform/example` directory for full example and options. 
+
+Alternatively, you can fork the fourkeys project and deploy as a local module from the `terraform/example` directory:
+
+```hcl
+module "fourkeys" {
+  source    = "../modules/fourkeys"
+  project_id = "your-google-cloud-project-id"
+  parsers   = ['github']
+}
+```
 
 ## Deploying with Terraform
 
