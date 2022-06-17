@@ -67,7 +67,8 @@ else
     read -p "
     Which incident management system(s) are you using? 
     (1) PagerDuty
-    (2) Other
+    (2) Sentry
+    (3) Other
 
     Enter a selection (1 - 2): " incident_system_id
 
@@ -88,7 +89,7 @@ printf "\n"
 GIT_SYSTEM=""
 CICD_SYSTEM=""
 INCIDENT_SYSTEM=""
-PAGERDUTY_SECRET=""
+INCIDENT_SYSTEM_SECRET=""
 
 case $git_system_id in
     1) GIT_SYSTEM="gitlab" ;;
@@ -105,12 +106,13 @@ case $cicd_system_id in
 esac
 
 case $incident_system_id in
-    1) INCIDENT_SYSTEM="pagerduty"; read -p "Please enter the PagerDuty Signature Verification Token: " PAGERDUTY_SECRET ;;
+    1) INCIDENT_SYSTEM="pagerduty"; read -p "Please enter the PagerDuty Signature Verification Token: " INCIDENT_SYSTEM_SECRET ;;
+    2) INCIDENT_SYSTEM="sentry"; read -p "Please enter the Sentry Client Secret: " INCIDENT_SYSTEM_SECRET ;;
     *) echo "Please see the documentation to learn how to extend to incident sources other than PagerDuty."
 esac
 
-if [ $PAGERDUTY_SECRET != "" ]; then
-    echo $PAGERDUTY_SECRET | tr -d '\n' | gcloud secrets create pager_duty_secret \
+if [ $INCIDENT_SYSTEM_TOKEN != "" ]; then
+    echo $INCIDENT_SYSTEM_SECRET | tr -d '\n' | gcloud secrets create ${INCIDENT_SYSTEM}_secret \
     --replication-policy=user-managed --locations ${FOURKEYS_REGION} \
     --data-file=-
 fi
