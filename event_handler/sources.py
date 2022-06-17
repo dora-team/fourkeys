@@ -39,7 +39,7 @@ def github_verification(signature, body):
     expected_signature = "sha1="
     try:
         # Get secret from Cloud Secret Manager
-        secret = get_secret(PROJECT_NAME, "event-handler", "latest")
+        secret = get_secret("event-handler")
         # Compute the hashed signature
         hashed = hmac.new(secret, body, sha1)
         expected_signature += hashed.hexdigest()
@@ -58,9 +58,9 @@ def circleci_verification(signature, body):
     expected_signature = "v1="
     try:
         # Get secret from Cloud Secret Manager
-        secret = get_secret(PROJECT_NAME, "event-handler", "latest")
+        secret = get_secret("event-handler")
         # Compute the hashed signature
-        hashed = hmac.new(secret, body, 'sha256')
+        hashed = hmac.new(secret, body, sha256)
         expected_signature += hashed.hexdigest()
 
     except Exception as e:
@@ -85,7 +85,7 @@ def pagerduty_verification(signatures, body):
     expected_signature = "v1="
     try:
         # Get secret from Cloud Secret Manager
-        secret = get_secret(PROJECT_NAME, "pager_duty_secret", "latest")
+        secret = get_secret("pager_duty_secret")
 
         # Compute the hashed signature
         hashed = hmac.new(secret, body, sha256)
@@ -106,21 +106,20 @@ def simple_token_verification(token, body):
     """
     if not token:
         raise Exception("Token is empty")
-    secret = get_secret(PROJECT_NAME, "event-handler", "1")
+    secret = get_secret("event-handler", "1")
 
     return secret.decode() == token
 
 
-def get_secret(project_name, secret_name, version_num):
+def get_secret(secret_name, secret_version="latest"):
     """
     Returns secret payload from Cloud Secret Manager
     """
     try:
         client = secretmanager.SecretManagerServiceClient()
-        name = client.secret_version_path(
-            project_name, secret_name, version_num
-        )
-        secret = client.access_secret_version(name)
+        secret = client.access_secret_version(request={
+            "name": f"projects/{PROJECT_NAME}/secrets/{secret_name}/versions/{secret_version}"
+        })
         return secret.payload.data
     except Exception as e:
         print(e)
