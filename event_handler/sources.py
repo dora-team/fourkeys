@@ -128,7 +128,7 @@ def simple_token_verification(token, body):
     return secret.decode() == token
 
 
-def get_secret(secret_name, secret_version = "latest"):
+def get_secret(secret_name, secret_version="latest"):
     """
     Returns secret payload from Cloud Secret Manager
     """
