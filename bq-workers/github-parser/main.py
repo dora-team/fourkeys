@@ -87,6 +87,8 @@ def process_github_event(headers, msg):
     metadata = json.loads(base64.b64decode(msg["data"]).decode("utf-8").strip())
 
     if event_type == "push":
+        if metadata["deleted"]:
+            raise Exception("Unsupported GitHub event: '%s' when deleted is true" % event_type)
         time_created = metadata["head_commit"]["timestamp"]
         e_id = metadata["head_commit"]["id"]
 
