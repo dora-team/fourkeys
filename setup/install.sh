@@ -44,6 +44,8 @@ echo "Building containers…"
 gcloud services enable cloudbuild.googleapis.com
 gcloud services enable containerregistry.googleapis.com --project=${FOURKEYS_PROJECT}
 gcloud services enable secretmanager.googleapis.com
+gcloud services enable cloudresourcemanager.googleapis.com
+gcloud services enable iam.googleapis.com
 
 PARENT_PROJECTNUM=$(gcloud projects describe $(gcloud config get-value project) --format='value(projectNumber)')
 FOURKEYS_PROJECTNUM=$(gcloud projects describe ${FOURKEYS_PROJECT} --format='value(projectNumber)')
