@@ -37,7 +37,7 @@ def index():
     source = sources.get_source(request.headers)
 
     if source not in sources.AUTHORIZED_SOURCES:
-        print("Source not authorized", source)
+        print(f"Source [{source}] not authorized")
         abort(403, f"Source not authorized: {source}")
 
     auth_source = sources.AUTHORIZED_SOURCES[source]
@@ -45,7 +45,7 @@ def index():
     signature = signature_sources.get(auth_source.signature, None)
 
     if not signature:
-        print("Signature not found in request headers", auth_source.signature)
+        print(f"Signature [{auth_source.signature}] not found in request headers")
         abort(403, "Signature not found in request headers")
 
     body = request.data
@@ -53,7 +53,7 @@ def index():
     # Verify the signature
     verify_signature = auth_source.verification
     if not verify_signature(signature, body):
-        print("Signature does not match expected signature", source)
+        print(f"Signature given by [{source}] does not match expected signature")
         abort(403, "Signature does not match expected signature")
 
     # Remove the Auth header so we do not publish it to Pub/Sub

@@ -119,7 +119,7 @@ def test_sentry_event_processed(client):
                     "Content-Type": "application/json",
                     "Request-ID": "ef0dd634-e830-4aa4-a690-5fca54a11a18",
                     "Sentry-Hook-Resource": "issue",
-                    "Sentry-Hook-Timestamp": "2022-03-06T11:31:64.118160Z",
+                    "Sentry-Hook-Timestamp": "2022-06-20 12:49:49 UTC",
                     "Sentry-Hook-Signature": "<generated_signature>"
                 })
             },
@@ -131,7 +131,7 @@ def test_sentry_event_processed(client):
         "event_type": "issue",
         "id": "3359227809",
         "metadata": data.decode("utf-8"),
-        "time_created": "2022-03-06T11:31:64.118160Z",
+        "time_created": "2022-06-20 12:49:49 UTC",
         "signature": "<generated_signature>",
         "msg_id": "foobar",
         "source": "sentry",
@@ -170,7 +170,7 @@ def test_unsupported_sentry_event_processed(client):
                     "Content-Type": "application/json",
                     "Request-ID": "ef0dd634-e830-4aa4-a690-5fca54a11a18",
                     "Sentry-Hook-Resource": "comment",
-                    "Sentry-Hook-Timestamp": "2022-03-06T11:31:64.118160Z",
+                    "Sentry-Hook-Timestamp": "2022-06-20 12:49:49 UTC",
                     "Sentry-Hook-Signature": "<generated_signature>"
                 })
             },
