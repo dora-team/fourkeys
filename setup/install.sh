@@ -30,7 +30,7 @@
     # google_project_id (FOURKEYS_PROJECT)
     # google_region (FOURKEYS_REGION)
     # bigquery_region (BIGQUERY_REGION)
-    # parsers [(list of VCS and CICD parsers to install)]
+    # parsers [(list of data parsers to install)]
 
 set -eEuo pipefail
 
