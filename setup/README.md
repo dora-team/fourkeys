@@ -45,7 +45,7 @@ This guide describes how to set up Four Keys with your GitHub or GitLab project.
             * Choose the appropriate option for your CICD system, or choose "other" to skip CICD integration
         * _(see `/README.md#extending-to-other-event-sources` to integrate event sources not available during setup)_
     *   Would you like to generate mock data? (y/N)
-        *   If you select yes, a script will run through and send mock GitLab or GitHub events to your event-handler.  This will populate your dashboard with mock data.  The mock data will include the work "mock" in the source. You can generate mock data without using the setup script. See [Generating mock data](../readme.md). 
+        *   If you select yes, a script will run through and send mock GitLab or GitHub events to your event-handler.  This will populate your dashboard with mock data.  The mock data will include the work "mock" in the source. You can generate mock data without using the setup script. See [Generating mock data](../README.md). 
             *   To exclude the mock data from the dashboard, update the SQL script to filter out any source with the word mock in it by adding: `WHERE source not like "%mock"`.
 
 ### Making changes
