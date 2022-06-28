@@ -31,6 +31,7 @@ module "foundation" {
   project_id                  = var.project_id
   event_handler_container_url = local.event_handler_container_url
   enable_apis                 = var.enable_apis
+  region                      = var.region
   depends_on = [
     module.fourkeys_images
   ]
