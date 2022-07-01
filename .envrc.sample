@@ -1,0 +1,5 @@
+export AWS_REGION=ap-northeast-1
+
+## access key for (IAM ARN arn:aws:iam::534312973966:user/terraform)
+export AWS_ACCESS_KEY_ID=
+export AWS_SECRET_ACCESS_KEY=
