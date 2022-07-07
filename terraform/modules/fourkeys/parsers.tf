@@ -4,7 +4,7 @@ module "github_parser" {
   project_id                     = var.project_id
   parser_container_url           = local.parser_container_urls["github"]
   region                         = var.region
-  fourkeys_service_account_email = module.foundation.fourkeys_service_account_email
+  fourkeys_service_account_email = google_service_account.fourkeys.email
   enable_apis                    = var.enable_apis
   depends_on = [
     module.fourkeys_images
@@ -17,7 +17,7 @@ module "gitlab_parser" {
   project_id                     = var.project_id
   parser_container_url           = local.parser_container_urls["gitlab"]
   region                         = var.region
-  fourkeys_service_account_email = module.foundation.fourkeys_service_account_email
+  fourkeys_service_account_email = google_service_account.fourkeys.email
   enable_apis                    = var.enable_apis
   depends_on = [
     module.fourkeys_images
@@ -30,7 +30,7 @@ module "tekton_parser" {
   project_id                     = var.project_id
   parser_container_url           = local.parser_container_urls["tekton"]
   region                         = var.region
-  fourkeys_service_account_email = module.foundation.fourkeys_service_account_email
+  fourkeys_service_account_email = google_service_account.fourkeys.email
   enable_apis                    = var.enable_apis
   depends_on = [
     module.fourkeys_images
@@ -43,7 +43,7 @@ module "cloud_build_parser" {
   project_id                     = var.project_id
   parser_container_url           = local.parser_container_urls["cloud-build"]
   region                         = var.region
-  fourkeys_service_account_email = module.foundation.fourkeys_service_account_email
+  fourkeys_service_account_email = google_service_account.fourkeys.email
   enable_apis                    = var.enable_apis
   depends_on = [
     module.fourkeys_images

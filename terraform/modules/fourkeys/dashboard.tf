@@ -15,7 +15,7 @@ resource "google_cloud_run_service" "dashboard" {
           value = var.project_id
         }
       }
-      service_account_name = module.foundation.fourkeys_service_account_email
+      service_account_name = google_service_account.fourkeys.email
     }
   }
 

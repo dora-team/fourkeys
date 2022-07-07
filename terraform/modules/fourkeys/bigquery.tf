@@ -2,7 +2,7 @@ resource "google_bigquery_dataset_iam_member" "parser_bq" {
   project    = var.project_id
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   role       = "roles/bigquery.dataEditor"
-  member     = "serviceAccount:${module.foundation.fourkeys_service_account_email}"
+  member     = "serviceAccount:${google_service_account.fourkeys}"
 }
 
 resource "google_bigquery_dataset" "four_keys" {
