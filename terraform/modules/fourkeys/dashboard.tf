@@ -32,7 +32,7 @@ resource "google_cloud_run_service" "dashboard" {
   ]
 }
 
-resource "google_cloud_run_service_iam_binding" "noauth" {
+resource "google_cloud_run_service_iam_binding" "dashboard_noauth" {
   location = var.region
   project  = var.project_id
   service  = "fourkeys-grafana-dashboard"

@@ -24,7 +24,7 @@ resource "google_cloud_run_service" "event_handler" {
   autogenerate_revision_name = true
 }
 
-resource "google_cloud_run_service_iam_binding" "noauth" {
+resource "google_cloud_run_service_iam_binding" "event_handler_noauth" {
   location   = var.region
   project    = var.project_id
   service    = google_cloud_run_service.event_handler.name
