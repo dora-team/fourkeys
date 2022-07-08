@@ -109,7 +109,7 @@ case $incident_system_id in
     *) echo "Please see the documentation to learn how to extend to incident sources other than PagerDuty."
 esac
 
-if [ $PAGERDUTY_SECRET != "" ]; then
+if [ "$PAGERDUTY_SECRET" != "" ]; then
     echo $PAGERDUTY_SECRET | tr -d '\n' | gcloud secrets create pager_duty_secret \
     --replication-policy=user-managed --locations ${FOURKEYS_REGION} \
     --data-file=-
