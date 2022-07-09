@@ -37,6 +37,11 @@ To deploy Four Keys with Terraform, you will first need:
 * The [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) and [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli) installed on your local machine. We recommend deploying from [Cloud Shell](https://shell.cloud.google.com/?show=ide%2Cterminal) on your Google Cloud project.
 
 ## Deploying with Terraform
+#TODO: Replace step 1 with rewrite
+1. Terraform will presume that the project you're using will have the relavant images in the container registry. Build the following:
+    - dashboard
+    - event handler
+    - parsers you plan on using
 
 1. Clone the fourkeys git repository, or copy the files in the `terraform/example` directory to your working directory
 
@@ -90,3 +95,10 @@ To test your Four Keys deployment, you can generate mock data that simulates eve
     ```sql
     SELECT * FROM four_keys.events_raw WHERE source = 'githubmock';
     ```
+## Updating Cloud Run Services 
+TODO: replace/rewrite
+
+When an image is updated in your project's container, run the following to recreate the corresponding Cloud Run Service via gcloud:
+``sh
+gcloud run services update RUNSERVICENAME --image gcr.io/cloudbuild-fio-b549/<image>:latest
+``
