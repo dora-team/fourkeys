@@ -20,9 +20,6 @@ resource "google_project_iam_member" "storage_admin" {
   project = var.project_id
   role    = "roles/storage.admin"
   member  = "serviceAccount:${local.cloud_build_service_account}"
-  depends_on = [
-    google_project_service.foundation_services
-  ]
 }
 
 resource "google_project_iam_member" "bigquery_user" {
