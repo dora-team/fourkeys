@@ -8,7 +8,7 @@ steps:
 # TODO: build containers
 
 # debug
-- id: terraform config
+- id: debug
   name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
   entrypoint: /bin/bash
   args:
