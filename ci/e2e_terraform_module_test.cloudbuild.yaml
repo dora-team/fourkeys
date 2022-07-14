@@ -30,6 +30,7 @@ steps:
         project_id = "$_TARGET_PROJECT"
         parsers   = ['github']
       }
+      EOF
 
 # intialize terraform
 - id: terraform init
@@ -39,14 +40,14 @@ steps:
     - '-c'
     - |
       # configure remote terraform backend GCS
-        cat > /workspace/backend.tf <<EOF
-        terraform {
-          backend "gcs" {
-            bucket  = "$_TARGET_PROJECT-tf-state"
-            prefix  = "terraform/state"
-          }
+      cat > /workspace/backend.tf <<EOF
+      terraform {
+        backend "gcs" {
+          bucket  = "$_TARGET_PROJECT-tf-state"
+          prefix  = "terraform/state"
         }
-        EOF
+      }
+      EOF
       terraform init
       terraform validate
 
