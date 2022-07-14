@@ -28,7 +28,7 @@ steps:
       module "fourkeys" {
         source    = "terraform/modules/fourkeys"
         project_id = "$_TARGET_PROJECT"
-        parsers   = ['github']
+        parsers   = ["github"]
       }
       EOF
 
