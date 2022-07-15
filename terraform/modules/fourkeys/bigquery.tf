@@ -1,33 +1,8 @@
-locals {
-    services = var.enable_apis ? [
-    "bigquery.googleapis.com"
-  ] : []
-}
-
-resource "google_project_service" "bigquery_services" {
-  project                    = var.project_id
-  for_each                   = toset(local.services)
-  service                    = each.value
-  disable_on_destroy         = false
-}
-
-resource "google_project_iam_member" "parser_bq_project_access" {
-  project = var.project_id
-  role    = "roles/bigquery.user"
-  member  = "serviceAccount:${var.fourkeys_service_account_email}"
-}
-
 resource "google_bigquery_dataset_iam_member" "parser_bq" {
   project    = var.project_id
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   role       = "roles/bigquery.dataEditor"
-  member     = "serviceAccount:${var.fourkeys_service_account_email}"
-}
-
-resource "google_project_iam_member" "parser_run_invoker" {
-  project = var.project_id
-  member  = "serviceAccount:${var.fourkeys_service_account_email}"
-  role    = "roles/run.invoker"
+  member     = "serviceAccount:${google_service_account.fourkeys.email}"
 }
 
 resource "google_bigquery_dataset" "four_keys" {
@@ -35,7 +10,7 @@ resource "google_bigquery_dataset" "four_keys" {
   dataset_id = "four_keys"
   location   = var.bigquery_region
   depends_on = [
-    google_project_service.bigquery_services
+    google_project_service.fourkeys_services
   ]
 }
 
@@ -46,7 +21,7 @@ resource "google_bigquery_table" "events_raw" {
   schema              = file("${path.module}/files/events_raw_schema.json")
   deletion_protection = false
   depends_on = [
-    google_project_service.bigquery_services
+    google_project_service.fourkeys_services
   ]
 }
 
@@ -60,7 +35,7 @@ resource "google_bigquery_table" "view_changes" {
   }
   deletion_protection = false
   depends_on = [
-    google_project_service.bigquery_services,
+    google_project_service.fourkeys_services,
     google_bigquery_table.events_raw
   ]
 }
@@ -78,16 +53,16 @@ resource "google_bigquery_routine" "func_json2array" {
   }
   definition_body = file("${path.module}/queries/function_json2array.js")
   depends_on = [
-    google_project_service.bigquery_services
+    google_project_service.fourkeys_services
   ]
 }
 
 resource "google_bigquery_routine" "func_multiFormatParseTimestamp" {
-  project    = var.project_id
+  project      = var.project_id
   dataset_id   = google_bigquery_dataset.four_keys.dataset_id
   routine_id   = "multiFormatParseTimestamp"
   routine_type = "SCALAR_FUNCTION"
-  return_type = "{\"typeKind\" :  \"TIMESTAMP\"}"
+  return_type  = "{\"typeKind\" :  \"TIMESTAMP\"}"
   language     = "SQL"
   arguments {
     name      = "input"
@@ -106,7 +81,7 @@ resource "google_bigquery_table" "view_deployments" {
   }
   deletion_protection = false
   depends_on = [
-    google_project_service.bigquery_services,
+    google_project_service.fourkeys_services,
     google_bigquery_table.events_raw,
     google_bigquery_routine.func_json2array
   ]
@@ -122,7 +97,7 @@ resource "google_bigquery_table" "view_incidents" {
   }
   deletion_protection = false
   depends_on = [
-    google_project_service.bigquery_services,
+    google_project_service.fourkeys_services,
     google_bigquery_table.events_raw,
     google_bigquery_table.view_deployments,
     google_bigquery_routine.func_multiFormatParseTimestamp
