@@ -37,19 +37,19 @@ variable "enable_build_images" {
 }
 
 variable "event_handler_container_url" {
-  type = string
+  type        = string
   description = "If 'enable_build_images' is set to false, this is the URL for the event_handler container image."
-  default = ""
+  default     = ""
 }
 
 variable "dashboard_container_url" {
-  type = string
+  type        = string
   description = "If 'enable_build_images' is set to false, this is the URL for the dashboard container image."
-  default = ""
+  default     = ""
 }
 
 variable "parser_container_urls" {
-  type = map(any)
+  type        = map(any)
   description = "If 'enable_build_images' is set to false, this is the URL for the parser container images. e.g: {'github': 'gcr.io/youproject/github-parser', 'gitlab': 'gcr.io/youproject/gitlab-parser'} "
-  default = {}
+  default     = {}
 }

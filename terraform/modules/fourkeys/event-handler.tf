@@ -1,8 +1,3 @@
-
-# Event handler resources
-
-
-
 resource "google_cloud_run_service" "event_handler" {
   name     = "event-handler"
   project  = var.project_id
@@ -11,7 +6,7 @@ resource "google_cloud_run_service" "event_handler" {
   template {
     spec {
       containers {
-        image = var.event_handler_container_url
+        image = local.event_handler_container_url
         env {
           name  = "PROJECT_NAME"
           value = var.project_id
@@ -29,7 +24,7 @@ resource "google_cloud_run_service" "event_handler" {
   autogenerate_revision_name = true
 }
 
-resource "google_cloud_run_service_iam_binding" "noauth" {
+resource "google_cloud_run_service_iam_binding" "event_handler_noauth" {
   location   = var.region
   project    = var.project_id
   service    = google_cloud_run_service.event_handler.name
@@ -44,7 +39,6 @@ resource "google_secret_manager_secret" "event_handler" {
   replication {
     automatic = true
   }
-  depends_on = [google_project_service.foundation_services]
 }
 
 resource "random_id" "event_handler_random_value" {
