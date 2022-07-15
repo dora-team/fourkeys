@@ -3,8 +3,6 @@
 # and then confirm that the dashboard is working correctly
 
 steps:
-# TODO: clean any existing artifacts
-
 # create terraform config
 - id: terraform config
   name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
@@ -41,6 +39,15 @@ steps:
       }
       EOF
       terraform init
+
+# purge existing terraform-created resources
+- id: terraform init
+  name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+  entrypoint: /bin/bash
+  args:
+    - '-c'
+    - |
+      terraform destroy -auto-approve
 
 # apply terraform
 - id: terraform apply
