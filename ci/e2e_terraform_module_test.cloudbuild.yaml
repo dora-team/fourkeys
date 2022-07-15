@@ -58,8 +58,8 @@ steps:
   args:
     - '-c'
     - |
-      export WEBHOOK=`gcloud run services list | grep event-handler | awk '{print $4}'` && \
-      export SECRET=`gcloud secrets versions access 1 --secret=event-handler` && \
+      export WEBHOOK=`gcloud run services list --project=$_TARGET_PROJECT | grep event-handler | awk '{print $4}'` && \
+      export SECRET=`gcloud secrets versions access 1 --secret=event-handler --project=$_TARGET_PROJECT` && \
       python3 data_generator/generate_data.py --vc_system=github
 
 # TODO: validate installation
