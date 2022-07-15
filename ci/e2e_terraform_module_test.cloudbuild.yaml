@@ -41,7 +41,7 @@ steps:
       terraform init
 
 # purge existing terraform-created resources
-- id: terraform init
+- id: terraform destroy
   name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
   entrypoint: /bin/bash
   args:
