@@ -103,6 +103,7 @@ steps:
       export DASHBOARD_URL=`gcloud run services list --project=$_TARGET_PROJECT | grep dashboard | awk '{print $4}'`
       DASHBOARD_URL="$${DASHBOARD_URL}/d/yVtwoQ4nk/four-keys?orgId=1"
 
+      echo "Dashboard URL: $${DASHBOARD_URL}"
       DASHBOARD_HTTP_RESPONSE_CODE=$(curl -LI $${DASHBOARD_URL} -o /dev/null -w '%{http_code}\n' -s)
       if [ $${DASHBOARD_HTTP_RESPONSE_CODE} == "200" ]; then 
           echo "success" 
