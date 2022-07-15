@@ -61,7 +61,7 @@ steps:
   args:
     - '-c'
     - |
-      terraform plan
+      terraform apply
 
 # TODO: test installation
 
