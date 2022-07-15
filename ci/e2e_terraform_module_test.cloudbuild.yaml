@@ -30,7 +30,7 @@ steps:
         project_id = "$_TARGET_PROJECT"
         parsers   = ["github"]
         enable_build_images=true
-        enable_apis=true
+        enable_apis=false
         region="us-east4"
         bigquery_region="US"
       }
