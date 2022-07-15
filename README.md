@@ -56,6 +56,8 @@ This diagram shows the design of the Four Keys system:
   * Contains the code for setting up and tearing down the Four Keys pipeline. Also contains a script for extending the data sources.
 * `shared/`
   * Contains a shared module for inserting data into BigQuery, which is used by the `bq-workers`
+* `terraform/`
+  * Contains Terraform modules and submodules, and examples for deploying Four Keys using Terraform.
 
 # How to use 
 
