@@ -29,6 +29,10 @@ steps:
         source    = "./terraform/modules/fourkeys"
         project_id = "$_TARGET_PROJECT"
         parsers   = ["github"]
+        enable_build_images=true
+        enable_apis=true
+        region="us-east4"
+        bigquery_region="US"
       }
       EOF
 
@@ -57,13 +61,7 @@ steps:
   args:
     - '-c'
     - |
-      terraform plan \
-        -var='project_id=$_TARGET_PROJECT_ID' \
-        -var='enable_apis=true' \
-        -var='enable_build_images=true' \
-        -var='region=us-east4' \
-        -var='bigquery_region=US' \
-        -var='parsers=["github"]'
+      terraform plan
 
 # TODO: test installation
 
