@@ -62,7 +62,54 @@ steps:
       export SECRET=`gcloud secrets versions access 1 --secret=event-handler --project=$_TARGET_PROJECT` && \
       python3 data_generator/generate_data.py --vc_system=github
 
-# TODO: validate installation
+# validate installation
+- id: validate
+  name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+  entrypoint: /bin/bash
+  args:
+    - '-c'
+    - |
+      result_check="import sys, json
+      results = int(json.load(sys.stdin)[0]['vol'])
+      try:
+        if results < 1:
+          sys.exit('Table is empty')
+      except Exception as e:
+        sys.exit(e)"
 
+      echo "Checking events_raw table"
+      bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
+      'SELECT count(*) as vol FROM four_keys.events_raw' | \
+        python3 -c "$result_check"
+
+      echo "Checking deployments table"
+      bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
+      'SELECT count(*) as vol FROM four_keys.deployments' | \
+        python3 -c "$result_check"
+
+      echo "Checking changes table"
+      bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
+      'SELECT count(*) as vol FROM four_keys.changes' | \
+        python3 -c "$result_check"
+
+      echo "Checking incidents table"
+      bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
+      'SELECT count(*) as vol FROM four_keys.incidents' | \
+        python3 -c "$result_check"
+
+      echo "Checking connection to dashboard..."
+      # DASHBOARD_URL="$(terraform output -raw dashboard_endpoint)"
+
+      export DASHBOARD_URL=`gcloud run services list --project=$_TARGET_PROJECT | grep dashboard | awk '{print $4}'`
+      DASHBOARD_URL="${DASHBOARD_URL}/d/yVtwoQ4nk/four-keys?orgId=1"
+
+      DASHBOARD_HTTP_RESPONSE_CODE=$(curl -LI $${DASHBOARD_URL} -o /dev/null -w '%{http_code}\n' -s)
+      if [ $${DASHBOARD_HTTP_RESPONSE_CODE} == "200" ]; then 
+          echo "success" 
+      else
+          echo "Error validating dashboard URL; received $${DASHBOARD_HTTP_RESPONSE_CODE} from $${DASHBOARD_URL}"
+          exit 1
+      fi
+      
 substitutions:
   _TARGET_PROJECT: fourkeys-testing-target-v1
