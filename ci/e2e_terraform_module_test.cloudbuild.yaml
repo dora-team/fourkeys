@@ -6,55 +6,67 @@ steps:
 # build images
 - id: build event-handler
   name: 'docker'
-  args: [
-    'build', '-t', 'gcr.io/$_TARGET_PROJECT/event-handler:$SHORT_SHA', './event_handler'
-  ]
+  args: ['build', '-t', 'gcr.io/$_TARGET_PROJECT/event-handler:$SHORT_SHA', './event_handler']
+  waitFor: ['-']
 
-# # create terraform config
-# - id: terraform config
-#   name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
-#   entrypoint: /bin/bash
-#   args:
-#     - '-c'
-#     - |
-#       cat > main.tf <<EOF
-#       module "fourkeys" {
-#         source    = "./terraform/modules/fourkeys"
-#         project_id = "$_TARGET_PROJECT"
-#         parsers   = ["github"]
-#         enable_build_images=false
-#         enable_apis=false
-#         region="us-east4"
-#         bigquery_region="US"
-#       }
-#       EOF
+- id: build github parser
+  name: 'docker'
+  args: ['build', '-t', 'gcr.io/$_TARGET_PROJECT/github-parser:$SHORT_SHA', './bq-workers/github-parser']
+  waitFor: ['-']
 
-# # intialize terraform
-# - id: terraform init
-#   name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
-#   entrypoint: /bin/bash
-#   args:
-#     - '-c'
-#     - |
-#       # configure remote terraform backend GCS
-#       cat > /workspace/backend.tf <<EOF
-#       terraform {
-#         backend "gcs" {
-#           bucket  = "$_TARGET_PROJECT-tf-state"
-#           prefix  = "terraform/state"
-#         }
-#       }
-#       EOF
-#       terraform init
+- id: build dashboard
+  name: 'docker'
+  args: ['build', '-t', 'gcr.io/$_TARGET_PROJECT/dashboard:$SHORT_SHA', './dashboard']
+  waitFor: ['-']
 
-# # purge existing terraform-created resources
-# - id: terraform destroy
-#   name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
-#   entrypoint: /bin/bash
-#   args:
-#     - '-c'
-#     - |
-#       terraform destroy -auto-approve
+# create terraform config
+- id: terraform config
+  name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+  entrypoint: /bin/bash
+  args:
+    - '-c'
+    - |
+      cat > main.tf <<EOF
+      module "fourkeys" {
+        source    = "./terraform/modules/fourkeys"
+        project_id = "$_TARGET_PROJECT"
+        parsers   = ["github"]
+        enable_build_images=false
+        enable_apis=false
+        region="us-east4"
+        bigquery_region="US"
+      }
+      EOF
+  waitFor: ['-']
+
+# intialize terraform
+- id: terraform init
+  name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+  entrypoint: /bin/bash
+  args:
+    - '-c'
+    - |
+      # configure remote terraform backend GCS
+      cat > /workspace/backend.tf <<EOF
+      terraform {
+        backend "gcs" {
+          bucket  = "$_TARGET_PROJECT-tf-state"
+          prefix  = "terraform/state"
+        }
+      }
+      EOF
+      terraform init
+  waitFor: ['terraform config']
+
+# purge existing terraform-created resources
+- id: terraform destroy
+  name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+  entrypoint: /bin/bash
+  args:
+    - '-c'
+    - |
+      terraform destroy -auto-approve
+  waitFor: ['terraform init']
 
 # # apply terraform
 # - id: terraform apply
