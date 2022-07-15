@@ -16,7 +16,7 @@ steps:
       module "fourkeys" {
         source    = "./terraform/modules/fourkeys"
         project_id = "$_TARGET_PROJECT"
-        parsers   = []
+        parsers   = ["github"]
         enable_build_images=true
         enable_apis=false
         region="us-east4"
