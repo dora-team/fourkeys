@@ -5,18 +5,6 @@
 steps:
 # TODO: clean any existing artifacts
 
-# [?]TODO: build containers
-
-# debug
-- id: debug
-  name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
-  entrypoint: /bin/bash
-  args:
-    - '-c'
-    - |
-      pwd
-      ls -la
-
 # create terraform config
 - id: terraform config
   name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
@@ -63,8 +51,18 @@ steps:
     - |
       terraform apply -auto-approve
 
-# TODO: test installation
+# generate test data
+- id: generate data
+  name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+  entrypoint: /bin/bash
+  args:
+    - '-c'
+    - |
+      export WEBHOOK=`gcloud run services list | grep event-handler | awk '{print $4}'` && \
+      export SECRET=`gcloud secrets versions access 1 --secret=event-handler` && \
+      python3 data_generator/generate_data.py --vc_system=github
 
+# TODO: validate installation
 
 substitutions:
   _TARGET_PROJECT: fourkeys-testing-target-v1
