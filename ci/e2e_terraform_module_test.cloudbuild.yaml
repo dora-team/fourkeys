@@ -126,5 +126,5 @@ steps:
 #           exit 1
 #       fi
       
-# substitutions:
-#   _TARGET_PROJECT: fourkeys-testing-target-v1
+substitutions:
+  _TARGET_PROJECT: fourkeys-testing-target-v1
