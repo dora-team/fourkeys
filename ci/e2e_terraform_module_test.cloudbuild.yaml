@@ -19,6 +19,22 @@ steps:
   args: ['build', '-t', 'gcr.io/$_TARGET_PROJECT/dashboard:$SHORT_SHA', './dashboard']
   waitFor: ['-']
 
+# push images
+- id: push event handler
+  name: 'docker'
+  args: ['push', '-t', 'gcr.io/$_TARGET_PROJECT/event-handler:$SHORT_SHA']
+  waitFor: ['build event handler']
+
+- id: push github parser
+  name: 'docker'
+  args: ['push', '-t', 'gcr.io/$_TARGET_PROJECT/github-parser:$SHORT_SHA']
+  waitFor: ['build github parser']
+
+- id: push dashboard
+  name: 'docker'
+  args: ['push', '-t', 'gcr.io/$_TARGET_PROJECT/dashboard:$SHORT_SHA']
+  waitFor: ['build dashboard']
+
 # create terraform config
 - id: terraform config
   name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
@@ -79,7 +95,7 @@ steps:
     - '-c'
     - |
       terraform apply -auto-approve
-  waitFor: ['terraform destroy','build event handler','build github parser','build dashboard']
+  waitFor: ['terraform destroy','push event handler','push github parser','push dashboard']
 
 # generate test data
 - id: generate data
