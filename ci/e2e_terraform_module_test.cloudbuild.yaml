@@ -4,7 +4,7 @@
 
 steps:
 # build images
-- id: build event-handler
+- id: build event handler
   name: 'docker'
   args: ['build', '-t', 'gcr.io/$_TARGET_PROJECT/event-handler:$SHORT_SHA', './event_handler']
   waitFor: ['-']
@@ -79,6 +79,7 @@ steps:
     - '-c'
     - |
       terraform apply -auto-approve
+  waitFor: ['terraform destroy','build event handler','build github parser','build dashboard']
 
 # generate test data
 - id: generate data
@@ -90,6 +91,7 @@ steps:
       export WEBHOOK=`gcloud run services list --project=$_TARGET_PROJECT | grep event-handler | awk '{print $4}'` && \
       export SECRET=`gcloud secrets versions access 1 --secret=event-handler --project=$_TARGET_PROJECT` && \
       python3 data_generator/generate_data.py --vc_system=github
+  waitFor: ['terraform apply']
 
 # validate installation
 - id: validate
@@ -140,6 +142,7 @@ steps:
           echo "Error validating dashboard URL; received $${DASHBOARD_HTTP_RESPONSE_CODE} from $${DASHBOARD_URL}"
           exit 1
       fi
-      
+  waitFor: ['generate data']
+
 substitutions:
   _TARGET_PROJECT: fourkeys-testing-target-v1
