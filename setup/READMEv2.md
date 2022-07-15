@@ -73,3 +73,12 @@ To test your Four Keys deployment, you can generate mock data that simulates eve
     ```sql
     SELECT * FROM four_keys.events_raw WHERE source = 'githubmock';
     ```
+
+## Integrating with a live repo
+To measure your team's performance, you need to integrate to your live GitHub or GitLab repo that has ongoing deployments. You can then measure the four key metrics, and experiment with how changes, successful deployments, and failed deployments affect your metrics.
+
+To integrate Four Keys with a live repo, you need to:
+
+1.  [Collect changes data](#collecting-changes-data)
+1.  [Collect deployment data](#collecting-deployment-data)
+1.  [Collect incident data](#collecting-incident-data)
