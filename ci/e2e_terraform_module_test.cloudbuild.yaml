@@ -22,17 +22,17 @@ steps:
 # push images
 - id: push event handler
   name: 'docker'
-  args: ['push', '-t', 'gcr.io/$_TARGET_PROJECT/event-handler:$SHORT_SHA']
+  args: ['push', 'gcr.io/$_TARGET_PROJECT/event-handler:$SHORT_SHA']
   waitFor: ['build event handler']
 
 - id: push github parser
   name: 'docker'
-  args: ['push', '-t', 'gcr.io/$_TARGET_PROJECT/github-parser:$SHORT_SHA']
+  args: ['push', 'gcr.io/$_TARGET_PROJECT/github-parser:$SHORT_SHA']
   waitFor: ['build github parser']
 
 - id: push dashboard
   name: 'docker'
-  args: ['push', '-t', 'gcr.io/$_TARGET_PROJECT/dashboard:$SHORT_SHA']
+  args: ['push', 'gcr.io/$_TARGET_PROJECT/dashboard:$SHORT_SHA']
   waitFor: ['build dashboard']
 
 # create terraform config
