@@ -5,7 +5,7 @@
 steps:
 # TODO: clean any existing artifacts
 
-# TODO: build containers
+# [?]TODO: build containers
 
 # debug
 - id: debug
@@ -49,8 +49,21 @@ steps:
       }
       EOF
       terraform init
-      terraform validate
 
+# apply terraform
+- id: terraform apply
+  name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+  entrypoint: /bin/bash
+  args:
+    - '-c'
+    - |
+      terraform plan \
+        -var='project_id=$_TARGET_PROJECT_ID' \
+        -var='enable_apis=true' \
+        -var='enable_build_images=true' \
+        -var='region=us-east4' \
+        -var='bigquery_region=US' \
+        -var='parsers=["github"]'
 
 # TODO: test installation
 
