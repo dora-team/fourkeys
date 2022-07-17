@@ -34,8 +34,7 @@ def compare_dicts(dict_a, dict_b):
             errors.append(
                 f"type mismatch comparing '{key}': {type(flat_dict_a[key]).__name__} != {type(flat_dict_b[key]).__name__}"
             )
-
-        if isinstance(flat_dict_a[key], str) and len(flat_dict_a[key]) != len(
+        elif isinstance(flat_dict_a[key], str) and len(flat_dict_a[key]) != len(
             flat_dict_b[key]
         ):
             errors.append(

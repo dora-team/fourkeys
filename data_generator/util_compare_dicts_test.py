@@ -9,13 +9,13 @@ def test_flatten():
 
 def test_compare():
     assert util_compare_dicts.compare_dicts(
-        {"x": 2, "y": 3}, {"x": 2, "y": 3}) == "pass"
+        {"x": "bar", "y": "baz"}, {"x": "bar", "y": "baz"}) == "pass"
     assert util_compare_dicts.compare_dicts(
-        {"x": 2, "y": {"z": 3}}, {"x": 2, "y": {"z": 3}}) == "pass"
+        {"x": "bar", "y": {"z": "baz"}}, {"x": "bar", "y": {"z": "baz"}}) == "pass"
 
     assert util_compare_dicts.compare_dicts(
-            {"x": 2, "y": 3}, {"x": 3, "y": 3}) != "pass"
+            {"x": "bar", "y": "baz"}, {"x": "bar", "y": "wrong"}) != "pass"
     assert util_compare_dicts.compare_dicts(
-        {"x": 2, "y": 3}, {"x": "2", "y": 3}) != "pass"
+        {"x": "bar", "y": "baz"}, {"x": "bar", "y": 42}) != "pass"
     assert util_compare_dicts.compare_dicts(
-        {"x": 2, "y": {"z": 3}}, {"x": 2, "y": {"z": "3"}}) != "pass"
+        {"x": "bar", "y": {"z": "baz"}}, {"x": "bar", "y": {"z": "wrong"}}) != "pass"
