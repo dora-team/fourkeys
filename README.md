@@ -48,8 +48,8 @@ This diagram shows the design of the Four Keys system:
   * Contains the code for the Grafana dashboard displaying the Four Keys metrics
 * `data-generator/`
   * Contains a Python script for generating mock GitHub or Gitlab data.
-* `event_handler/`
-  * Contains the code for the `event_handler`, which is the public service that accepts incoming webhooks.  
+* `event-handler/`
+  * Contains the code for the `event-handler`, which is the public service that accepts incoming webhooks.  
 * `queries/`
   * Contains the SQL queries for creating the derived tables.
 * `setup/`

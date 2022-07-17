@@ -93,7 +93,7 @@ fourkeys_project_setup () {
     --role roles/iam.serviceAccountUser
 
   echo "Deploying event-handler..."; set -x
-  cd $DIR/../../event_handler
+  cd $DIR/../../event-handler
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
   set +x; echo
 
