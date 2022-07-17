@@ -46,10 +46,10 @@ This diagram shows the design of the Four Keys system:
   * Contains the code for the individual BigQuery workers.  Each data source has its own worker service with the logic for parsing the data from the Pub/Sub message. For example, GitHub has its own worker which only looks at events pushed to the GitHub-Hookshot Pub/Sub topic
 * `dashboard/`
   * Contains the code for the Grafana dashboard displaying the Four Keys metrics
-* `data_generator/`
+* `data-generator/`
   * Contains a Python script for generating mock GitHub or Gitlab data.
-* `event_handler/`
-  * Contains the code for the `event_handler`, which is the public service that accepts incoming webhooks.  
+* `event-handler/`
+  * Contains the code for the `event-handler`, which is the public service that accepts incoming webhooks.  
 * `queries/`
   * Contains the SQL queries for creating the derived tables.
 * `setup/`
@@ -100,7 +100,7 @@ To run outside of the setup script:
 1. Run the following command:
 
    ```sh
-   python3 data_generator/generate_data.py --vc_system=github
+   python3 data-generator/generate_data.py --vc_system=github
    ```
 
    You can see these events being run through the pipeline:

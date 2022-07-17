@@ -76,7 +76,7 @@ To test your Four Keys deployment, you can generate mock data that simulates eve
 1. From the root of the fourkeys project run:
 
     ```sh
-    python3 data_generator/generate_data.py --vc_system=github
+    python3 data-generator/generate_data.py --vc_system=github
     ```
 
     You can see these events being run through the pipeline:

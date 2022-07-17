@@ -93,7 +93,7 @@ fourkeys_project_setup () {
     --role roles/iam.serviceAccountUser
 
   echo "Deploying event-handler..."; set -x
-  cd $DIR/../../event_handler
+  cd $DIR/../../event-handler
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
   set +x; echo
 
@@ -340,11 +340,11 @@ generate_data(){
   fi
 
   if [[ ${git_system} == "1" ]]
-    then set -x; python3 ${DIR}/../../data_generator/generate_data.py --vc_system=gitlab
+    then set -x; python3 ${DIR}/../../data-generator/generate_data.py --vc_system=gitlab
     set +x
   fi
     if [[ ${git_system} == "2" ]]
-    then set -x; python3 ${DIR}/../../data_generator/generate_data.py --vc_system=github 
+    then set -x; python3 ${DIR}/../../data-generator/generate_data.py --vc_system=github 
     set +x
   fi
   
