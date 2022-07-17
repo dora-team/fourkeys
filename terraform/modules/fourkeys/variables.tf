@@ -36,9 +36,9 @@ variable "enable_build_images" {
   default     = true
 }
 
-variable "event_handler_container_url" {
+variable "event-handler_container_url" {
   type        = string
-  description = "If 'enable_build_images' is set to false, this is the URL for the event_handler container image."
+  description = "If 'enable_build_images' is set to false, this is the URL for the event-handler container image."
   default     = ""
 }
 

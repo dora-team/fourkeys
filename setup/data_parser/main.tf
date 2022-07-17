@@ -33,7 +33,7 @@ resource "google_pubsub_topic" "parser" {
   labels = { "created_by" : "fourkeys" }
 }
 
-resource "google_pubsub_topic_iam_member" "event_handler" {
+resource "google_pubsub_topic_iam_member" "event-handler" {
   topic  = google_pubsub_topic.parser.id
   role   = "roles/editor"
   member = "serviceAccount:${var.fourkeys_service_account_email}"

@@ -15,7 +15,7 @@
 import hmac
 from hashlib import sha1
 
-import event_handler
+import event-handler
 
 import mock
 import pytest
@@ -23,8 +23,8 @@ import pytest
 
 @pytest.fixture
 def client():
-    event_handler.app.testing = True
-    return event_handler.app.test_client()
+    event-handler.app.testing = True
+    return event-handler.app.test_client()
 
 
 def test_unauthorized_source(client):
@@ -55,7 +55,7 @@ def test_unverified_signature(client):
 
 @mock.patch("sources.get_secret", mock.MagicMock(return_value=b"foo"))
 @mock.patch(
-    "event_handler.publish_to_pubsub", mock.MagicMock(return_value=True)
+    "event-handler.publish_to_pubsub", mock.MagicMock(return_value=True)
 )
 def test_verified_signature(client):
     signature = "sha1=" + hmac.new(b"foo", b"Hello", sha1).hexdigest()
@@ -70,7 +70,7 @@ def test_verified_signature(client):
 @mock.patch("sources.get_secret", mock.MagicMock(return_value=b"foo"))
 def test_data_sent_to_pubsub(client):
     signature = "sha1=" + hmac.new(b"foo", b"Hello", sha1).hexdigest()
-    event_handler.publish_to_pubsub = mock.MagicMock(return_value=True)
+    event-handler.publish_to_pubsub = mock.MagicMock(return_value=True)
     headers = {
         "User-Agent": "GitHub-Hookshot",
         "Host": "localhost",
@@ -80,7 +80,7 @@ def test_data_sent_to_pubsub(client):
 
     r = client.post("/", data="Hello", headers=headers)
 
-    event_handler.publish_to_pubsub.assert_called_with(
+    event-handler.publish_to_pubsub.assert_called_with(
         "github", b"Hello", headers
     )
     assert r.status_code == 204

@@ -61,7 +61,7 @@ Step by step, here's what's happening:
 1. Then it invokes `install.sh`, which is responsible for provisioning the infrastructure.
 1. `install.sh` runs `gcloud builds submit` commands to build the application containers that will be used in Cloud Run services.
 1. Then it invokes Terraform, which processes the configuration files (ending in `.tf`) to provision all of the necessary infrastructure into the speficied Cloud project.
-1. If you've chosen to generate mock data, the script then calls the ["data generator" python application](/data_generator/) to submit several synthetic webhook events to the event-handler service that was just created.
+1. If you've chosen to generate mock data, the script then calls the ["data generator" python application](/data-generator/) to submit several synthetic webhook events to the event-handler service that was just created.
 1. Finally, the script prints information about next steps, including configuring webhooks and visiting the dashboard.
 
 ### Managing Terraform State
@@ -111,12 +111,12 @@ If you have an existing installation of The Four Keys, created using the now-dep
 1.  Click **Add Webhook**.
 1.  Get the Event Handler endpoint for your Four Keys service:
     ```bash
-    echo $(terraform output -raw event_handler_endpoint)
+    echo $(terraform output -raw event-handler_endpoint)
     ```
 1.  In the **Add Webhook** interface use the Event Handler endpoint for **Payload URL**.
 1.  Run the following command to get the secret from Google Secrets Manager:
     ```bash
-    echo $(terraform output -raw event_handler_secret)
+    echo $(terraform output -raw event-handler_secret)
     ```
 1.  Put the secret in the box labelled **Secret**.
 1.  For **Content Type**, select **application/json**.
@@ -129,12 +129,12 @@ If you have an existing installation of The Four Keys, created using the now-dep
 1.  Select **Webhooks** from the menu.
 1.  Get the Event Handler endpoint for your Four Keys service by running the following:
     ```bash
-    echo $(terraform output -raw event_handler_endpoint)
+    echo $(terraform output -raw event-handler_endpoint)
     ```
 1.  For **Payload URL**, use the Event Handler endpoint.
 1.  Run the following command to get the secret from Google Secrets Manager:
     ```bash
-    echo $(terraform output -raw event_handler_secret)
+    echo $(terraform output -raw event-handler_secret)
     ```
 1.  Put the secret in the box labelled **Secret Token**.
 1.  Select all the checkboxes.

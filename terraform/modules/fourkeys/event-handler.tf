@@ -1,4 +1,4 @@
-resource "google_cloud_run_service" "event_handler" {
+resource "google_cloud_run_service" "event-handler" {
   name     = "event-handler"
   project  = var.project_id
   location = var.region
@@ -6,7 +6,7 @@ resource "google_cloud_run_service" "event_handler" {
   template {
     spec {
       containers {
-        image = local.event_handler_container_url
+        image = local.event-handler_container_url
         env {
           name  = "PROJECT_NAME"
           value = var.project_id
@@ -24,16 +24,16 @@ resource "google_cloud_run_service" "event_handler" {
   autogenerate_revision_name = true
 }
 
-resource "google_cloud_run_service_iam_binding" "event_handler_noauth" {
+resource "google_cloud_run_service_iam_binding" "event-handler_noauth" {
   location   = var.region
   project    = var.project_id
-  service    = google_cloud_run_service.event_handler.name
+  service    = google_cloud_run_service.event-handler.name
   role       = "roles/run.invoker"
   members    = ["allUsers"]
-  depends_on = [google_cloud_run_service.event_handler]
+  depends_on = [google_cloud_run_service.event-handler]
 }
 
-resource "google_secret_manager_secret" "event_handler" {
+resource "google_secret_manager_secret" "event-handler" {
   project   = var.project_id
   secret_id = "event-handler"
   replication {
@@ -41,20 +41,20 @@ resource "google_secret_manager_secret" "event_handler" {
   }
 }
 
-resource "random_id" "event_handler_random_value" {
+resource "random_id" "event-handler_random_value" {
   byte_length = "20"
 }
 
-resource "google_secret_manager_secret_version" "event_handler" {
-  secret      = google_secret_manager_secret.event_handler.id
-  secret_data = random_id.event_handler_random_value.hex
-  depends_on  = [google_secret_manager_secret.event_handler]
+resource "google_secret_manager_secret_version" "event-handler" {
+  secret      = google_secret_manager_secret.event-handler.id
+  secret_data = random_id.event-handler_random_value.hex
+  depends_on  = [google_secret_manager_secret.event-handler]
 }
 
-resource "google_secret_manager_secret_iam_member" "event_handler" {
+resource "google_secret_manager_secret_iam_member" "event-handler" {
   project    = var.project_id
-  secret_id  = google_secret_manager_secret.event_handler.id
+  secret_id  = google_secret_manager_secret.event-handler.id
   role       = "roles/secretmanager.secretAccessor"
   member     = "serviceAccount:${google_service_account.fourkeys.email}"
-  depends_on = [google_secret_manager_secret.event_handler, google_secret_manager_secret_version.event_handler]
+  depends_on = [google_secret_manager_secret.event-handler, google_secret_manager_secret_version.event-handler]
 }

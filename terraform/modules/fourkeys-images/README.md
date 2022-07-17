@@ -14,7 +14,7 @@ No requirements.
 |------|--------|---------|
 | <a name="module_gcloud_build_dashboard"></a> [gcloud\_build\_dashboard](#module\_gcloud\_build\_dashboard) | terraform-google-modules/gcloud/google | ~> 2.0 |
 | <a name="module_gcloud_build_data_source"></a> [gcloud\_build\_data\_source](#module\_gcloud\_build\_data\_source) | terraform-google-modules/gcloud/google | ~> 2.0 |
-| <a name="module_gcloud_build_event_handler"></a> [gcloud\_build\_event\_handler](#module\_gcloud\_build\_event\_handler) | terraform-google-modules/gcloud/google | ~> 2.0 |
+| <a name="module_gcloud_build_event-handler"></a> [gcloud\_build\_event\_handler](#module\_gcloud\_build\_event\_handler) | terraform-google-modules/gcloud/google | ~> 2.0 |
 
 ## Resources
 
