@@ -64,13 +64,13 @@ To test your Four Keys deployment, you can generate mock data that simulates eve
 1. Export your event handler URL an environment variable. This the webhook URL that will receive events:
 
     ```sh
-    export WEBHOOK=`gcloud run services list | grep event-handler | awk '{print $4}'`
+    export WEBHOOK=`gcloud run services list | grep event_handler | awk '{print $4}'`
     ```
 
 1. Export your event handler secret to an environment variable. This is the secret used to authenticate events sent to the webhook:
 
     ```sh
-    export SECRET=`gcloud secrets versions access 1 --secret=event-handler`
+    export SECRET=`gcloud secrets versions access 1 --secret=event_handler`
     ```
 
 1. From the root of the fourkeys project run:

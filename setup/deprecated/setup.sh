@@ -92,8 +92,8 @@ fourkeys_project_setup () {
     --member serviceAccount:${FOURKEYS_PROJECTNUM}@cloudbuild.gserviceaccount.com \
     --role roles/iam.serviceAccountUser
 
-  echo "Deploying event-handler..."; set -x
-  cd $DIR/../../event-handler
+  echo "Deploying event_handler..."; set -x
+  cd $DIR/../../event_handler
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
   set +x; echo
 
@@ -165,8 +165,8 @@ fourkeys_project_setup () {
     --member=serviceAccount:$SERVICE_ACCOUNT \
     --role=roles/secretmanager.secretAccessor
 
-  # Check if event-handler secret already exists
-  check_secret=$(gcloud secrets versions access "1" --secret="event-handler" 2>/dev/null)
+  # Check if event_handler secret already exists
+  check_secret=$(gcloud secrets versions access "1" --secret="event_handler" 2>/dev/null)
   if [[ $check_secret ]]
   then
   SECRET=$check_secret
@@ -175,7 +175,7 @@ fourkeys_project_setup () {
   # If not, create and save secret
   SECRET="$(python3 -c 'import secrets 
 print(secrets.token_hex(20))' | tr -d '\n')"
-  echo $SECRET | tr -d '\n' | gcloud beta secrets create event-handler \
+  echo $SECRET | tr -d '\n' | gcloud beta secrets create event_handler \
     --replication-policy=automatic \
     --data-file=-
   fi
@@ -326,7 +326,7 @@ tekton_pipeline(){
 generate_data(){
   gcloud config set project ${FOURKEYS_PROJECT}
   echo "Creating mock data..."; 
-  export WEBHOOK=$(gcloud run services describe event-handler --format="value(status.url)")
+  export WEBHOOK=$(gcloud run services describe event_handler --format="value(status.url)")
   export SECRET=$SECRET
 
   # Create an identity token if running in cloudbuild tests

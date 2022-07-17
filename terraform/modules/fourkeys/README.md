@@ -44,7 +44,7 @@ No resources.
 | <a name="input_dashboard_container_url"></a> [dashboard\_container\_url](#input\_dashboard\_container\_url) | If 'enable\_build\_images' is set to false, this is the URL for the dashboard container image. | `string` | `""` | no |
 | <a name="input_enable_apis"></a> [enable\_apis](#input\_enable\_apis) | Toggle to include required APIs. | `bool` | `false` | no |
 | <a name="input_enable_build_images"></a> [enable\_build\_images](#input\_enable\_build\_images) | Toggle to build fourkeys images and upload to container registry. If set to false, URLs for images must be provided via the container\_url variables | `bool` | `true` | no |
-| <a name="input_event-handler_container_url"></a> [event\_handler\_container\_url](#input\_event\_handler\_container\_url) | If 'enable\_build\_images' is set to false, this is the URL for the event\_handler container image. | `string` | `""` | no |
+| <a name="input_event_handler_container_url"></a> [event\_handler\_container\_url](#input\_event\_handler\_container\_url) | If 'enable\_build\_images' is set to false, this is the URL for the event\_handler container image. | `string` | `""` | no |
 | <a name="input_parser_container_urls"></a> [parser\_container\_urls](#input\_parser\_container\_urls) | If 'enable\_build\_images' is set to false, this is the URL for the parser container images. e.g: {'github': 'gcr.io/youproject/github-parser', 'gitlab': 'gcr.io/youproject/gitlab-parser'} | `map(any)` | `{}` | no |
 | <a name="input_parsers"></a> [parsers](#input\_parsers) | List of data parsers to configure. Acceptable values are: 'github', 'gitlab', 'cloud-build', 'tekton' | `list(string)` | n/a | yes |
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | project to deploy four keys resources to | `string` | n/a | yes |
@@ -55,5 +55,5 @@ No resources.
 | Name | Description |
 |------|-------------|
 | <a name="output_dashboard_endpoint"></a> [dashboard\_endpoint](#output\_dashboard\_endpoint) | n/a |
-| <a name="output_event-handler_endpoint"></a> [event\_handler\_endpoint](#output\_event\_handler\_endpoint) | n/a |
-| <a name="output_event-handler_secret"></a> [event\_handler\_secret](#output\_event\_handler\_secret) | n/a |
+| <a name="output_event_handler_endpoint"></a> [event\_handler\_endpoint](#output\_event\_handler\_endpoint) | n/a |
+| <a name="output_event_handler_secret"></a> [event\_handler\_secret](#output\_event\_handler\_secret) | n/a |

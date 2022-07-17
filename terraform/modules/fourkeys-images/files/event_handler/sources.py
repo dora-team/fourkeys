@@ -41,7 +41,7 @@ def github_verification(signature, body):
     expected_signature = "sha1="
     try:
         # Get secret from Cloud Secret Manager
-        secret = get_secret(PROJECT_NAME, "event-handler", "latest")
+        secret = get_secret(PROJECT_NAME, "event_handler", "latest")
         # Compute the hashed signature
         hashed = hmac.new(secret, body, sha1)
         expected_signature += hashed.hexdigest()
@@ -62,7 +62,7 @@ def circleci_verification(signature, body):
     expected_signature = "v1="
     try:
         # Get secret from Cloud Secret Manager
-        secret = get_secret(PROJECT_NAME, "event-handler", "latest")
+        secret = get_secret(PROJECT_NAME, "event_handler", "latest")
         # Compute the hashed signature
         hashed = hmac.new(secret, body, 'sha256')
         expected_signature += hashed.hexdigest()
@@ -79,7 +79,7 @@ def simple_token_verification(token, body):
     """
     if not token:
         raise Exception("Token is empty")
-    secret = get_secret(PROJECT_NAME, "event-handler", "1")
+    secret = get_secret(PROJECT_NAME, "event_handler", "1")
 
     return secret.decode() == token
 

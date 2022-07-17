@@ -50,7 +50,7 @@ FOURKEYS_PROJECTNUM=$(gcloud projects describe ${FOURKEYS_PROJECT} --format='val
 gcloud projects add-iam-policy-binding ${FOURKEYS_PROJECT} --member="serviceAccount:${PARENT_PROJECTNUM}@cloudbuild.gserviceaccount.com" --role="roles/storage.admin"
 
 # launch container builds in background/parallel
-gcloud builds submit ../event-handler --tag=gcr.io/${FOURKEYS_PROJECT}/event-handler --project=${PARENT_PROJECT} > event-handler.containerbuild.log & 
+gcloud builds submit ../event_handler --tag=gcr.io/${FOURKEYS_PROJECT}/event_handler --project=${PARENT_PROJECT} > event_handler.containerbuild.log & 
 
 if [[ ! -z "$GIT_SYSTEM" ]]; then
     gcloud builds submit ../bq-workers/${GIT_SYSTEM}-parser --tag=gcr.io/${FOURKEYS_PROJECT}/${GIT_SYSTEM}-parser --project=${PARENT_PROJECT} > ${GIT_SYSTEM}-parser.containerbuild.log & 
@@ -86,13 +86,13 @@ if [ $GENERATE_DATA == "yes" ]; then
     then
     TOKEN=$(curl -X POST -H "content-type: application/json" \
         -H "Authorization: Bearer $(gcloud auth print-access-token)" \
-        -d "{\"audience\": \"$(terraform output -raw event-handler_endpoint)\"}" \
+        -d "{\"audience\": \"$(terraform output -raw event_handler_endpoint)\"}" \
         "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/fourkeys@${FOURKEYS_PROJECT}.iam.gserviceaccount.com:generateIdToken" | \
         python3 -c "import sys, json; print(json.load(sys.stdin)['token'])")
     fi
     
     echo "generating data…"
-    WEBHOOK=$(terraform output -raw event-handler_endpoint) SECRET=$(terraform output -raw event-handler_secret) TOKEN=${TOKEN} python3 ../data-generator/generate_data.py --vc_system=${GIT_SYSTEM}
+    WEBHOOK=$(terraform output -raw event_handler_endpoint) SECRET=$(terraform output -raw event_handler_secret) TOKEN=${TOKEN} python3 ../data-generator/generate_data.py --vc_system=${GIT_SYSTEM}
 fi
 
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
@@ -101,6 +101,6 @@ echo -e "Visit ${GREEN}$(terraform output -raw dashboard_endpoint)${NOCOLOR} to 
 if [[ ! -z "$CICD_SYSTEM" ]]; then
     echo "••••••••🔑••🔑••🔑••🔑••••••••"
     echo 'Setup complete! Run the following commands to get values needed to configure VCS webhook:'
-    echo -e "➡️ Webhook URL: ${GREEN}echo \$(terraform output -raw event-handler_endpoint)${NOCOLOR}"
-    echo -e "➡️ Secret: ${GREEN}echo \$(terraform output -raw event-handler_secret)${NOCOLOR}"
+    echo -e "➡️ Webhook URL: ${GREEN}echo \$(terraform output -raw event_handler_endpoint)${NOCOLOR}"
+    echo -e "➡️ Secret: ${GREEN}echo \$(terraform output -raw event_handler_secret)${NOCOLOR}"
 fi

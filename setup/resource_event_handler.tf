@@ -2,14 +2,14 @@ resource "google_project_service" "sm_api" {
   service = "secretmanager.googleapis.com"
 }
 
-resource "google_cloud_run_service" "event-handler" {
-  name     = "event-handler"
+resource "google_cloud_run_service" "event_handler" {
+  name     = "event_handler"
   location = var.google_region
 
   template {
     spec {
       containers {
-        image = "gcr.io/${var.google_project_id}/event-handler"
+        image = "gcr.io/${var.google_project_id}/event_handler"
         env {
           name  = "PROJECT_NAME"
           value = var.google_project_id
@@ -39,15 +39,15 @@ resource "google_cloud_run_service" "event-handler" {
 resource "google_cloud_run_service_iam_binding" "noauth" {
   location = var.google_region
   project  = var.google_project_id
-  service  = "event-handler"
+  service  = "event_handler"
 
   role       = "roles/run.invoker"
   members    = ["allUsers"]
-  depends_on = [google_cloud_run_service.event-handler]
+  depends_on = [google_cloud_run_service.event_handler]
 }
 
-resource "google_secret_manager_secret" "event-handler" {
-  secret_id = "event-handler"
+resource "google_secret_manager_secret" "event_handler" {
+  secret_id = "event_handler"
   replication {
     automatic = true
   }
@@ -55,17 +55,17 @@ resource "google_secret_manager_secret" "event-handler" {
   labels     = { "created_by" : "fourkeys" }
 }
 
-resource "random_id" "event-handler_random_value" {
+resource "random_id" "event_handler_random_value" {
   byte_length = "20"
 }
 
-resource "google_secret_manager_secret_version" "event-handler" {
-  secret      = google_secret_manager_secret.event-handler.id
-  secret_data = random_id.event-handler_random_value.hex
+resource "google_secret_manager_secret_version" "event_handler" {
+  secret      = google_secret_manager_secret.event_handler.id
+  secret_data = random_id.event_handler_random_value.hex
 }
 
-resource "google_secret_manager_secret_iam_member" "event-handler" {
-  secret_id = google_secret_manager_secret.event-handler.id
+resource "google_secret_manager_secret_iam_member" "event_handler" {
+  secret_id = google_secret_manager_secret.event_handler.id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.fourkeys.email}"
 }

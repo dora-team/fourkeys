@@ -77,10 +77,10 @@ steps:
         done
 
         echo "Removing secret"
-        gcloud beta secrets delete event-handler -q
+        gcloud beta secrets delete event_handler -q
 
         echo "Delete Cloud Run services"
-        gcloud run services delete event-handler --platform managed --region us-central1 -q
+        gcloud run services delete event_handler --platform managed --region us-central1 -q
         gcloud run services delete github-worker --platform managed --region us-central1 -q
         gcloud run services delete cloud-build-worker --platform managed --region us-central1 -q
 

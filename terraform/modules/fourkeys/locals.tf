@@ -4,7 +4,7 @@ data "google_project" "project" {
 
 locals {
   cloud_build_service_account = "${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
-  event-handler_container_url = var.enable_build_images ? format("gcr.io/%s/event-handler", var.project_id) : var.event-handler_container_url
+  event_handler_container_url = var.enable_build_images ? format("gcr.io/%s/event_handler", var.project_id) : var.event_handler_container_url
   dashboard_container_url     = var.enable_build_images ? format("gcr.io/%s/fourkeys-grafana-dashboard", var.project_id) : var.dashboard_container_url
   parser_container_urls = var.enable_build_images ? {
     "github"      = format("gcr.io/%s/github-parser", var.project_id)

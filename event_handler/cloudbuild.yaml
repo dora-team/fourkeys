@@ -13,21 +13,21 @@
 # limitations under the License.
 
 steps:
-- # Build event-handler image
+- # Build event_handler image
   name: gcr.io/cloud-builders/docker:latest
-  args: ['build', '--tag=gcr.io/$PROJECT_ID/event-handler:${_TAG}', '.']
+  args: ['build', '--tag=gcr.io/$PROJECT_ID/event_handler:${_TAG}', '.']
   id: build
 
 - # Push the container image to Container Registry
   name: gcr.io/cloud-builders/docker
-  args: ['push', 'gcr.io/$PROJECT_ID/event-handler:${_TAG}']
+  args: ['push', 'gcr.io/$PROJECT_ID/event_handler:${_TAG}']
   waitFor: build
   id: push
 
 - # Deploy to Cloud Run
   name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
-  args: ['gcloud', 'run', 'deploy', 'event-handler',
-         '--image', 'gcr.io/$PROJECT_ID/event-handler:${_TAG}',
+  args: ['gcloud', 'run', 'deploy', 'event_handler',
+         '--image', 'gcr.io/$PROJECT_ID/event_handler:${_TAG}',
          '--region', '${_REGION}',
          '--platform', 'managed',
          '--allow-unauthenticated',
@@ -37,5 +37,5 @@ steps:
   waitFor: push
 
 images: [
-  'gcr.io/$PROJECT_ID/event-handler:${_TAG}'
+  'gcr.io/$PROJECT_ID/event_handler:${_TAG}'
 ]

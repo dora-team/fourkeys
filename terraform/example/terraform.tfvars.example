@@ -7,7 +7,7 @@ parsers = ["<PARSER>", "<PARSER>"]
 
 # The variables below are only required if enable_build_images is set to false
 
-# event-handler_container_url = "<event-handler_CONTAINER_URL>"
+# event_handler_container_url = "<event_handler_CONTAINER_URL>"
 # dashboard_container_url = "<DASHBOARD_CONTAINER_URL>"
 # parser_container_urls = {
 #     '<PARSER_NAME>': '<PARSER_URL>'
