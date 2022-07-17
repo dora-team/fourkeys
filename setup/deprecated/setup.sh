@@ -92,8 +92,8 @@ fourkeys_project_setup () {
     --member serviceAccount:${FOURKEYS_PROJECTNUM}@cloudbuild.gserviceaccount.com \
     --role roles/iam.serviceAccountUser
 
-  echo "Deploying event_handler..."; set -x
-  cd $DIR/../../event_handler
+  echo "Deploying event-handler..."; set -x
+  cd $DIR/../../event-handler
   gcloud builds submit --substitutions _TAG=latest,_REGION=${FOURKEYS_REGION} .
   set +x; echo
 

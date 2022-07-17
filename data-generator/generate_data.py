@@ -276,4 +276,4 @@ if __name__ == "__main__":
             issue = make_github_issue(changeset["head_commit"])
         post_to_webhook(args.vc_system, webhook_url, secret, "issues", issue, token)
 
-    print(f"{changes_sent} changes successfully sent to event_handler")
+    print(f"{changes_sent} changes successfully sent to event-handler")

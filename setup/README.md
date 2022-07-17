@@ -45,7 +45,7 @@ This guide describes how to set up Four Keys with your GitHub or GitLab project.
             * Choose the appropriate option for your CICD system, or choose "other" to skip CICD integration
         * _(see `/README.md#extending-to-other-event-sources` to integrate event sources not available during setup)_
     *   Would you like to generate mock data? (y/N)
-        *   If you select yes, a script will run through and send mock GitLab or GitHub events to your event_handler.  This will populate your dashboard with mock data.  The mock data will include the work "mock" in the source. You can generate mock data without using the setup script. See [Generating mock data](../README.md). 
+        *   If you select yes, a script will run through and send mock GitLab or GitHub events to your event-handler.  This will populate your dashboard with mock data.  The mock data will include the work "mock" in the source. You can generate mock data without using the setup script. See [Generating mock data](../README.md). 
             *   To exclude the mock data from the dashboard, update the SQL script to filter out any source with the word mock in it by adding: `WHERE source not like "%mock"`.
 
 ### Making changes
@@ -61,7 +61,7 @@ Step by step, here's what's happening:
 1. Then it invokes `install.sh`, which is responsible for provisioning the infrastructure.
 1. `install.sh` runs `gcloud builds submit` commands to build the application containers that will be used in Cloud Run services.
 1. Then it invokes Terraform, which processes the configuration files (ending in `.tf`) to provision all of the necessary infrastructure into the speficied Cloud project.
-1. If you've chosen to generate mock data, the script then calls the ["data generator" python application](/data-generator/) to submit several synthetic webhook events to the event_handler service that was just created.
+1. If you've chosen to generate mock data, the script then calls the ["data generator" python application](/data-generator/) to submit several synthetic webhook events to the event-handler service that was just created.
 1. Finally, the script prints information about next steps, including configuring webhooks and visiting the dashboard.
 
 ### Managing Terraform State
@@ -143,7 +143,7 @@ If you have an existing installation of The Four Keys, created using the now-dep
 
 ### Collecting deployment data
 
-1.  For whichever CI/CD system you are using, set it up to send Webhook events to the event_handler.  
+1.  For whichever CI/CD system you are using, set it up to send Webhook events to the event-handler.  
 
 #### Configuring CircleCI to deploy on GitHub or Gitlab merges
                              

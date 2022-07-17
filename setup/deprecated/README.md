@@ -36,7 +36,7 @@ This guide describes how to set up Four Keys with your GitHub or GitLab project.
     *   Would you like to create a separate new project to test deployments for the four key metrics? (y/n)
         *   You have the option of creating a new Google Cloud project to test out doing deployments and seeing how they are tracked in the dashboard.  However, if you already have a project with deployments, you may select no to skip this step.  You do not need to select yes to generate mock data.
     *   Would you like to generate mock data? (y/n)
-        *   If you select yes, a script will run through and send mock GitLab or GitHub events to your event_handler.  This will populate your dashboard with mock data.  The mock data will include the work "mock" in the source. You can generate mock data without using the setup script. See [Generating mock data](../readme.md).
+        *   If you select yes, a script will run through and send mock GitLab or GitHub events to your event-handler.  This will populate your dashboard with mock data.  The mock data will include the work "mock" in the source. You can generate mock data without using the setup script. See [Generating mock data](../readme.md).
 
 ### New Google Cloud projects
 
@@ -99,12 +99,12 @@ To integrate Four Keys with a live repo, you need to:
     ```bash
     . ./env.sh
     gcloud config set project ${FOURKEYS_PROJECT}
-    gcloud run services describe event_handler --platform managed --region ${FOURKEYS_REGION} --format=yaml | grep url | head -1 | sed -e 's/  *url: //g'
+    gcloud run services describe event-handler --platform managed --region ${FOURKEYS_REGION} --format=yaml | grep url | head -1 | sed -e 's/  *url: //g'
     ```
 1.  In the **Add Webhook** interface use the Event Handler endpoint for **Payload URL**.
 1.  Run the following command to get the secret from Google Secrets Manager:
     ```bash
-    gcloud secrets versions access 1 --secret="event_handler"
+    gcloud secrets versions access 1 --secret="event-handler"
     ```
 1.  Put the secret in the box labelled **Secret**.
 1.  For **Content Type**, select **application/json**.
@@ -119,12 +119,12 @@ To integrate Four Keys with a live repo, you need to:
     ```bash
     . ./env.sh
     gcloud config set project ${FOURKEYS_PROJECT}
-    gcloud run services describe event_handler --platform managed --region ${FOURKEYS_REGION} --format=yaml | grep url | head -1 | sed -e 's/  *url: //g'
+    gcloud run services describe event-handler --platform managed --region ${FOURKEYS_REGION} --format=yaml | grep url | head -1 | sed -e 's/  *url: //g'
     ```
 1.  For **Payload URL**, use the Event Handler endpoint.
 1.  Run the following command to get the secret from Google Secrets Manager:
     ```bash
-    gcloud secrets versions access 1 --secret="event_handler"
+    gcloud secrets versions access 1 --secret="event-handler"
     ```
 1.  Put the secret in the box labelled **Secret Token**.
 1.  Select all the checkboxes.
