@@ -61,7 +61,7 @@ Step by step, here's what's happening:
 1. Then it invokes `install.sh`, which is responsible for provisioning the infrastructure.
 1. `install.sh` runs `gcloud builds submit` commands to build the application containers that will be used in Cloud Run services.
 1. Then it invokes Terraform, which processes the configuration files (ending in `.tf`) to provision all of the necessary infrastructure into the speficied Cloud project.
-1. If you've chosen to generate mock data, the script then calls the ["data generator" python application](/data_generator/) to submit several synthetic webhook events to the event-handler service that was just created.
+1. If you've chosen to generate mock data, the script then calls the ["data generator" python application](/data-generator/) to submit several synthetic webhook events to the event-handler service that was just created.
 1. Finally, the script prints information about next steps, including configuring webhooks and visiting the dashboard.
 
 ### Managing Terraform State

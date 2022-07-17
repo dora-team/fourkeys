@@ -92,7 +92,7 @@ if [ $GENERATE_DATA == "yes" ]; then
     fi
     
     echo "generating data…"
-    WEBHOOK=$(terraform output -raw event_handler_endpoint) SECRET=$(terraform output -raw event_handler_secret) TOKEN=${TOKEN} python3 ../data_generator/generate_data.py --vc_system=${GIT_SYSTEM}
+    WEBHOOK=$(terraform output -raw event_handler_endpoint) SECRET=$(terraform output -raw event_handler_secret) TOKEN=${TOKEN} python3 ../data-generator/generate_data.py --vc_system=${GIT_SYSTEM}
 fi
 
 echo "••••••••🔑••🔑••🔑••🔑••••••••"
