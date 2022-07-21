@@ -20,20 +20,37 @@ To deploy Four Keys with Terraform, you will first need:
 
 ## Deploying with Terraform
 
-1. Clone the fourkeys git repository, or copy the files in the `terraform/example` directory to your working directory
+### 1. Get the code
 
-1. Rename `terraform.tfvars.example` to `terraform.tfvars`
+a. Clone or fork the Four Keys git repository, change your current working directory to `terraform/example`
+```sh
+git clone https://github.com/GoogleCloudPlatform/fourkeys.git &&
+cd fourkeys/terraform/example
+```
+### 2. Pass in your parameters
 
-1. Edit `terraform.tfvars` with values for the required variables. See `variables.tf` for a list of the variables, along with their descriptions and default values. To accept the default value of a variable indicated in `variables.tf`, exclude it from `terraform.tfvars`
+The `example` directory has a `main.tf` file that deploys Four Keys' resources via a single Terraform module. The parameters are populated by the variables declared in `variables.tf`.  
 
-1. Run the following commands from the `example` directory, or your working directory:
+&emsp;a. Rename `terraform.tfvars.example` to `terraform.tfvars` 
 
-    `terraform init` to inialize Terraform and download the module
+&emsp;b. Edit in values for the required variables. To accept the default value of a variable indicated in `variables.tf`, exclude it from `terraform.tfvars`
 
-    `terraform plan` to preview changes.
+### 3. Initiate and apply the Terraform
 
-    `terraform apply` to deploy the resources.
-
+&emsp;a. Initialize the Terraform:
+```sh
+terraform init
+```
+&emsp;b. Before applying the Terraform, preview changes and catch any errors in your configuration:
+    
+```sh
+terraform plan
+```
+&emsp;c. Deploy the resources to your Google Cloud Project:
+```sh
+terraform apply
+```
+Once complete, your Four Keys infrastructure is in-place to receive and process events.
 
 ## Generating mock data
 
