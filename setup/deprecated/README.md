@@ -70,7 +70,7 @@ The steps are:
   - Enable APIs
   - Deploy Helloworld to staging
   - Deploy Helloworld to prod
-- Generate mock data using the scripts found in the `data_generator/` directory
+- Generate mock data using the scripts found in the `data-generator/` directory
 - Connect to the DataStudio Dashboard template
   - Select organization and project
   - Click **Create Report** on the next screen with the list of fields

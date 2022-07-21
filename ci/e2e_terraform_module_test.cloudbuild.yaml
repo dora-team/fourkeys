@@ -1,0 +1,164 @@
+### Work in progress! 
+# This Cloud Build config will provision 4Keys infra using the modules in /terraform
+# and then confirm that the dashboard is working correctly
+
+steps:
+# build images
+- id: build event handler
+  name: 'docker'
+  args: ['build', '-t', 'gcr.io/$_TARGET_PROJECT/event-handler:$SHORT_SHA', './event_handler']
+  waitFor: ['-']
+
+- id: build github parser
+  name: 'docker'
+  args: ['build', '-t', 'gcr.io/$_TARGET_PROJECT/github-parser:$SHORT_SHA', './bq-workers/github-parser']
+  waitFor: ['-']
+
+- id: build dashboard
+  name: 'docker'
+  args: ['build', '-t', 'gcr.io/$_TARGET_PROJECT/dashboard:$SHORT_SHA', './dashboard']
+  waitFor: ['-']
+
+# push images
+- id: push event handler
+  name: 'docker'
+  args: ['push', 'gcr.io/$_TARGET_PROJECT/event-handler:$SHORT_SHA']
+  waitFor: ['build event handler']
+
+- id: push github parser
+  name: 'docker'
+  args: ['push', 'gcr.io/$_TARGET_PROJECT/github-parser:$SHORT_SHA']
+  waitFor: ['build github parser']
+
+- id: push dashboard
+  name: 'docker'
+  args: ['push', 'gcr.io/$_TARGET_PROJECT/dashboard:$SHORT_SHA']
+  waitFor: ['build dashboard']
+
+# create terraform config
+- id: terraform config
+  name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+  entrypoint: /bin/bash
+  args:
+    - '-c'
+    - |
+      cat > main.tf <<EOF
+      module "fourkeys" {
+        source    = "./terraform/modules/fourkeys"
+        project_id = "$_TARGET_PROJECT"
+        parsers   = ["github"]
+        enable_build_images=false
+        enable_apis=false
+        region="us-east4"
+        bigquery_region="US"
+        event_handler_container_url="gcr.io/$_TARGET_PROJECT/event-handler:$SHORT_SHA"
+        dashboard_container_url="gcr.io/$_TARGET_PROJECT/dashboard:$SHORT_SHA"
+        parser_container_urls={"github":"gcr.io/$_TARGET_PROJECT/github-parser:$SHORT_SHA"}
+      }
+      EOF
+  waitFor: ['-']
+
+# intialize terraform
+- id: terraform init
+  name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+  entrypoint: /bin/bash
+  args:
+    - '-c'
+    - |
+      # configure remote terraform backend GCS
+      cat > /workspace/backend.tf <<EOF
+      terraform {
+        backend "gcs" {
+          bucket  = "$_TARGET_PROJECT-tf-state"
+          prefix  = "terraform/state"
+        }
+      }
+      EOF
+      terraform init
+  waitFor: ['terraform config']
+
+# purge existing terraform-created resources
+- id: terraform destroy
+  name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+  entrypoint: /bin/bash
+  args:
+    - '-c'
+    - |
+      terraform destroy -auto-approve
+  waitFor: ['terraform init']
+
+# apply terraform
+- id: terraform apply
+  name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+  entrypoint: /bin/bash
+  args:
+    - '-c'
+    - |
+      terraform apply -auto-approve
+  waitFor: ['terraform destroy','push event handler','push github parser','push dashboard']
+
+# generate test data
+- id: generate data
+  name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+  entrypoint: /bin/bash
+  args:
+    - '-c'
+    - |
+      export WEBHOOK=`gcloud run services list --project=$_TARGET_PROJECT | grep event-handler | awk '{print $4}'` && \
+      export SECRET=`gcloud secrets versions access 1 --secret=event-handler --project=$_TARGET_PROJECT` && \
+      python3 data_generator/generate_data.py --vc_system=github
+  waitFor: ['terraform apply']
+
+# validate installation
+- id: validate
+  name: 'gcr.io/$PROJECT_ID/fourkeys-builder'
+  entrypoint: /bin/bash
+  args:
+    - '-c'
+    - |
+      result_check="import sys, json
+      results = int(json.load(sys.stdin)[0]['vol'])
+      try:
+        if results < 1:
+          sys.exit('Table is empty')
+      except Exception as e:
+        sys.exit(e)"
+
+      echo "Checking events_raw table"
+      bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
+      'SELECT count(*) as vol FROM four_keys.events_raw' | \
+        python3 -c "$result_check"
+
+      echo "Checking deployments table"
+      bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
+      'SELECT count(*) as vol FROM four_keys.deployments' | \
+        python3 -c "$result_check"
+
+      echo "Checking changes table"
+      bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
+      'SELECT count(*) as vol FROM four_keys.changes' | \
+        python3 -c "$result_check"
+
+      echo "Checking incidents table"
+      bq query --format=json --project_id=$_TARGET_PROJECT --use_legacy_sql=false \
+      'SELECT count(*) as vol FROM four_keys.incidents' | \
+        python3 -c "$result_check"
+
+      echo "Checking connection to dashboard..."
+      # DASHBOARD_URL="$(terraform output -raw dashboard_endpoint)"
+
+      export DASHBOARD_URL=`gcloud run services list --project=$_TARGET_PROJECT | grep dashboard | awk '{print $4}'`
+      DASHBOARD_URL="$${DASHBOARD_URL}/d/yVtwoQ4nk/four-keys?orgId=1"
+
+      echo "Dashboard URL: $${DASHBOARD_URL}"
+      DASHBOARD_HTTP_RESPONSE_CODE=$(curl -LI $${DASHBOARD_URL} -o /dev/null -w '%{http_code}\n' -s)
+      if [ $${DASHBOARD_HTTP_RESPONSE_CODE} == "200" ]; then 
+          echo "success" 
+      else
+          echo "Error validating dashboard URL; received $${DASHBOARD_HTTP_RESPONSE_CODE} from $${DASHBOARD_URL}"
+          exit 1
+      fi
+  waitFor: ['generate data']
+
+substitutions:
+  _TARGET_PROJECT: fourkeys-testing-target-v1
