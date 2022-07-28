@@ -6,7 +6,7 @@ steps:
 # build images
 - id: build event handler
   name: 'docker'
-  args: ['build', '-t', 'gcr.io/$_TARGET_PROJECT/event-handler:$SHORT_SHA', './event_handler']
+  args: ['build', '-t', 'gcr.io/$_TARGET_PROJECT/event-handler:$SHORT_SHA', './event-handler']
   waitFor: ['-']
 
 - id: build github parser
