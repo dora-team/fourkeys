@@ -828,7 +828,7 @@
           "orderByCol": "1",
           "orderBySort": "1",
           "rawQuery": true,
-          "rawSql": "SELECT\nCASE WHEN change_fail_rate <= .15 then \"0-15%\"\n     WHEN change_fail_rate < .46 then \"16-45%\"\n     ELSE \"46-60%\" end as change_fail_rate\nFROM \n (SELECT\n    IF(COUNT(DISTINCT change_id) = 0,0, SUM(IF(i.incident_id is NULL, 0, 1)) / COUNT(DISTINCT change_id)) as change_fail_rate\n  FROM four_keys.deployments d, d.changes\n  LEFT JOIN four_keys.changes c ON changes = c.change_id\n  LEFT JOIN(SELECT\n          incident_id,\n          change,\n          time_resolved\n          FROM four_keys.incidents i,\n          i.changes change) i ON i.change = changes\n  # Limit to 3 months\n  WHERE d.time_created > TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH))\n  )\nLIMIT 1",
+          "rawSql": "SELECT\nCASE WHEN change_fail_rate <= .15 then \"0-15%\"\n     WHEN change_fail_rate < .46 then \"16-45%\"\n     ELSE \"46-60%\" end as change_fail_rate\nFROM \n (SELECT\n    IF(COUNT(DISTINCT change_id) = 0,0, SUM(IF(i.incident_id is NULL, 0, 1)) / COUNT(DISTINCT deploy_id)) as change_fail_rate\n  FROM four_keys.deployments d, d.changes\n  LEFT JOIN four_keys.changes c ON changes = c.change_id\n  LEFT JOIN(SELECT\n          incident_id,\n          change,\n          time_resolved\n          FROM four_keys.incidents i,\n          i.changes change) i ON i.change = changes\n  # Limit to 3 months\n  WHERE d.time_created > TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH))\n  )\nLIMIT 1",
           "refId": "A",
           "select": [
             [
