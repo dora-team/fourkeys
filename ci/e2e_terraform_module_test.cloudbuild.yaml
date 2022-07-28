@@ -6,7 +6,7 @@ steps:
 # build images
 - id: build event handler
   name: 'docker'
-  args: ['build', '-t', 'gcr.io/$_TARGET_PROJECT/event-handler:$SHORT_SHA', './event_handler']
+  args: ['build', '-t', 'gcr.io/$_TARGET_PROJECT/event-handler:$SHORT_SHA', './event-handler']
   waitFor: ['-']
 
 - id: build github parser
@@ -106,7 +106,7 @@ steps:
     - |
       export WEBHOOK=`gcloud run services list --project=$_TARGET_PROJECT | grep event-handler | awk '{print $4}'` && \
       export SECRET=`gcloud secrets versions access 1 --secret=event-handler --project=$_TARGET_PROJECT` && \
-      python3 data_generator/generate_data.py --vc_system=github
+      python3 data-generator/generate_data.py --vc_system=github
   waitFor: ['terraform apply']
 
 # validate installation
