@@ -264,7 +264,7 @@ LIMIT 1;
 ```sql
 SELECT
 TIMESTAMP_TRUNC(d.time_created, DAY) as day,
-SUM(IF(i.incident_id is NULL, 0, 1)) / COUNT(DISTINCT change_id) as change_fail_rate
+SUM(IF(i.incident_id is NULL, 0, 1)) / COUNT(DISTINCT deploy_id) as change_fail_rate
 FROM four_keys.deployments d, d.changes
 LEFT JOIN four_keys.changes c ON changes = c.change_id
 LEFT JOIN(SELECT
@@ -288,7 +288,7 @@ CASE WHEN change_fail_rate <= .15 then "0-15%"
      ELSE "46-60%" end as change_fail_rate
 FROM 
  (SELECT
-  SUM(IF(i.incident_id is NULL, 0, 1)) / COUNT(DISTINCT change_id) as change_fail_rate
+  SUM(IF(i.incident_id is NULL, 0, 1)) / COUNT(DISTINCT deploy_id) as change_fail_rate
   FROM four_keys.deployments d, d.changes
   LEFT JOIN four_keys.changes c ON changes = c.change_id
   LEFT JOIN(SELECT
