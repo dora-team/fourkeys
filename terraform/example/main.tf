@@ -1,5 +1,5 @@
 module "fourkeys" {
-  source              = "github.com/GoogleCloudPlatform/fourkeys//terraform/modules/fourkeys"
+  source              = "../modules/fourkeys"
   project_id          = var.project_id
   enable_apis         = var.enable_apis
   enable_build_images = var.enable_build_images
