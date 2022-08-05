@@ -3,7 +3,6 @@ This guide describes how to set up Four Keys with your GitHub or GitLab project.
 
 1. Forking this repository
 1. Enabling services on your Google Cloud project
-1. Building container images
 1. Providing values for required Terraform variables
 1. Executing Terraform to deploy resources
 1. Generating sample data (optional)
@@ -32,9 +31,6 @@ Enable them on your project use the gcloud CLI:
 ```sh
 gcloud services enable bigquery.googleapis.com cloudbuild.googleapis.com run.googleapis.com secretmanager.googleapis.com
 ```
-
-## Build container images
-
 
 ----
 # Deploying with Terraform
