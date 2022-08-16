@@ -95,10 +95,3 @@ To test your Four Keys deployment, you can generate mock data that simulates eve
     ```sql
     SELECT * FROM four_keys.events_raw WHERE source = 'githubmock';
     ```
-## Updating Cloud Run Services 
-TODO: replace/rewrite
-
-When an image is updated in your project's container, run the following to recreate the corresponding Cloud Run Service via gcloud:
-``sh
-gcloud run services update RUNSERVICENAME --image gcr.io/cloudbuild-fio-b549/<image>:latest
-``
