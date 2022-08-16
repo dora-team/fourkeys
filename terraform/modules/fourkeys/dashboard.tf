@@ -1,4 +1,5 @@
 resource "google_cloud_run_service" "dashboard" {
+  count    = var.enable_dashboard ? 1 : 0
   name     = "fourkeys-grafana-dashboard"
   location = var.region
   project  = var.project_id
@@ -33,6 +34,7 @@ resource "google_cloud_run_service" "dashboard" {
 }
 
 resource "google_cloud_run_service_iam_binding" "dashboard_noauth" {
+  count    = var.enable_dashboard ? 1 : 0
   location = var.region
   project  = var.project_id
   service  = "fourkeys-grafana-dashboard"
