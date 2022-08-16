@@ -12,3 +12,9 @@ variable "parsers" {
   type        = list(string)
   description = "List of data parsers to configure. Acceptable values are: 'github', 'gitlab', 'cloud-build', 'tekton'"
 }
+
+variable "registry_hostname" {
+  type        = string
+  description = "Define registry hostname"
+  default     = "gcr.io"
+}
