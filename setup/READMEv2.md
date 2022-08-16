@@ -1,7 +1,8 @@
 # Installation guide
 This guide describes how to set up Four Keys with your GitHub or GitLab project. The main steps are:
 
-1. Forking this repository
+1. Forking or cloning this repository
+1. Building required images with Cloud Build
 1. Providing values for required Terraform variables
 1. Executing Terraform to deploy resources
 1. Generating sample data (optional)
@@ -12,20 +13,48 @@ This guide describes how to set up Four Keys with your GitHub or GitLab project.
 # Before you begin
 
 To deploy Four Keys with Terraform, you will first need:
-> TODO: list specific permissions instead of OWNER
 * A Google Cloud project with billing enabled
 * The owner role assigned to you on the project
 * The [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) and [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli) installed on your local machine. We recommend deploying from [Cloud Shell](https://shell.cloud.google.com/?show=ide%2Cterminal) on your Google Cloud project.
+
+You will also need to clone this repository to your local host:
+
+```sh
+git clone https://github.com/GoogleCloudPlatform/fourkeys.git &&
+cd ./fourkeys/
+```
+
 ----
-# Deploying with Terraform
+
+# Build required container images
+
+Four Keys deploys containerized applications on Cloud Run using corresponding container images for the dashboard, event handler, and each of the services that will connect to Four Keys. By default, Terraform will set up Cloud Run services referencing containers uploaded to your project's container registry with the default names indicated in these steps:
+
+1. Set an environment variable indicating your Google Cloud project ID:
+    ```sh
+    export PROJECT_ID="YOUR_PROJECT_ID"
+    ```
+1. Build the container for the event handler:
+    ```sh
+    gcloud builds submit ./event-handler --tag=gcr.io/${PROJECT_ID}/event-handler
+    ```
+1. Build the container for the dashboard:
+    ```sh
+    gcloud builds submit ./dashboard --tag=gcr.io/${PROJECT_ID}/fourkeys-grafana-dashboard
+    ```
+1. Build the container(s) for desired service(s). See [/bq-workers](https://github.com/GoogleCloudPlatform/fourkeys/tree/main/bq-workers) for images available. For example, Github:
+    ```sh
+    gcloud builds submit ./bq-workers/github-parser --tag=gcr.io/${PROJECT_ID}/github-parser
+    ```
+
+# Deploy with Terraform
 
 ## Prepare the code
 
-1. Clone or fork the Four Keys git repository and change your current working directory to `terraform/example`
+1. Change your working directory to terraform/example
 
     ```sh
-    git clone https://github.com/GoogleCloudPlatform/fourkeys.git &&
-    cd fourkeys/terraform/example
+    cd terraform/example
     ```
     The `example` directory has a `main.tf` file that deploys Four Keys' resources via a single Terraform module. The parameters are populated by the variables declared in `variables.tf`.  
 
@@ -47,7 +76,7 @@ To deploy Four Keys with Terraform, you will first need:
     ```sh
     terraform apply
     ```
-Once complete, your Four Keys infrastructure is in-place to receive and process events.
+Once complete, your Four Keys infrastructure will be in-place to receive and process events.
 
 ----
 # Generating mock data
@@ -89,5 +118,3 @@ To test your Four Keys deployment, you can generate mock data that simulates eve
     ```sql
     SELECT * FROM four_keys.events_raw WHERE source = 'githubmock';
     ```
-
-----
