@@ -24,16 +24,6 @@ steps:
   args: ['push', 'gcr.io/$PROJECT_ID/fourkeys-grafana-dashboard:${_TAG}']
   id: push
 
-- # Deploy to Cloud Run
-  name: google/cloud-sdk
-  args: ['gcloud', 'run', 'deploy', 'fourkeys-grafana-dashboard',
-         '--image', 'gcr.io/$PROJECT_ID/fourkeys-grafana-dashboard:${_TAG}',
-         '--region', '${_REGION}',
-         '--platform', 'managed', '--port', '3000',
-         '--allow-unauthenticated'
-  ]
-  id: deploy
-
 # Read more about substitutions 
 # https://cloud.google.com/build/docs/configuring-builds/substitute-variable-values
 substitutions:

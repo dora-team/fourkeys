@@ -24,18 +24,6 @@ steps:
   waitFor: build
   id: push
 
-- # Deploy to Cloud Run
-  name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
-  args: ['gcloud', 'run', 'deploy', 'event-handler',
-         '--image', 'gcr.io/$PROJECT_ID/event-handler:${_TAG}',
-         '--region', '${_REGION}',
-         '--platform', 'managed',
-         '--allow-unauthenticated',
-         '--set-env-vars', 'PROJECT_NAME=$PROJECT_ID'
-  ]
-  id: deploy
-  waitFor: push
-
 images: [
   'gcr.io/$PROJECT_ID/event-handler:${_TAG}'
 ]
