@@ -235,6 +235,7 @@ if __name__ == "__main__":
         changeset["before"] = secrets.token_hex(20) if x == 0 else all_changesets[x-1]["checkout_sha"]
 
         # Send individual changes data
+        last_sha = "0000000000000000000000000000000000000000"  # before at the beginning of a branch is just 0s
         for i, c in enumerate(changeset["commits"]):
             curr_change = None
             if args.vc_system == "gitlab":
@@ -245,10 +246,16 @@ if __name__ == "__main__":
                 }
             if args.vc_system == "github":
                 curr_change = {"head_commit": c, "commits": [c]}
-            curr_change["before"] = "0000000000000000000000000000000000000000" if i == 0 else changeset["commits"][i-1]["id"]
-            changes_sent += post_to_webhook(
-                args.vc_system, webhook_url, secret, "push", curr_change, token
-            )
+
+            # before at the beginning of a branch is just 0s
+            curr_change["before"] = last_sha
+            last_sha = c["id"]
+
+            # We only post individual commits with shas not matching the changeset sha
+            if last_sha != changeset.get("checkout_sha") and last_sha != changeset.get("head_commit"):
+                changes_sent += post_to_webhook(
+                    args.vc_system, webhook_url, secret, "push", curr_change, token
+                )
 
         # Send fully associated push event
         post_to_webhook(args.vc_system, webhook_url, secret, "push", changeset, token)
