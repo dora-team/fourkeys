@@ -39,7 +39,7 @@ resource "google_bigquery_table" "events_raw" {
 
 resource "google_bigquery_table" "events_enriched" {
   dataset_id          = google_bigquery_dataset.four_keys.dataset_id
-  table_id            = events_enriched
+  table_id            = "events_enriched"
   schema              = file("./events_enriched_schema.json")
   deletion_protection = false
 }
