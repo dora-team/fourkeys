@@ -232,9 +232,10 @@ if __name__ == "__main__":
             args.vc_system,
             args.event_timespan,
         )
+        changeset["before"] = secrets.token_hex(20) if x == 0 else all_changesets[x-1]["checkout_sha"]
 
         # Send individual changes data
-        for c in changeset["commits"]:
+        for i, c in enumerate(changeset["commits"]):
             curr_change = None
             if args.vc_system == "gitlab":
                 curr_change = {
@@ -244,6 +245,7 @@ if __name__ == "__main__":
                 }
             if args.vc_system == "github":
                 curr_change = {"head_commit": c, "commits": [c]}
+            curr_change["before"] = "0000000000000000000000000000000000000000" if i == 0 else changeset["commits"][i-1]["id"]
             changes_sent += post_to_webhook(
                 args.vc_system, webhook_url, secret, "push", curr_change, token
             )
