@@ -9,4 +9,4 @@ SELECT raw.id,
        raw.source
 FROM four_keys.events_raw raw
 JOIN four_keys.events_enriched enr
-    ON raw.id = enr.events_raw_id
+    ON raw.signature = enr.events_raw_signature

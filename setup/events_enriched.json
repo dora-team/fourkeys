@@ -1,9 +1,9 @@
 [
   {
     "mode": "REQUIRED",
-    "name": "events_raw_id",
+    "name": "events_raw_signature",
     "type": "STRING",
-    "description": "id of corresponding events_raw row (Foreign Key)"
+    "description": "signature of corresponding events_raw row (Foreign Key)"
   },
   {
     "mode": "NULLABLE",
