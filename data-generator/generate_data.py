@@ -162,16 +162,15 @@ def make_webhook_request(vcs, webhook_url, secret, event_type, data, token=None)
 
 
 def post_to_webhook(vcs, webhook_url, secret, event_type, data, token=None):
-    return 1
 
-    # request = make_webhook_request(vcs, webhook_url, secret, event_type, data, token)
-    #
-    # response = urlopen(request)
-    #
-    # if response.getcode() == 204:
-    #     return 1
-    # else:
-    #     return 0
+    request = make_webhook_request(vcs, webhook_url, secret, event_type, data, token)
+
+    response = urlopen(request)
+
+    if response.getcode() == 204:
+        return 1
+    else:
+        return 0
 
 
 if __name__ == "__main__":
@@ -217,11 +216,11 @@ if __name__ == "__main__":
     secret = os.environ.get("SECRET")
     token = os.environ.get("TOKEN")
 
-    # if not webhook_url or not secret:
-    #     print(
-    #         "Error: please ensure the following environment variables are set: WEBHOOK, SECRET"
-    #     )
-    #     sys.exit()
+    if not webhook_url or not secret:
+        print(
+            "Error: please ensure the following environment variables are set: WEBHOOK, SECRET"
+        )
+        sys.exit()
 
     all_changesets = []
     changes_sent = 0
