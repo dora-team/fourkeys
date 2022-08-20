@@ -162,15 +162,16 @@ def make_webhook_request(vcs, webhook_url, secret, event_type, data, token=None)
 
 
 def post_to_webhook(vcs, webhook_url, secret, event_type, data, token=None):
+    return 1
 
-    request = make_webhook_request(vcs, webhook_url, secret, event_type, data, token)
-
-    response = urlopen(request)
-
-    if response.getcode() == 204:
-        return 1
-    else:
-        return 0
+    # request = make_webhook_request(vcs, webhook_url, secret, event_type, data, token)
+    #
+    # response = urlopen(request)
+    #
+    # if response.getcode() == 204:
+    #     return 1
+    # else:
+    #     return 0
 
 
 if __name__ == "__main__":
@@ -216,14 +217,15 @@ if __name__ == "__main__":
     secret = os.environ.get("SECRET")
     token = os.environ.get("TOKEN")
 
-    if not webhook_url or not secret:
-        print(
-            "Error: please ensure the following environment variables are set: WEBHOOK, SECRET"
-        )
-        sys.exit()
+    # if not webhook_url or not secret:
+    #     print(
+    #         "Error: please ensure the following environment variables are set: WEBHOOK, SECRET"
+    #     )
+    #     sys.exit()
 
     all_changesets = []
     changes_sent = 0
+    changeset_sha = secrets.token_hex(20)
     for x in range(args.num_events):
 
         # make a change set containing a random number of changes
@@ -232,10 +234,11 @@ if __name__ == "__main__":
             args.vc_system,
             args.event_timespan,
         )
-        changeset["before"] = secrets.token_hex(20) if x == 0 else all_changesets[x-1]["checkout_sha"]
+        changeset["before"] = changeset_sha  # use the previous one before we set to current one
+        changeset_sha = changeset.get("checkout_sha") or changeset.get("head_commit")
 
         # Send individual changes data
-        last_sha = "0000000000000000000000000000000000000000"  # before at the beginning of a branch is just 0s
+        prev_change_sha = "0000000000000000000000000000000000000000"  # before at the beginning of a branch is just 0s
         for i, c in enumerate(changeset["commits"]):
             curr_change = None
             if args.vc_system == "gitlab":
@@ -247,12 +250,11 @@ if __name__ == "__main__":
             if args.vc_system == "github":
                 curr_change = {"head_commit": c, "commits": [c]}
 
-            # before at the beginning of a branch is just 0s
-            curr_change["before"] = last_sha
-            last_sha = c["id"]
-
             # We only post individual commits with shas not matching the changeset sha
-            if last_sha != changeset.get("checkout_sha") and last_sha != changeset.get("head_commit"):
+            if prev_change_sha != changeset_sha:
+                curr_change["before"] = prev_change_sha
+                prev_change_sha = c["id"]
+
                 changes_sent += post_to_webhook(
                     args.vc_system, webhook_url, secret, "push", curr_change, token
                 )
