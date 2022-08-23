@@ -2,6 +2,7 @@
 This guide describes how to set up Four Keys with your GitHub or GitLab project. The main steps are:
 
 1. Forking this repository
+1. Enabling services on your Google Cloud project
 1. Providing values for required Terraform variables
 1. Executing Terraform to deploy resources
 1. Generating sample data (optional)
@@ -16,6 +17,21 @@ To deploy Four Keys with Terraform, you will first need:
 * A Google Cloud project with billing enabled
 * The owner role assigned to you on the project
 * The [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) and [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli) installed on your local machine. We recommend deploying from [Cloud Shell](https://shell.cloud.google.com/?show=ide%2Cterminal) on your Google Cloud project.
+
+## Enable required services
+
+Fourkeys uses the following Google Cloud APIs:
+* [BigQuery](https://console.cloud.google.com/apis/library/bigquery.googleapis.com)
+* [Cloud Build](https://console.cloud.google.com/apis/library/cloudbuild.googleapis.com)
+* [Cloud Run](https://console.cloud.google.com/apis/library/run.googleapis.com)
+* [Secret Manager](https://console.cloud.google.com/apis/library/secretmanager.googleapis.com)
+
+Enable them on your project use the gcloud CLI:
+
+```sh
+gcloud services enable bigquery.googleapis.com cloudbuild.googleapis.com run.googleapis.com secretmanager.googleapis.com
+```
+
 ----
 # Deploying with Terraform
 
