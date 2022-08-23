@@ -17,9 +17,9 @@ module "gcloud_build_dashboard" {
   platform               = "linux"
   additional_components  = []
   create_cmd_entrypoint  = "gcloud"
-  create_cmd_body        = "builds submit ${path.module}/files/dashboard --tag=gcr.io/${var.project_id}/fourkeys-grafana-dashboard --project=${var.project_id}"
+  create_cmd_body        = "builds submit ${path.module}/files/dashboard --tag=${var.registry_hostname}/${var.project_id}/fourkeys-grafana-dashboard --project=${var.project_id} ${var.gcloud_builds_extra_arguments}"
   destroy_cmd_entrypoint = "gcloud"
-  destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/fourkeys-grafana-dashboard --quiet"
+  destroy_cmd_body       = "container images delete ${var.registry_hostname}/${var.project_id}/fourkeys-grafana-dashboard --quiet"
 }
 
 module "gcloud_build_data_source" {
@@ -29,16 +29,16 @@ module "gcloud_build_data_source" {
   platform               = "linux"
   additional_components  = []
   create_cmd_entrypoint  = "gcloud"
-  create_cmd_body        = "builds submit ${path.module}/files/bq-workers/${each.value}-parser --tag=gcr.io/${var.project_id}/${each.value}-parser --project=${var.project_id}"
+  create_cmd_body        = "builds submit ${path.module}/files/bq-workers/${each.value}-parser --tag=${var.registry_hostname}/${var.project_id}/${each.value}-parser --project=${var.project_id} ${var.gcloud_builds_extra_arguments}"
   destroy_cmd_entrypoint = "gcloud"
-  destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/${each.value}-parser --quiet"
+  destroy_cmd_body       = "container images delete ${var.registry_hostname}/${var.project_id}/${each.value}-parser --quiet"
 }
 
 module "gcloud_build_event_handler" {
   source                 = "terraform-google-modules/gcloud/google"
   version                = "~> 2.0"
   create_cmd_entrypoint  = "gcloud"
-  create_cmd_body        = "builds submit ${path.module}/files/event-handler --tag=gcr.io/${var.project_id}/event-handler --project=${var.project_id}"
+  create_cmd_body        = "builds submit ${path.module}/files/event-handler --tag=${var.registry_hostname}/${var.project_id}/event-handler --project=${var.project_id} ${var.gcloud_builds_extra_arguments}"
   destroy_cmd_entrypoint = "gcloud"
-  destroy_cmd_body       = "container images delete gcr.io/${var.project_id}/event-handler --quiet"
+  destroy_cmd_body       = "container images delete ${var.registry_hostname}/${var.project_id}/event-handler --quiet"
 }
