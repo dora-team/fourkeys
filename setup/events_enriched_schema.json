@@ -1,0 +1,14 @@
+[
+  {
+    "mode": "REQUIRED",
+    "name": "events_raw_signature",
+    "type": "STRING",
+    "description": "signature of corresponding events_raw row (Foreign Key)"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "enriched_metadata",
+    "type": "STRING",
+    "description": "The processed metadata that has been enriched with additional information"
+  }
+]
