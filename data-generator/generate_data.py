@@ -250,7 +250,7 @@ if __name__ == "__main__":
                 curr_change = {"head_commit": c, "commits": [c]}
 
             # We only post individual commits with shas not matching the changeset sha
-            if prev_change_sha != changeset_sha:
+            if c["id"] != changeset_sha:
                 curr_change["before"] = prev_change_sha
                 prev_change_sha = c["id"]
 
