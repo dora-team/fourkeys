@@ -89,16 +89,21 @@ def create_gitlab_pipeline_event(changes):
     return pipeline
 
 
-def create_gitlab_deploy_event(changes):
+def create_gitlab_deploy_event(changes, event_num):
     deployment = None
     checkout_sha = changes["checkout_sha"]
+    # Create random looking deploy id based on event num, should prevent duplicates until 1000 events
+    num_ids = 1000
+    coprime_far_away_num = 1787
+    deployment_id = (event_num * coprime_far_away_num) % num_ids
+
     for c in changes["commits"]:
         if c["id"] == checkout_sha:
             deployment = {
                 "object_kind": "deployment",
                 "status": "success",
                 "status_changed_at": c["timestamp"].strftime("%F %T +0200"),
-                "deployment_id": random.randrange(0, 1000),
+                "deployment_id": deployment_id,
                 "commit_url": f"http://example.com/root/test/commit/{checkout_sha}",
             }
     return deployment
@@ -263,7 +268,7 @@ if __name__ == "__main__":
 
         # Make and send a deployment
         if args.vc_system == "gitlab":
-            deploy = create_gitlab_deploy_event(changeset)
+            deploy = create_gitlab_deploy_event(changeset, event_num=x)
             post_to_webhook(
                 args.vc_system, webhook_url, secret, "deployment", deploy, token
             )
