@@ -49,10 +49,12 @@ if [[ ${purge_data} == "y" ]]; then
         exit 0
     fi
 
-    # drop and recreate the events_raw table
+    # drop and recreate the events_raw table and events_enriched table
     # (why not delete the data? Because delete may fail due to https://stackoverflow.com/questions/43085896)
     bq query --use_legacy_sql=false "DROP TABLE IF EXISTS ${FOURKEYS_PROJECT}.four_keys.events_raw"
+    bq query --use_legacy_sql=false "DROP TABLE IF EXISTS ${FOURKEYS_PROJECT}.four_keys.events_enriched"
     bq mk --table -f ${FOURKEYS_PROJECT}:four_keys.events_raw ${DIR}/../../setup/events_raw_schema.json
+    bq mk --table -f ${FOURKEYS_PROJECT}:four_keys.events_enriched ${DIR}/../../setup/events_enriched_schema.json
 fi
 
 # insert new data

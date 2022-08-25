@@ -37,6 +37,27 @@ resource "google_bigquery_table" "events_raw" {
   deletion_protection = false
 }
 
+resource "google_bigquery_table" "events_enriched" {
+  dataset_id          = google_bigquery_dataset.four_keys.dataset_id
+  table_id            = "events_enriched"
+  schema              = file("./events_enriched_schema.json")
+  deletion_protection = false
+}
+
+resource "google_bigquery_table" "view_events" {
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  table_id   = "events"
+  view {
+    query          = file("../queries/events.sql")
+    use_legacy_sql = false
+  }
+  deletion_protection = false
+  depends_on = [
+    google_bigquery_table.events_raw,
+    google_bigquery_table.events_enriched,
+  ]
+}
+
 resource "google_bigquery_table" "view_changes" {
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   table_id   = "changes"

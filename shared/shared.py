@@ -55,6 +55,39 @@ def insert_row_into_bigquery(event):
             print(json.dumps(entry))
 
 
+def insert_row_into_events_enriched(event):
+    if not event:
+        raise Exception("No data to insert")
+
+    # Set up bigquery instance
+    client = bigquery.Client()
+    dataset_id = "four_keys"
+    table_id = "events_enriched"
+
+    if is_unique(client, event["events_raw_signature"]):
+        table_ref = client.dataset(dataset_id).table(table_id)
+        table = client.get_table(table_ref)
+
+        # Insert row
+        row_to_insert = [
+            (
+                event["events_raw_signature"],
+                event["enriched_metadata"]
+            )
+        ]
+        bq_errors = client.insert_rows(table, row_to_insert)
+
+        # If errors, log to Stackdriver
+        if bq_errors:
+            entry = {
+                "severity": "WARNING",
+                "msg": "Row not inserted.",
+                "errors": bq_errors,
+                "row": row_to_insert,
+            }
+            print(json.dumps(entry))
+
+
 def is_unique(client, signature):
     sql = "SELECT signature FROM four_keys.events_raw WHERE signature = '%s'"
     query_job = client.query(sql % signature)
