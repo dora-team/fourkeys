@@ -192,7 +192,7 @@ if __name__ == "__main__":
         "--num_events",
         "-e",
         type=int,
-        default=20,
+        default=40,
         help="number of events to generate; default=20",
     )
     parser.add_argument(
