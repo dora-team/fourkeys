@@ -249,7 +249,7 @@ if __name__ == "__main__":
         # It is git for a sha/commit that doesn't exist
         prev_change_sha = "0000000000000000000000000000000000000000"
         # Send individual changes data
-        for i, c in enumerate(changeset["commits"]):
+        for c in changeset["commits"]:
             curr_change = None
             if args.vc_system == "gitlab":
                 curr_change = {
