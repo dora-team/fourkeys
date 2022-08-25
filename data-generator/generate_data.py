@@ -16,6 +16,7 @@ import argparse
 import datetime
 import hmac
 import json
+import math
 import os
 import random
 import secrets
@@ -89,13 +90,11 @@ def create_gitlab_pipeline_event(changes):
     return pipeline
 
 
-def create_gitlab_deploy_event(changes, event_num):
+def create_gitlab_deploy_event(changes, deploy_id=None):
     deployment = None
     checkout_sha = changes["checkout_sha"]
-    # Create random looking deploy id based on event num, should prevent duplicates until 1000 events
-    num_ids = 1000
-    coprime_far_away_num = 1787
-    deployment_id = (event_num * coprime_far_away_num) % num_ids
+    if not deploy_id:
+        deploy_id = random.randrange(0, 1000)
 
     for c in changes["commits"]:
         if c["id"] == checkout_sha:
@@ -103,7 +102,7 @@ def create_gitlab_deploy_event(changes, event_num):
                 "object_kind": "deployment",
                 "status": "success",
                 "status_changed_at": c["timestamp"].strftime("%F %T +0200"),
-                "deployment_id": deployment_id,
+                "deployment_id": deploy_id,
                 "commit_url": f"http://example.com/root/test/commit/{checkout_sha}",
             }
     return deployment
@@ -230,7 +229,9 @@ if __name__ == "__main__":
     all_changesets = []
     changes_sent = 0
     changeset_sha = secrets.token_hex(20)
-    for x in range(args.num_events):
+    gitlab_deployment_id_pool = max(1000, 10**math.ceil(math.log10(args.num_events)))
+    gitlab_deploy_ids = random.sample(range(0, gitlab_deployment_id_pool), args.num_events)
+    for x, deploy_id in zip(range(args.num_events), gitlab_deploy_ids):
 
         # make a change set containing a random number of changes
         changeset = make_changes(
@@ -266,18 +267,20 @@ if __name__ == "__main__":
         # Send fully associated push event
         post_to_webhook(args.vc_system, webhook_url, secret, "push", changeset, token)
 
-        # Make and send a deployment
-        if args.vc_system == "gitlab":
-            deploy = create_gitlab_deploy_event(changeset, event_num=x)
-            post_to_webhook(
-                args.vc_system, webhook_url, secret, "deployment", deploy, token
-            )
+        # Make and send a deployment half the time, the other half will be change sets without
+        # deployments or branches
+        if random.choice([True, False]):
+            if args.vc_system == "gitlab":
+                deploy = create_gitlab_deploy_event(changeset, deploy_id=deploy_id)
+                post_to_webhook(
+                    args.vc_system, webhook_url, secret, "deployment", deploy, token
+                )
 
-        if args.vc_system == "github":
-            deploy = create_github_deploy_event(changeset["head_commit"])
-            post_to_webhook(
-                args.vc_system, webhook_url, secret, "deployment_status", deploy, token
-            )
+            if args.vc_system == "github":
+                deploy = create_github_deploy_event(changeset["head_commit"])
+                post_to_webhook(
+                    args.vc_system, webhook_url, secret, "deployment_status", deploy, token
+                )
 
         all_changesets.append(changeset)
 
