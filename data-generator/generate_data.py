@@ -193,7 +193,7 @@ if __name__ == "__main__":
         "-e",
         type=int,
         default=40,
-        help="number of events to generate; default=20",
+        help="number of events to generate; default=40",
     )
     parser.add_argument(
         "--num_issues",
@@ -226,11 +226,14 @@ if __name__ == "__main__":
         )
         sys.exit()
 
+    # gitlab uses deployment ids instead of shas, to ensure unique deploy ids,
+    # round the number of events up to the next power of 10 (with a min of 1000)
+    gitlab_deployment_id_max_size = max(1000, 10**math.ceil(math.log10(args.num_events)))
+    gitlab_deploy_ids = random.sample(range(0, gitlab_deployment_id_max_size), args.num_events)
+
     all_changesets = []
     changes_sent = 0
     changeset_sha = secrets.token_hex(20)
-    gitlab_deployment_id_pool = max(1000, 10**math.ceil(math.log10(args.num_events)))
-    gitlab_deploy_ids = random.sample(range(0, gitlab_deployment_id_pool), args.num_events)
     for x, deploy_id in zip(range(args.num_events), gitlab_deploy_ids):
 
         # make a change set containing a random number of changes
@@ -242,8 +245,10 @@ if __name__ == "__main__":
         changeset["before"] = changeset_sha  # use the previous one before we set to current one
         changeset_sha = changeset.get("checkout_sha") or changeset.get("head_commit")
 
+        # GL and GH both use this as the first "before" sha once a branch starts off of main
+        # It is git for a sha/commit that doesn't exist
+        prev_change_sha = "0000000000000000000000000000000000000000"
         # Send individual changes data
-        prev_change_sha = "0000000000000000000000000000000000000000"  # before at the beginning of a branch is just 0s
         for i, c in enumerate(changeset["commits"]):
             curr_change = None
             if args.vc_system == "gitlab":
