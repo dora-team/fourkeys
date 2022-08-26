@@ -27,11 +27,13 @@ from hashlib import sha1
 from urllib.request import Request, urlopen
 
 
-def make_changes(num_changes, vcs, event_timespan):
+def make_changes(num_changes, vcs, event_timespan, before=None):
     changes = []
     max_time = time.time() - event_timespan
     head_commit = None
     event = None
+    if not before:
+        before = secrets.token_hex(20)  # set a random prev sha
 
     for x in range(num_changes):
         change_id = secrets.token_hex(20)
@@ -50,13 +52,68 @@ def make_changes(num_changes, vcs, event_timespan):
     if vcs == "gitlab":
         event = {
             "object_kind": "push",
+            "before": before,
             "checkout_sha": head_commit["id"],
             "commits": changes,
         }
     if vcs == "github":
-        event = {"head_commit": head_commit, "commits": changes}
+        event = {
+            "head_commit": head_commit,
+            "before": before,
+            "commits": changes
+        }
 
     return event
+
+
+def make_all_changesets(num_events, vcs, event_timespan, num_changes=None):
+    all_changesets = []
+    prev_change_sha = secrets.token_hex(20)  # set a random prev sha
+    for _ in range(num_events):
+        if not num_changes:
+            num_changes = random.randrange(1, 5)
+        changeset = make_changes(
+            num_changes,
+            vcs,
+            event_timespan,
+            before=prev_change_sha
+        )
+        prev_change_sha = changeset.get("checkout_sha") or changeset.get("head_commit", {}).get("id")
+        all_changesets.append(changeset)
+
+    return all_changesets
+
+
+def make_ind_changes_from_changeset(changeset, vcs):
+    ind_changes = []
+    changeset_sha = changeset.get("checkout_sha") or changeset.get("head_commit", {}).get("id")
+    # GL and GH both use this as the first "before" sha once a branch starts off of main
+    # It is git for a sha/commit that doesn't exist
+    prev_change_sha = "0000000000000000000000000000000000000000"
+
+    for c in changeset["commits"]:
+        # We only post individual commits with shas not matching the changeset sha
+        if c["id"] != changeset_sha:
+            if vcs == "gitlab":
+                curr_change = {
+                    "object_kind": "push",
+                    "before": prev_change_sha,
+                    "checkout_sha": c["id"],
+                    "commits": [c],
+                }
+            elif vcs == "github":
+                curr_change = {
+                    "head_commit": c,
+                    "before": prev_change_sha,
+                    "commits": [c]
+                }
+            else:
+                raise ValueError("Version Control System options limited to github or gitlab.")
+
+            prev_change_sha = c["id"]
+
+            ind_changes.append(curr_change)
+    return ind_changes
 
 
 def create_github_deploy_event(change):
@@ -231,43 +288,17 @@ if __name__ == "__main__":
     gitlab_deployment_id_max_size = max(1000, 10**math.ceil(math.log10(args.num_events)))
     gitlab_deploy_ids = random.sample(range(0, gitlab_deployment_id_max_size), args.num_events)
 
-    all_changesets = []
     changes_sent = 0
-    changeset_sha = secrets.token_hex(20)
-    for x, deploy_id in zip(range(args.num_events), gitlab_deploy_ids):
+    all_changesets = make_all_changesets(args.num_events, args.vc_system, args.event_timespan)
 
-        # make a change set containing a random number of changes
-        changeset = make_changes(
-            random.randrange(1, 5),
-            args.vc_system,
-            args.event_timespan,
-        )
-        changeset["before"] = changeset_sha  # use the previous one before we set to current one
-        changeset_sha = changeset.get("checkout_sha") or changeset.get("head_commit")
+    for changeset, deploy_id in zip(all_changesets, gitlab_deploy_ids):
 
-        # GL and GH both use this as the first "before" sha once a branch starts off of main
-        # It is git for a sha/commit that doesn't exist
-        prev_change_sha = "0000000000000000000000000000000000000000"
-        # Send individual changes data
-        for c in changeset["commits"]:
-            curr_change = None
-            if args.vc_system == "gitlab":
-                curr_change = {
-                    "object_kind": "push",
-                    "checkout_sha": c["id"],
-                    "commits": [c],
-                }
-            if args.vc_system == "github":
-                curr_change = {"head_commit": c, "commits": [c]}
+        ind_changes = make_ind_changes_from_changeset(changeset, args.vc_system)
+        for curr_change in ind_changes:
 
-            # We only post individual commits with shas not matching the changeset sha
-            if c["id"] != changeset_sha:
-                curr_change["before"] = prev_change_sha
-                prev_change_sha = c["id"]
-
-                changes_sent += post_to_webhook(
-                    args.vc_system, webhook_url, secret, "push", curr_change, token
-                )
+            changes_sent += post_to_webhook(
+                args.vc_system, webhook_url, secret, "push", curr_change, token
+            )
 
         # Send fully associated push event
         post_to_webhook(args.vc_system, webhook_url, secret, "push", changeset, token)
@@ -286,8 +317,6 @@ if __name__ == "__main__":
                 post_to_webhook(
                     args.vc_system, webhook_url, secret, "deployment_status", deploy, token
                 )
-
-        all_changesets.append(changeset)
 
     # randomly create incidents associated to changes
     changesets_with_issues = random.sample(all_changesets, args.num_issues)
