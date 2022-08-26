@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
 
 import argparse
 import datetime
@@ -28,10 +29,22 @@ from urllib.request import Request, urlopen
 
 
 def make_changes(num_changes, vcs, event_timespan, before=None):
+    """Make a single changeset
+
+    Args:
+        num_changes: the number of changes in this changeset
+        vcs: the version control system being used (options include github or gitlab
+        event_timespan: time duration (in seconds) of timestamps of generated events
+        before: the sha of the commit listed as its "before" commit, defaults to a random sha
+            (optional)
+
+    Returns:
+        event: dictionary containing changeset information
+
+    """
     changes = []
     max_time = time.time() - event_timespan
     head_commit = None
-    event = None
     if not before:
         before = secrets.token_hex(20)  # set a random prev sha
 
@@ -56,17 +69,32 @@ def make_changes(num_changes, vcs, event_timespan, before=None):
             "checkout_sha": head_commit["id"],
             "commits": changes,
         }
-    if vcs == "github":
+    elif vcs == "github":
         event = {
             "head_commit": head_commit,
             "before": before,
             "commits": changes
         }
+    else:
+        raise ValueError("Version Control System options limited to github or gitlab.")
 
     return event
 
 
-def make_all_changesets(num_events, vcs, event_timespan, num_changes=None):
+def make_all_changesets(num_events: int, vcs: str, event_timespan: int, num_changes: int = None) -> list[dict]:
+    """Make a lit of changesets of length ``num_event``
+
+    Args:
+        num_events (int): the number of changesets to generate
+        vcs: the version control system being used (options include github or gitlab
+        event_timespan: time duration (in seconds) of timestamps of generated events
+        num_changes: number of changes per changeset, defaults to a random uniform distribution
+            between 1 and 5 (optional)
+
+    Returns:
+        all_changesets: a list of dictionaries of all created changesets
+
+    """
     all_changesets = []
     prev_change_sha = secrets.token_hex(20)  # set a random prev sha
     for _ in range(num_events):
@@ -85,6 +113,15 @@ def make_all_changesets(num_events, vcs, event_timespan, num_changes=None):
 
 
 def make_ind_changes_from_changeset(changeset, vcs):
+    """Make individual change from a changeset
+
+    Args:
+        changeset: Changeset to make individual change from
+        vcs: the version control system being used (options include github or gitlab
+
+    Returns:
+
+    """
     ind_changes = []
     changeset_sha = changeset.get("checkout_sha") or changeset.get("head_commit", {}).get("id")
     # GL and GH both use this as the first "before" sha once a branch starts off of main
