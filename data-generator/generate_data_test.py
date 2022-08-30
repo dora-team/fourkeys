@@ -28,6 +28,17 @@ def generate_changes(vcs):
 
 
 @pytest.fixture
+def generate_all_changesets(vcs):
+    return generate_data.make_all_changesets(10, vcs, 604800)
+
+
+@pytest.fixture
+def generate_ind_changes(vcs, generate_all_changesets):
+    for changeset in generate_all_changesets:
+        yield generate_data.make_ind_changes_from_changeset(changeset, vcs)
+
+
+@pytest.fixture
 def generate_deployment(vcs, generate_changes):
     if vcs == "github":
         return generate_data.create_github_deploy_event(generate_changes["head_commit"])
@@ -64,6 +75,7 @@ def valid_changes(vcs):
                 "id": "29f54bb6cdb25a67dc7a2b7dae17a1346e2e9609",
                 "timestamp": datetime.datetime(2021, 2, 1, 3, 38, 39, 923909),
             },
+            "before": "50b2c21f17f97e040707665a2da5288cdc766e8a",
             "commits": [
                 {
                     "id": "c814b7082ba2ae5d2076568baa67a6b694845e42",
@@ -79,6 +91,7 @@ def valid_changes(vcs):
     elif vcs == "gitlab":
         return {
             "object_kind": "push",
+            "before": "50b2c21f17f97e040707665a2da5288cdc766e8a",
             "checkout_sha": "29f54bb6cdb25a67dc7a2b7dae17a1346e2e9609",
             "commits": [
                 {
@@ -186,3 +199,22 @@ def test_request(valid_change_request, make_change_request):
         compare_dicts(make_change_request.headers, valid_change_request.headers)
         == "pass"
     ), compare_dicts
+
+
+@pytest.mark.parametrize("vcs", ["github", "gitlab"])
+def test_all_changesets_linked_with_before_attribute(generate_all_changesets):
+    all_changesets = generate_all_changesets
+    for i in range(1, len(all_changesets)):
+        prev_change_sha = (all_changesets[i - 1].get("checkout_sha")
+                           or all_changesets[i - 1].get("head_commit", {}).get("id"))
+        assert all_changesets[i]["before"] == prev_change_sha
+
+
+@pytest.mark.parametrize("vcs", ["github", "gitlab"])
+def test_ind_change_from_changeset_linked_with_before_attribute(vcs, generate_all_changesets):
+    for changeset in generate_all_changesets:
+        ind_changes = generate_data.make_ind_changes_from_changeset(changeset, vcs)
+
+        for i in range(1, len(ind_changes)):
+            prev_change_sha = ind_changes[i - 1].get("checkout_sha") or ind_changes[i - 1].get("head_commit", {}).get("id")
+            assert ind_changes[i]["before"] == prev_change_sha
