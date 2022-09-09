@@ -11,6 +11,7 @@ locals {
     "gitlab"      = format("gcr.io/%s/gitlab-parser", var.project_id)
     "cloud-build" = format("gcr.io/%s/cloud-build-parser", var.project_id)
     "tekton"      = format("gcr.io/%s/tekton-parser", var.project_id)
+    "argocd"      = format("gcr.io/%s/argocd-parser", var.project_id)
   } : var.parser_container_urls
   services = var.enable_apis ? [
     "bigquery.googleapis.com",
