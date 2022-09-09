@@ -1,0 +1,4 @@
+Flask==2.0.3
+gunicorn==19.9.0
+google-cloud-bigquery==1.23.1
+git+https://github.com/GoogleCloudPlatform/fourkeys.git#egg=shared&subdirectory=shared
