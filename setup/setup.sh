@@ -60,9 +60,10 @@ else
     (2) Tekton
     (3) GitLab
     (4) CircleCI
-    (5) Other
+    (5) ArgoCD
+    (6) Other
 
-    Enter a selection (1 - 5): " cicd_system_id
+    Enter a selection (1 - 6): " cicd_system_id
 
     read -p "
     Which incident management system(s) are you using? 
@@ -101,6 +102,7 @@ case $cicd_system_id in
     2) CICD_SYSTEM="tekton" ;;
     3) CICD_SYSTEM="gitlab" ;;
     4) CICD_SYSTEM="circleci" ;;
+    5) CICD_SYSTEM="argocd" ;;
     *) echo "Please see the documentation to learn how to extend to CI/CD sources other than Cloud Build, Tekton, GitLab, CircleCI or GitHub."
 esac
 
