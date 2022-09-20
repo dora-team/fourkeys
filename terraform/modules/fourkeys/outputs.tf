@@ -8,7 +8,7 @@ output "event_handler_secret" {
 }
 
 output "dashboard_endpoint" {
-  value = google_cloud_run_service.dashboard.status[0]["url"]
+  value = try(google_cloud_run_service.dashboard[0].status[0]["url"], "")
 }
 
 output "fourkeys_service_account_email" {
