@@ -209,7 +209,7 @@ def make_github_issue(root_cause):
             "updated_at": datetime.datetime.now(),
             "closed_at": datetime.datetime.now(),
             "number": random.randrange(0, 1000),
-            "labels": [{"name": "Incident"}],
+            "labels": [{"name": "incident"}],
             "body": "root cause: %s" % root_cause["id"],
         },
         "repository": {"name": "foobar"},
