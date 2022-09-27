@@ -729,7 +729,7 @@
           "orderByCol": "1",
           "orderBySort": "1",
           "rawQuery": true,
-          "rawSql": "SELECT\nTIMESTAMP_TRUNC(d.time_created, DAY) as day,\n  IF(COUNT(DISTINCT change_id) = 0,0, SUM(IF(i.incident_id is NULL, 0, 1)) / COUNT(DISTINCT deploy_id)) as change_fail_rate\nFROM four_keys.deployments d, d.changes\nLEFT JOIN four_keys.changes c ON changes = c.change_id\nLEFT JOIN(SELECT\n        incident_id,\n        change,\n        time_resolved\n        FROM four_keys.incidents i,\n        i.changes change) i ON i.change = changes\nGROUP BY day",
+          "rawSql": "SELECT\nTIMESTAMP_TRUNC(d.time_created, DAY) as day,\n  IF(COUNT(DISTINCT change_id) = 0,0, SUM(IF(i.incident_id is NULL, 0, 1)) / COUNT(DISTINCT deploy_id)) as change_fail_rate\nFROM four_keys.deployments d, d.changes\nLEFT JOIN four_keys.changes c ON changes = c.change_id\nLEFT JOIN(SELECT\n        DISTINCT incident_id,\n        change,\n        time_resolved\n        FROM four_keys.incidents i,\n        i.changes change) i ON i.change = changes\nGROUP BY day",
           "refId": "A",
           "select": [
             [
