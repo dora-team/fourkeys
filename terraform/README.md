@@ -59,9 +59,9 @@ To deploy Four Keys with Terraform, you will first need:
    cd terraform/example && mv terraform.tfvars.example terraform.tfvars
    ```
 
-1. Edit `terraform.tfvars` with values for the required variables. See `variables.tf` for a list of the variables, along with their descriptions and default values. To accept the default value of a variable indicated in `variables.tf`, exclude it from `terraform.tfvars`
+1. Edit `terraform.tfvars` with values for the required variables. See `variables.tf` for a list of the variables, along with their descriptions and default values. Values not defined in `terraform.tfvars` will use default values defined in `variables.tf`
 
-1. Run the following commands from the `example` directory, or your working directory:
+1. Run the following commands from the `example` directory:
 
     `terraform init` to inialize Terraform and download the module
 
