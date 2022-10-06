@@ -11,11 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
 
 import argparse
 import datetime
 import hmac
 import json
+import math
 import os
 import random
 import secrets
@@ -26,11 +28,25 @@ from hashlib import sha1
 from urllib.request import Request, urlopen
 
 
-def make_changes(num_changes, vcs, event_timespan):
+def make_changes(num_changes, vcs, event_timespan, before=None):
+    """Make a single changeset
+
+    Args:
+        num_changes: the number of changes in this changeset
+        vcs: the version control system being used (options include github or gitlab
+        event_timespan: time duration (in seconds) of timestamps of generated events
+        before: the sha of the commit listed as its "before" commit, defaults to a random sha
+            (optional)
+
+    Returns:
+        event: dictionary containing changeset information
+
+    """
     changes = []
     max_time = time.time() - event_timespan
     head_commit = None
-    event = None
+    if not before:
+        before = secrets.token_hex(20)  # set a random prev sha
 
     for x in range(num_changes):
         change_id = secrets.token_hex(20)
@@ -49,13 +65,92 @@ def make_changes(num_changes, vcs, event_timespan):
     if vcs == "gitlab":
         event = {
             "object_kind": "push",
+            "before": before,
             "checkout_sha": head_commit["id"],
             "commits": changes,
         }
-    if vcs == "github":
-        event = {"head_commit": head_commit, "commits": changes}
+    elif vcs == "github":
+        event = {
+            "head_commit": head_commit,
+            "before": before,
+            "commits": changes
+        }
+    else:
+        raise ValueError("Version Control System options limited to github or gitlab.")
 
     return event
+
+
+def make_all_changesets(num_events: int, vcs: str, event_timespan: int, num_changes: int = None) -> list[dict]:
+    """Make a lit of changesets of length ``num_event``
+
+    Args:
+        num_events (int): the number of changesets to generate
+        vcs: the version control system being used (options include github or gitlab
+        event_timespan: time duration (in seconds) of timestamps of generated events
+        num_changes: number of changes per changeset, defaults to a random uniform distribution
+            between 1 and 5 (optional)
+
+    Returns:
+        all_changesets: a list of dictionaries of all created changesets
+
+    """
+    all_changesets = []
+    prev_change_sha = secrets.token_hex(20)  # set a random prev sha
+    for _ in range(num_events):
+        if not num_changes:
+            num_changes = random.randrange(1, 5)
+        changeset = make_changes(
+            num_changes,
+            vcs,
+            event_timespan,
+            before=prev_change_sha
+        )
+        prev_change_sha = changeset.get("checkout_sha") or changeset.get("head_commit", {}).get("id")
+        all_changesets.append(changeset)
+
+    return all_changesets
+
+
+def make_ind_changes_from_changeset(changeset, vcs):
+    """Make individual change from a changeset
+
+    Args:
+        changeset: Changeset to make individual change from
+        vcs: the version control system being used (options include github or gitlab
+
+    Returns:
+
+    """
+    ind_changes = []
+    changeset_sha = changeset.get("checkout_sha") or changeset.get("head_commit", {}).get("id")
+    # GL and GH both use this as the first "before" sha once a branch starts off of main
+    # It is git for a sha/commit that doesn't exist
+    prev_change_sha = "0000000000000000000000000000000000000000"
+
+    for c in changeset["commits"]:
+        # We only post individual commits with shas not matching the changeset sha
+        if c["id"] != changeset_sha:
+            if vcs == "gitlab":
+                curr_change = {
+                    "object_kind": "push",
+                    "before": prev_change_sha,
+                    "checkout_sha": c["id"],
+                    "commits": [c],
+                }
+            elif vcs == "github":
+                curr_change = {
+                    "head_commit": c,
+                    "before": prev_change_sha,
+                    "commits": [c]
+                }
+            else:
+                raise ValueError("Version Control System options limited to github or gitlab.")
+
+            prev_change_sha = c["id"]
+
+            ind_changes.append(curr_change)
+    return ind_changes
 
 
 def create_github_deploy_event(change):
@@ -89,16 +184,19 @@ def create_gitlab_pipeline_event(changes):
     return pipeline
 
 
-def create_gitlab_deploy_event(changes):
+def create_gitlab_deploy_event(changes, deploy_id=None):
     deployment = None
     checkout_sha = changes["checkout_sha"]
+    if not deploy_id:
+        deploy_id = random.randrange(0, 1000)
+
     for c in changes["commits"]:
         if c["id"] == checkout_sha:
             deployment = {
                 "object_kind": "deployment",
                 "status": "success",
                 "status_changed_at": c["timestamp"].strftime("%F %T +0200"),
-                "deployment_id": random.randrange(0, 1000),
+                "deployment_id": deploy_id,
                 "commit_url": f"http://example.com/root/test/commit/{checkout_sha}",
             }
     return deployment
@@ -188,8 +286,8 @@ if __name__ == "__main__":
         "--num_events",
         "-e",
         type=int,
-        default=20,
-        help="number of events to generate; default=20",
+        default=40,
+        help="number of events to generate; default=40",
     )
     parser.add_argument(
         "--num_issues",
@@ -222,28 +320,19 @@ if __name__ == "__main__":
         )
         sys.exit()
 
-    all_changesets = []
+    # gitlab uses deployment ids instead of shas, to ensure unique deploy ids,
+    # round the number of events up to the next power of 10 (with a min of 1000)
+    gitlab_deployment_id_max_size = max(1000, 10**math.ceil(math.log10(args.num_events)))
+    gitlab_deploy_ids = random.sample(range(0, gitlab_deployment_id_max_size), args.num_events)
+
     changes_sent = 0
-    for x in range(args.num_events):
+    all_changesets = make_all_changesets(args.num_events, args.vc_system, args.event_timespan)
 
-        # make a change set containing a random number of changes
-        changeset = make_changes(
-            random.randrange(1, 5),
-            args.vc_system,
-            args.event_timespan,
-        )
+    for changeset, deploy_id in zip(all_changesets, gitlab_deploy_ids):
 
-        # Send individual changes data
-        for c in changeset["commits"]:
-            curr_change = None
-            if args.vc_system == "gitlab":
-                curr_change = {
-                    "object_kind": "push",
-                    "checkout_sha": c["id"],
-                    "commits": [c],
-                }
-            if args.vc_system == "github":
-                curr_change = {"head_commit": c, "commits": [c]}
+        ind_changes = make_ind_changes_from_changeset(changeset, args.vc_system)
+        for curr_change in ind_changes:
+
             changes_sent += post_to_webhook(
                 args.vc_system, webhook_url, secret, "push", curr_change, token
             )
@@ -251,20 +340,20 @@ if __name__ == "__main__":
         # Send fully associated push event
         post_to_webhook(args.vc_system, webhook_url, secret, "push", changeset, token)
 
-        # Make and send a deployment
-        if args.vc_system == "gitlab":
-            deploy = create_gitlab_deploy_event(changeset)
-            post_to_webhook(
-                args.vc_system, webhook_url, secret, "deployment", deploy, token
-            )
+        # Make and send a deployment half the time, the other half will be change sets without
+        # deployments or branches
+        if random.choice([True, False]):
+            if args.vc_system == "gitlab":
+                deploy = create_gitlab_deploy_event(changeset, deploy_id=deploy_id)
+                post_to_webhook(
+                    args.vc_system, webhook_url, secret, "deployment", deploy, token
+                )
 
-        if args.vc_system == "github":
-            deploy = create_github_deploy_event(changeset["head_commit"])
-            post_to_webhook(
-                args.vc_system, webhook_url, secret, "deployment_status", deploy, token
-            )
-
-        all_changesets.append(changeset)
+            if args.vc_system == "github":
+                deploy = create_github_deploy_event(changeset["head_commit"])
+                post_to_webhook(
+                    args.vc_system, webhook_url, secret, "deployment_status", deploy, token
+                )
 
     # randomly create incidents associated to changes
     changesets_with_issues = random.sample(all_changesets, args.num_issues)

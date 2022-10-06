@@ -52,7 +52,7 @@ resource "google_pubsub_topic" "circleci" {
 resource "google_pubsub_topic_iam_member" "service_account_editor" {
   project = var.project_id
   topic   = google_pubsub_topic.circleci.id
-  role    = "roles/editor"
+  role    = "roles/pubsub.editor"
   member  = "serviceAccount:${var.fourkeys_service_account_email}"
 }
 
@@ -69,7 +69,7 @@ resource "google_pubsub_subscription" "circleci" {
     }
   }
 }
-
+# This IAM role grant is for projects created before April 8, 2021. See: https://cloud.google.com/pubsub/docs/push
 resource "google_project_iam_member" "pubsub_service_account_token_creator" {
   project = var.project_id
   member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"

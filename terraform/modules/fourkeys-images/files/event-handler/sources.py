@@ -115,6 +115,9 @@ def get_source(headers):
     if "Circleci-Event-Type" in headers:
         return "circleci"
 
+    if "Argo-CD" in headers.get("User-Agent", ""):
+        return "argocd"
+
     return headers.get("User-Agent")
 
 
@@ -130,5 +133,8 @@ AUTHORIZED_SOURCES = {
         ),
     "circleci": EventSource(
         "Circleci-Signature", circleci_verification
+        ),
+    "argocd": EventSource(
+        "Argo-Signature", simple_token_verification
         ),
 }

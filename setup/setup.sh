@@ -47,7 +47,7 @@ else
     read -p "Enter the region for Four Keys resources (ex: 'us-central1'): " FOURKEYS_REGION
     read -p "Enter the location for Four Keys BigQuery resources ('US' or 'EU'): " BIGQUERY_REGION
 
-    read -p "Which version control system are you using? 
+    read -p "Which version control system are you using?
     (1) GitLab
     (2) GitHub
     (3) Other
@@ -55,17 +55,18 @@ else
     Enter a selection (1 - 3): " git_system_id
 
     read -p "
-    Which CI/CD system are you using? 
+    Which CI/CD system are you using?
     (1) Cloud Build
     (2) Tekton
     (3) GitLab
     (4) CircleCI
-    (5) Other
+    (5) ArgoCD
+    (6) Other
 
-    Enter a selection (1 - 5): " cicd_system_id
+    Enter a selection (1 - 6): " cicd_system_id
 
     read -p "
-    Which incident management system(s) are you using? 
+    Which incident management system(s) are you using?
     (1) PagerDuty
     (2) Other
 
@@ -73,8 +74,14 @@ else
 
     printf "\n"
 
-    read -p "Would you like to generate mock data? (y/N): " generate_mock_data
-    generate_mock_data=${generate_mock_data:-no}
+    if [[ ${git_system_id} == "1" ]] || [[ ${git_system_id} == "2" ]]
+    then
+        read -p "Would you like to generate mock data? (y/N): " generate_mock_data
+        generate_mock_data=${generate_mock_data:-no}
+    else
+        # offer mock data only in case of GitLab or GitHub
+        generate_mock_data="N"
+    fi
 fi
 
 if [[ ${CLEAN} == 'true' ]]
@@ -101,6 +108,7 @@ case $cicd_system_id in
     2) CICD_SYSTEM="tekton" ;;
     3) CICD_SYSTEM="gitlab" ;;
     4) CICD_SYSTEM="circleci" ;;
+    5) CICD_SYSTEM="argocd" ;;
     *) echo "Please see the documentation to learn how to extend to CI/CD sources other than Cloud Build, Tekton, GitLab, CircleCI or GitHub."
 esac
 
