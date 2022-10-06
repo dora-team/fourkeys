@@ -28,4 +28,3 @@ steps:
 # https://cloud.google.com/build/docs/configuring-builds/substitute-variable-values
 substitutions:
   _TAG: latest
-  _REGION: us-central1

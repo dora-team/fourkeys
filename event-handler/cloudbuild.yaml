@@ -27,3 +27,5 @@ steps:
 images: [
   'gcr.io/$PROJECT_ID/event-handler:${_TAG}'
 ]
+substitutions:
+  _TAG: latest

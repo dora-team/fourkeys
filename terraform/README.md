@@ -37,15 +37,22 @@ To deploy Four Keys with Terraform, you will first need:
 * The [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) and [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli) installed on your local machine. We recommend deploying from [Cloud Shell](https://shell.cloud.google.com/?show=ide%2Cterminal) on your Google Cloud project.
 
 ## Deploying with Terraform
-#TODO: Replace step 1 with rewrite
-1. Terraform will presume that the project you're using will have the relavant images in the container registry. Build the following:
-    - dashboard
-    - event handler
-    - parsers you plan on using
 
-1. Clone the fourkeys git repository, or copy the files in the `terraform/example` directory to your working directory
+1. Clone the fourkeys git repository and change into the root directory
+   ```
+   git clone https://github.com/GoogleCloudPlatform/fourkeys.git && cd fourkeys
+   ```
 
-1. Rename `terraform.tfvars.example` to `terraform.tfvars`
+1. Use Cloud Build to build and push containers to Google Container Registry for the dashboard, event-handler:
+   ```
+   gcloud builds submit dashboard --config=dashboard/cloudbuild.yaml && \
+   gcloud builds submit event-handler --config=event-handler/cloudbuild.yaml
+   ```
+
+1. Change your working directory to `terraform/example` and rename `terraform.tfvars.example` to `terraform.tfvars`
+   ```
+   cd terraform/example && mv terraform.tfvars.example terraform.tfvars
+   ```
 
 1. Edit `terraform.tfvars` with values for the required variables. See `variables.tf` for a list of the variables, along with their descriptions and default values. To accept the default value of a variable indicated in `variables.tf`, exclude it from `terraform.tfvars`
 
