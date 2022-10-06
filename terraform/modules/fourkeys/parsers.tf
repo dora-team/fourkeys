@@ -1,3 +1,16 @@
+module "circleci_parser" {
+  source                         = "../fourkeys-circleci-parser"
+  count                          = contains(var.parsers, "circleci") ? 1 : 0
+  project_id                     = var.project_id
+  parser_container_url           = local.parser_container_urls["circleci"]
+  region                         = var.region
+  fourkeys_service_account_email = google_service_account.fourkeys.email
+  enable_apis                    = var.enable_apis
+  depends_on = [
+    module.fourkeys_images
+  ]
+}
+
 module "github_parser" {
   source                         = "../fourkeys-github-parser"
   count                          = contains(var.parsers, "github") ? 1 : 0
@@ -16,6 +29,19 @@ module "gitlab_parser" {
   count                          = contains(var.parsers, "gitlab") ? 1 : 0
   project_id                     = var.project_id
   parser_container_url           = local.parser_container_urls["gitlab"]
+  region                         = var.region
+  fourkeys_service_account_email = google_service_account.fourkeys.email
+  enable_apis                    = var.enable_apis
+  depends_on = [
+    module.fourkeys_images
+  ]
+}
+
+module "pagerduty_parser" {
+  source                         = "../fourkeys-pagerduty-parser"
+  count                          = contains(var.parsers, "pagerduty") ? 1 : 0
+  project_id                     = var.project_id
+  parser_container_url           = local.parser_container_urls["pagerduty"]
   region                         = var.region
   fourkeys_service_account_email = google_service_account.fourkeys.email
   enable_apis                    = var.enable_apis
