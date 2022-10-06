@@ -49,6 +49,11 @@ To deploy Four Keys with Terraform, you will first need:
    gcloud builds submit event-handler --config=event-handler/cloudbuild.yaml
    ```
 
+1. Use Cloud Build to build and push containers to Google Container Registry for the parsers you plan to use. See the [`bq-workers`](../bq-workers/) for available options. Github for example:
+   ```
+   gcloud builds submit bq-workers --config=bq-workers/parsers.cloudbuild.yaml --substitutions=_SERVICE=github
+   ```
+
 1. Change your working directory to `terraform/example` and rename `terraform.tfvars.example` to `terraform.tfvars`
    ```
    cd terraform/example && mv terraform.tfvars.example terraform.tfvars
