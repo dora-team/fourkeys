@@ -15,6 +15,10 @@ resource "google_cloud_run_service" "dashboard" {
           name  = "PROJECT_NAME"
           value = var.project_id
         }
+        env {
+          name  = "BQ_REGION"
+          value = var.bigquery_region
+        }
       }
       service_account_name = google_service_account.fourkeys.email
     }
