@@ -59,18 +59,18 @@ def test_missing_msg_attributes(client):
 
 def test_prometheus_event_processed(client):
     data_content = {
-            "receiver":"fourkeys",
-            "status":"firing",
-            "alerts":[
+            "receiver": "fourkeys",
+            "status": "firing",
+            "alerts": [
                 {
-                    "status":"firing",
-                    "startsAt":"2022-10-07T10:26:18.249Z",
-                    "endsAt":"0001-01-01T00:00:00Z",
-                    "fingerprint":"1144cel0"
+                    "status": "firing",
+                    "startsAt": "2022-10-07T10:26:18.249Z",
+                    "endsAt": "0001-01-01T00:00:00Z",
+                    "fingerprint": "1144cel0"
                 }
             ],
         }
-    
+
     data = json.dumps(data_content).encode("utf-8")
 
     pubsub_msg = {

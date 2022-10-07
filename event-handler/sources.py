@@ -107,7 +107,7 @@ def prometheus_verification(signatures, body):
 
     if not signatures:
         raise Exception("Prometheus signature is empty")
-    
+
     if not str(signatures).startswith("Bearer "):
         raise Exception("Prometheus alertmaneger should provide a bearer token")
 

@@ -64,7 +64,7 @@ def index():
 
 def process_prometheus_events(msg):
     prometheus_events = []
-    
+
     event_map = {
         "firing": "incident.triggered",
         "resolved": "incident.resolved"
