@@ -21,7 +21,7 @@ variable "bigquery_region" {
 
 variable "parsers" {
   type        = list(string)
-  description = "List of data parsers to configure. Acceptable values are: 'github', 'gitlab', 'cloud-build', 'tekton', 'circleci', 'pagerduty'"
+  description = "List of data parsers to configure. Acceptable values are: 'github', 'gitlab', 'cloud-build', 'tekton', 'circleci', 'pagerduty', 'prometheus'"
 }
 
 variable "enable_apis" {

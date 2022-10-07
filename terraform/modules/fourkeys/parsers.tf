@@ -50,6 +50,19 @@ module "pagerduty_parser" {
   ]
 }
 
+module "prometheus_parser" {
+  source                         = "../fourkeys-prometheus-parser"
+  count                          = contains(var.parsers, "prometheus") ? 1 : 0
+  project_id                     = var.project_id
+  parser_container_url           = local.parser_container_urls["prometheus"]
+  region                         = var.region
+  fourkeys_service_account_email = google_service_account.fourkeys.email
+  enable_apis                    = var.enable_apis
+  depends_on = [
+    module.fourkeys_images
+  ]
+}
+
 module "tekton_parser" {
   source                         = "../fourkeys-tekton-parser"
   count                          = contains(var.parsers, "tekton") ? 1 : 0
