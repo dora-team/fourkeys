@@ -67,10 +67,12 @@ else
 
     read -p "
     Which incident management system(s) are you using?
+    (0) None
     (1) PagerDuty
-    (2) Other
+    (2) Prometheus Alertmanager
+    (3) Other
 
-    Enter a selection (1 - 2): " incident_system_id
+    Enter a selection (0 - 3): " incident_system_id
 
     printf "\n"
 
@@ -113,7 +115,9 @@ case $cicd_system_id in
 esac
 
 case $incident_system_id in
+    0) INCIDENT_SYSTEM="";;
     1) INCIDENT_SYSTEM="pagerduty"; read -p "Please enter the PagerDuty Signature Verification Token: " PAGERDUTY_SECRET ;;
+    2) INCIDENT_SYSTEM="prometheus" ;;
     *) echo "Please see the documentation to learn how to extend to incident sources other than PagerDuty."
 esac
 
