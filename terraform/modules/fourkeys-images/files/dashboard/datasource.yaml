@@ -24,5 +24,6 @@ datasources:
   jsonData:
        authenticationType: gce
        queryPriority: INTERACTIVE
+       processingLocation: $BQ_REGION
   version: 3
   readOnly: false
