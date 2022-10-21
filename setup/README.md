@@ -187,7 +187,7 @@ Four Keys uses GitLab and/or GitHub issues to track incidents.
 #### Creating an incident
 
 1.  Open an issue.
-1.  Add the tag `Incident`.
+1.  Add the tag `incident`.
 1.  In the body of the issue, input `root cause: {SHA of the commit}`.
 
 When the incident is resolved, close the issue. Four Keys will measure the incident from the time of the deployment to when the issue is closed.
