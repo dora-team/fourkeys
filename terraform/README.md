@@ -16,7 +16,7 @@ module "fourkeys" {
 }
 ```
 
-The example above will deploy Four Keys with a Github parser for Github events. See the `terraform/example` directory for full example and options.
+The example above will deploy Four Keys with a GitHub parser for GitHub events. See the `terraform/example` directory for full example and options.
 
 Alternatively, you can fork the fourkeys project and deploy as a local module from the `terraform/example` directory:
 
@@ -49,7 +49,7 @@ To deploy Four Keys with Terraform, you will first need:
    gcloud builds submit event-handler --config=event-handler/cloudbuild.yaml
    ```
 
-1. Use Cloud Build to build and push containers to Google Container Registry for the parsers you plan to use. See the [`bq-workers`](../bq-workers/) for available options. Github for example:
+1. Use Cloud Build to build and push containers to Google Container Registry for the parsers you plan to use. See the [`bq-workers`](../bq-workers/) for available options. GitHub for example:
    ```
    gcloud builds submit bq-workers --config=bq-workers/parsers.cloudbuild.yaml --substitutions=_SERVICE=github
    ```
@@ -71,9 +71,9 @@ To deploy Four Keys with Terraform, you will first need:
 
 ## Generating mock data
 
-To test your Four Keys deployment, you can generate mock data that simulates events from a Github repository.  
+To test your Four Keys deployment, you can generate mock data that simulates events from a GitHub repository.  
 
-1. Export your event handler URL an environment variable. This the webhook URL that will receive events:
+1. Export your event handler URL an environment variable. This is the webhook URL that will receive events:
 
     ```sh
     export WEBHOOK=`gcloud run services list | grep event-handler | awk '{print $4}'`
