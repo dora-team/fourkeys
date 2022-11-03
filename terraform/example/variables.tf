@@ -6,8 +6,7 @@ variable "project_id" {
 variable "enable_apis" {
   type        = bool
   description = "Toggle to include required APIs."
-  default     = false
-}
+  default     = true
 
 variable "region" {
     type = string

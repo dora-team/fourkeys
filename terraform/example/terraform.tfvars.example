@@ -1,5 +1,4 @@
 project_id = "<PROJECT_ID>"
-enable_apis = <ENABLE_APIS>
 region = "<REGION>"
 bigquery_region = "<BIGQUERY_REGION>"
 parsers = ["<PARSER>", "<PARSER>"]
