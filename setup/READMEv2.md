@@ -14,15 +14,15 @@ This guide describes how to set up Four Keys with your GitHub or GitLab project.
 # Before you begin
 
 To deploy Four Keys with Terraform, you will first need:
+
 * A Google Cloud project with billing enabled
 * The owner role assigned to you on the project
 * The [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) and [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli) installed on your local machine. We recommend deploying from [Cloud Shell](https://shell.cloud.google.com/?show=ide%2Cterminal) on your Google Cloud project.
 
-You will also need to clone this repository to your local host:
+You will also need to clone this repository to your local machine:
 
 ```sh
-git clone https://github.com/GoogleCloudPlatform/fourkeys.git &&
-cd ./fourkeys/
+git clone https://github.com/GoogleCloudPlatform/fourkeys.git && cd fourkeys
 ```
 
 ----
@@ -37,73 +37,59 @@ Four Keys deploys containerized applications on Cloud Run using corresponding co
     ```
 1. Build the container for the event handler:
     ```sh
-    gcloud builds submit ./event-handler --tag=gcr.io/${PROJECT_ID}/event-handler
+    gcloud builds submit ./event-handler --tag=gcr.io/${PROJECT_ID}/event-handler --project $PROJECT_ID
     ```
 1. Build the container for the dashboard:
     ```sh
-    gcloud builds submit ./dashboard --tag=gcr.io/${PROJECT_ID}/fourkeys-grafana-dashboard
+    gcloud builds submit ./dashboard --tag=gcr.io/${PROJECT_ID}/fourkeys-grafana-dashboard --project $PROJECT_ID
     ```
-1. Build the container(s) for desired service(s). See [/bq-workers](https://github.com/GoogleCloudPlatform/fourkeys/tree/main/bq-workers) for images available. For example, Github:
-    ```sh
-    gcloud builds submit ./bq-workers/github-parser --tag=gcr.io/${PROJECT_ID}/github-parser
-    ```
+1. Use Cloud Build to build and push containers to Google Container Registry for the parsers you plan to use. See the [`bq-workers`](../bq-workers/) for available options. GitHub for example:
+   ```sh
+   gcloud builds submit bq-workers --config=bq-workers/parsers.cloudbuild.yaml --project $PROJECT_ID --substitutions=_SERVICE=github
+   ```
 
 # Deploy with Terraform
 
-## Prepare the code
+1. Change your working directory to `terraform/example` and rename `terraform.tfvars.example` to `terraform.tfvars`
+   ```
+   cd terraform/example && mv terraform.tfvars.example terraform.tfvars
+   ```
 
-1. Change your working directory to terraform/example
+1. Edit `terraform.tfvars` with values for the required variables. See `variables.tf` for a list of the variables, along with their descriptions and default values. Values not defined in `terraform.tfvars` will use default values defined in `variables.tf`
 
-    ```sh
-    cd terraform/example
-    ```
-    The `example` directory has a `main.tf` file that deploys Four Keys' resources via a single Terraform module. The parameters are populated by the variables declared in `variables.tf`.  
+1. Run the following commands from the `example` directory:
 
-2. Rename `terraform.tfvars.example` to `terraform.tfvars` 
-3. Edit in values for the required variables. To accept the default value of a variable indicated in `variables.tf`, exclude it from `terraform.tfvars`
+    `terraform init` to inialize Terraform and download the module
 
-## Initialize and apply the Terraform
+    `terraform plan` to preview changes.
 
-1. Initialize the Terraform:
-    ```sh
-    terraform init
-    ```
-1.  Before applying the Terraform, preview changes and catch any errors in your configuration:
-    
-    ```sh
-    terraform plan
-    ```
-1. Deploy the resources to your Google Cloud Project:
-    ```sh
-    terraform apply
-    ```
+    `terraform apply` to deploy the resources.
+
 Once complete, your Four Keys infrastructure will be in-place to receive and process events.
 
-----
 # Generating mock data
 
-To test your Four Keys deployment, you can generate mock data that simulates events from a Github repository.  
+To test your Four Keys deployment, you can generate mock data that simulates events from a GitHub repository.  
 
-1. Export your event handler URL to an environment variable. This is the webhook URL that will receive events:
+1. Export your event handler URL an environment variable. This is the webhook URL that will receive events:
 
     ```sh
-    export WEBHOOK=`gcloud run services list --project=<PROJECT_ID> --format 'value(status.url)' --filter=metadata.name:event-handler`
+    export WEBHOOK=`gcloud run services list | grep event-handler | awk '{print $4}'`
     ```
 
 1. Export your event handler secret to an environment variable. This is the secret used to authenticate events sent to the webhook:
 
     ```sh
-    export SECRET=`gcloud secrets versions access --project=<PROJECT_ID> --secret=event-handler 1`
-    
-    ``` 
+    export SECRET=`gcloud secrets versions access 1 --secret=event-handler`
+    ```
 
 1. From the root of the fourkeys project run:
 
     ```sh
-    python3 data_generator/generate-data.py --vc_system=github
+    python3 data-generator/generate_data.py --vc_system=github
     ```
 
-    The data generated will run through the pipeline that the Terraform provisioned:
+    You can see these events being run through the pipeline:
     * The event handler logs show successful requests
     * The Pub/Sub topic show messages posted
     * The BigQuery GitHub parser show successful requests
