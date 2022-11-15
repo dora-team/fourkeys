@@ -2,15 +2,18 @@
 SELECT
 source,
 incident_id,
-repo_name,
+component,
 MIN(IF(root.time_created < issue.time_created, root.time_created, issue.time_created)) as time_created,
 MAX(time_resolved) as time_resolved,
 ARRAY_AGG(root_cause IGNORE NULLS) changes,
 FROM
 (
-SELECT 
+SELECT DISTINCT
 source,
 repo_name,
+ARRAY(SELECT REGEXP_EXTRACT(JSON_EXTRACT_SCALAR(labels_json_array, '$.name'),'^component:([a-zA-Z0-9-.]+$)')
+      FROM UNNEST(JSON_EXTRACT_ARRAY(metadata, '$.issue.labels')) labels_json_array
+      WHERE JSON_EXTRACT_SCALAR(labels_json_array, '$.name') LIKE 'component:%')[SAFE_OFFSET(0)] as component,
 CASE WHEN source LIKE "github%" THEN JSON_EXTRACT_SCALAR(metadata, '$.issue.number')
      WHEN source LIKE "gitlab%" AND event_type = "note" THEN JSON_EXTRACT_SCALAR(metadata, '$.object_attributes.noteable_id')
      WHEN source LIKE "gitlab%" AND event_type = "issue" THEN JSON_EXTRACT_SCALAR(metadata, '$.object_attributes.id')
@@ -33,7 +36,7 @@ FROM four_keys.events
 WHERE event_type LIKE "issue%" OR event_type LIKE "incident%" OR (event_type = "note" and JSON_EXTRACT_SCALAR(metadata, '$.object_attributes.noteable_type') = 'Issue')
 ) issue
 LEFT JOIN (SELECT time_created, changes FROM four_keys.deployments d, d.changes) root on root.changes = root_cause
-WHERE issue.time_resolved is not NULL
+WHERE issue.time_resolved is not NULL and component is not NULL
 GROUP BY 1,2,3
 HAVING max(bug) is True
 ;

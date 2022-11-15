@@ -79,7 +79,7 @@ def process_github_event(headers, msg):
     types = {"push", "pull_request", "pull_request_review",
              "pull_request_review_comment", "issues",
              "issue_comment", "check_run", "check_suite", "status",
-             "deployment_status", "release"}
+             "deployment_status", "release", "projects_v2_item"}
 
     if event_type not in types:
         raise Exception("Unsupported GitHub event: '%s'" % event_type)
@@ -133,6 +133,14 @@ def process_github_event(headers, msg):
                         metadata["release"]["created_at"])
         e_id = metadata["release"]["id"]
 
+    if event_type == "projects_v2_item":
+        time_created = metadata["projects_v2_item"]["updated_at"]
+        e_id = metadata["projects_v2_item"]["id"]
+
+        node_id = metadata["projects_v2_item"]["node_id"]
+        project_data = get_project_item(node_id)
+        project_data["node"]["project"]["title"]
+
     github_event = {
         "event_type": event_type,
         "id": e_id,
@@ -144,6 +152,48 @@ def process_github_event(headers, msg):
     }
 
     return github_event
+
+def get_project_item(node_id):
+    """
+    Retrieve project item details:
+    * issue id and its repo
+    * changed issue status
+    """
+
+    transport = RequestsHTTPTransport(
+        url="https://api.github.com/graphql",
+        verify=True,
+        retries=3,
+        headers={"Authorization": f"bearer {os.environ.get('GITHUB_TOKEN')}"},
+    )
+
+    gql_client = Client(transport=transport, fetch_schema_from_transport=False)
+    query = gql(
+        """
+        query getStatus ($itemId: ID!) {
+            node(id: $itemId) {
+                ... on ProjectV2Item {
+    			    status: fieldValueByName(name: "Status") {
+		                ... on ProjectV2ItemFieldSingleSelectValue {
+			                name
+		                }
+	                }
+                    content {
+		                ... on Issue {
+			                id
+                            number
+                            repository {
+                                name
+                            }
+		                }
+	                }
+                }
+            }
+        }
+        """
+    )
+    params = {"itemId": node_id}
+    return gql_client.execute(query, variable_values=params)
 
 
 if __name__ == "__main__":
