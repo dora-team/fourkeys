@@ -6,6 +6,7 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
       id as deploy_id,
       time_created,
       repo_name,
+      IFNULL(JSON_EXTRACT_SCALAR(metadata, '$.deployment_status.environment'), "production")  as env,
       CASE WHEN source = "cloud_build" then JSON_EXTRACT_SCALAR(metadata, '$.substitutions.COMMIT_SHA')
            WHEN source like "github%" then JSON_EXTRACT_SCALAR(metadata, '$.deployment.sha')
            WHEN source like "gitlab%" then COALESCE(
@@ -17,16 +18,20 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
                                       JSON_EXTRACT_SCALAR(metadata, '$.commit_url'), r".*commit\/(.*)")
                                       )
            WHEN source = "argocd" then JSON_EXTRACT_SCALAR(metadata, '$.commit_sha') end as main_commit,
-      CASE WHEN source LIKE "github%" THEN ARRAY(
+      CASE WHEN source LIKE "github%" AND event_type != "pull_request" THEN ARRAY(
                 SELECT JSON_EXTRACT_SCALAR(string_element, '$')
                 FROM UNNEST(JSON_EXTRACT_ARRAY(metadata, '$.deployment.additional_sha')) AS string_element)
+           WHEN source LIKE "github%" AND event_type = "pull_request" then REGEXP_EXTRACT_ALL(JSON_EXTRACT_SCALAR(metadata, '$.pull_request.body'), 'https://github.com/indykite/jarvis-proto/commit/([[:alnum:]]{40})')
            ELSE ARRAY<string>[] end as additional_commits
       FROM four_keys.events 
       WHERE (
       # Cloud Build Deployments
          (source = "cloud_build" AND JSON_EXTRACT_SCALAR(metadata, '$.status') = "SUCCESS")
       # GitHub Deployments
-      OR (source LIKE "github%" and event_type = "deployment_status" and JSON_EXTRACT_SCALAR(metadata, '$.deployment_status.state') = "success")
+      OR (source LIKE "github%" AND event_type = "deployment_status" AND repo_name != "jarvis-infrastructure-proto" AND JSON_EXTRACT_SCALAR(metadata, '$.deployment_status.state') = "success")
+      OR (source LIKE "github%" AND event_type = "deployment_status" AND repo_name = "jarvis-infrastructure-proto" AND JSON_EXTRACT_SCALAR(metadata, '$.deployment_status.environment') != "production" AND JSON_EXTRACT_SCALAR(metadata, '$.deployment_status.state') = "success")
+      # Get Jarvis Proto "deployments"
+      OR (source LIKE "github%" AND event_type = "pull_request" AND repo_name = "jarvis-infrastructure-proto" AND JSON_EXTRACT_SCALAR(metadata, '$.action') = "closed")
       # GitLab Pipelines 
       OR (source LIKE "gitlab%" AND event_type = "pipeline" AND JSON_EXTRACT_SCALAR(metadata, '$.object_attributes.status') = "success")
       # GitLab Deployments 
@@ -41,6 +46,7 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
       id as deploy_id,
       time_created,
       repo_name,
+      env,
       IF(JSON_EXTRACT_SCALAR(param, '$.name') = "gitrevision", JSON_EXTRACT_SCALAR(param, '$.value'), Null) as main_commit,
       ARRAY<string>[] AS additional_commits
       FROM (
@@ -49,6 +55,7 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
       TIMESTAMP_TRUNC(time_created, second) as time_created,
       source,
       repo_name,
+      JSON_EXTRACT_SCALAR(metadata, '$.deployment_status.environment') as env,
       four_keys.json2array(JSON_EXTRACT(metadata, '$.data.pipelineRun.spec.params')) params
       FROM four_keys.events
       WHERE event_type = "dev.tekton.event.pipelinerun.successful.v1" 
@@ -60,6 +67,7 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
       id AS deploy_id,
       time_created,
       repo_name,
+      JSON_EXTRACT_SCALAR(metadata, '$.deployment_status.environment') as env,
       JSON_EXTRACT_SCALAR(metadata, '$.pipeline.vcs.revision') AS main_commit,
       ARRAY<string>[] AS additional_commits
       FROM four_keys.events
@@ -85,6 +93,7 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
       deploy_id,
       deploys.time_created time_created,
       repo_name,
+      env,
       change_metadata,
       four_keys.json2array(JSON_EXTRACT(change_metadata, '$.commits')) AS array_commits,
       main_commit
@@ -100,9 +109,10 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
     source,
     deploy_id,
     time_created,
-    repo_name,
+    REGEXP_REPLACE(repo_name, "jarvis-infrastructure-proto", "jarvis-proto") as repo_name,
+    env,
     main_commit,   
     ARRAY_AGG(DISTINCT JSON_EXTRACT_SCALAR(array_commits, '$.id')) changes,    
     FROM deployment_changes
     CROSS JOIN deployment_changes.array_commits
-    GROUP BY 1,2,3,4,5;
+    GROUP BY 1,2,3,4,5,6
