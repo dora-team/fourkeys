@@ -15,7 +15,7 @@
 steps:
 - # Build argocd-parser image
   name: gcr.io/cloud-builders/docker:latest
-  args: ['build', 
+  args: ['build',
          '--tag=gcr.io/$PROJECT_ID/argocd-parser:${_TAG}', '.']
   dir: 'bq-workers/argocd-parser'
   id: build

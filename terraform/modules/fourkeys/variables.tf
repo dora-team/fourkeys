@@ -21,13 +21,19 @@ variable "bigquery_region" {
 
 variable "parsers" {
   type        = list(string)
-  description = "List of data parsers to configure. Acceptable values are: 'github', 'gitlab', 'cloud-build', 'tekton'"
+  description = "List of data parsers to configure. Acceptable values are: 'github', 'gitlab', 'cloud-build', 'tekton', 'circleci', 'pagerduty'"
 }
 
 variable "enable_apis" {
   type        = bool
   description = "Toggle to include required APIs."
   default     = false
+}
+
+variable "enable_dashboard" {
+  type        = bool
+  description = "Toggle to enable cloud run service creation."
+  default     = true
 }
 
 variable "enable_build_images" {
