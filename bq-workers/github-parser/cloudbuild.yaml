@@ -25,16 +25,6 @@ steps:
   waitFor: build
   id: push
 
-- # Deploy to Cloud Run
-  name: google/cloud-sdk
-  args: ['gcloud', 'run', 'deploy', 'github-parser',
-         '--image', 'gcr.io/$PROJECT_ID/github-parser:${_TAG}',
-         '--region', '${_REGION}',
-         '--platform', 'managed'
-  ]
-  id: deploy
-  waitFor: push
-
 images: [
   'gcr.io/$PROJECT_ID/github-parser:${_TAG}'
 ]

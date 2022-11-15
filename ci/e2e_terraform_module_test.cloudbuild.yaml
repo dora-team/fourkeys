@@ -53,7 +53,7 @@ steps:
         bigquery_region="US"
         event_handler_container_url="gcr.io/$_TARGET_PROJECT/event-handler:$SHORT_SHA"
         dashboard_container_url="gcr.io/$_TARGET_PROJECT/dashboard:$SHORT_SHA"
-        parser_container_urls={"github":"gcr.io/$_TARGET_PROJECT/github-parser:$SHORT_SHA"}
+        github_parser_url="gcr.io/$_TARGET_PROJECT/github-parser:$SHORT_SHA"
       }
       EOF
   waitFor: ['-']

@@ -29,7 +29,8 @@ resource "google_cloud_run_service" "dashboard" {
   }
   autogenerate_revision_name = true
   depends_on = [
-    module.fourkeys_images
+    module.fourkeys_images,
+    time_sleep.wait_for_services
   ]
 }
 

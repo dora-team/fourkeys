@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,19 +13,21 @@
 # limitations under the License.
 
 steps:
-- # Build event_handler image
+- # Build parser image
   name: gcr.io/cloud-builders/docker:latest
-  args: ['build', '--tag=gcr.io/$PROJECT_ID/event-handler:${_TAG}', '.']
+  dir: ${_SERVICE}-parser
+  args: ['build', 
+         '--tag=gcr.io/$PROJECT_ID/${_SERVICE}-parser:${_TAG}', '.']
   id: build
 
 - # Push the container image to Container Registry
   name: gcr.io/cloud-builders/docker
-  args: ['push', 'gcr.io/$PROJECT_ID/event-handler:${_TAG}']
+  args: ['push', 'gcr.io/$PROJECT_ID/${_SERVICE}-parser:${_TAG}']
   waitFor: build
   id: push
 
 images: [
-  'gcr.io/$PROJECT_ID/event-handler:${_TAG}'
+  'gcr.io/$PROJECT_ID/${_SERVICE}-parser:${_TAG}'
 ]
 substitutions:
   _TAG: latest

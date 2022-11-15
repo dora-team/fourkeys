@@ -22,6 +22,9 @@ resource "google_cloud_run_service" "event_handler" {
   }
 
   autogenerate_revision_name = true
+  depends_on = [
+    time_sleep.wait_for_services
+  ]
 }
 
 resource "google_cloud_run_service_iam_binding" "event_handler_noauth" {
@@ -39,6 +42,9 @@ resource "google_secret_manager_secret" "event_handler" {
   replication {
     automatic = true
   }
+  depends_on = [
+    time_sleep.wait_for_services
+  ]
 }
 
 resource "random_id" "event_handler_random_value" {
