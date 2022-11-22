@@ -60,6 +60,10 @@ resource "google_pubsub_subscription" "gitlab" {
   project = var.project_id
   name    = "gitlab"
   topic   = google_pubsub_topic.gitlab.id
+  
+  expiration_policy {
+    ttl = ""
+  }
 
   push_config {
     push_endpoint = google_cloud_run_service.gitlab_parser.status[0]["url"]
