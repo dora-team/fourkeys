@@ -39,16 +39,17 @@ resource "google_cloud_run_service_iam_binding" "event_handler_noauth" {
 resource "google_secret_manager_secret" "event_handler" {
   project   = var.project_id
   secret_id = "event-handler"
-  replication {
-    user_managed {
-      replicas {
-        location = var.region
+    replication {
+      user_managed {
+        replicas {
+          location = var.region
+        }
       }
+    depends_on = [
+      time_sleep.wait_for_services
+    ]
     }
-  depends_on = [
-    time_sleep.wait_for_services
-  ]
-}
+ }
 
 resource "random_id" "event_handler_random_value" {
   byte_length = "20"
