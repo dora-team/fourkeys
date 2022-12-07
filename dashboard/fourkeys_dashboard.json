@@ -210,7 +210,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.3.0",
+      "pluginVersion": "9.3.1",
       "targets": [
         {
           "datasource": {
@@ -259,7 +259,6 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Hours",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "bars",
@@ -426,7 +425,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.3.0",
+      "pluginVersion": "9.3.1",
       "targets": [
         {
           "datasource": {
@@ -644,7 +643,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.3.0",
+      "pluginVersion": "9.3.1",
       "targets": [
         {
           "datasource": {
@@ -677,7 +676,7 @@
           }
         }
       ],
-      "title": "Lead Time to Change Bucket",
+      "title": "Median Time to Restore Services",
       "type": "stat"
     },
     {
@@ -693,7 +692,6 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Hours",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
@@ -854,7 +852,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.3.0",
+      "pluginVersion": "9.3.1",
       "targets": [
         {
           "datasource": {
