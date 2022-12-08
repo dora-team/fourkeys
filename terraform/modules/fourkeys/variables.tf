@@ -36,12 +36,6 @@ variable "enable_dashboard" {
   default     = true
 }
 
-variable "enable_build_images" {
-  type        = bool
-  description = "Toggle to build fourkeys images and upload to container registry. If set to false, URLs for images must be provided via the container_url variables"
-  default     = false
-}
-
 variable "event_handler_container_url" {
   type        = string
   description = "The URL for the event_handler container image. A default value pointing to the project's container registry is defined in under local values of this module."

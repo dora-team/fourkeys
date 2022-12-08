@@ -25,7 +25,6 @@ No providers.
 |------|--------|---------|
 | <a name="module_circleci_parser"></a> [circleci\_parser](#module\_circleci\_parser) | ../fourkeys-circleci-parser | n/a |
 | <a name="module_cloud_build_parser"></a> [cloud\_build\_parser](#module\_cloud\_build\_parser) | ../fourkeys-cloud-build-parser | n/a |
-| <a name="module_fourkeys_images"></a> [fourkeys\_images](#module\_fourkeys\_images) | ../fourkeys-images | n/a |
 | <a name="module_github_parser"></a> [github\_parser](#module\_github\_parser) | ../fourkeys-github-parser | n/a |
 | <a name="module_gitlab_parser"></a> [gitlab\_parser](#module\_gitlab\_parser) | ../fourkeys-gitlab-parser | n/a |
 | <a name="module_pagerduty_parser"></a> [pagerduty\_parser](#module\_pagerduty\_parser) | ../fourkeys-pagerduty-parser | n/a |
