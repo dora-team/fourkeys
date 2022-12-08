@@ -12,7 +12,7 @@ variable "enable_apis" {
 variable "region" {
     type = string
     default = "us-central1"
-    description = "Region to deploy fource keys resources in."
+    description = "Region to deploy four keys resources in."
 }
 
 variable "bigquery_region" {
@@ -27,23 +27,23 @@ variable "bigquery_region" {
 
 variable "parsers" {
   type        = list(string)
-  description = "List of data parsers to configure. Acceptable values are: 'github', 'gitlab', 'cloud-build', 'tekton'"
+  description = "List of data parsers to configure. Acceptable values are: 'github', 'gitlab', 'cloud-build', 'tekton', 'pagerduty'"
 }
 
 variable "event_handler_container_url" {
   type        = string
-  description = "If 'enable_build_images' is set to false, this is the URL for the event_handler container image."
+  description = "URL for the event_handler container image."
   default     = ""
 }
 
 variable "dashboard_container_url" {
   type        = string
-  description = "If 'enable_build_images' is set to false, this is the URL for the dashboard container image."
+  description = "URL for the dashboard container image."
   default     = ""
 }
 
 variable "parser_container_urls" {
   type        = map(any)
-  description = "If 'enable_build_images' is set to false, this is the URL for the parser container images. e.g: {'github': 'gcr.io/youproject/github-parser', 'gitlab': 'gcr.io/youproject/gitlab-parser'} "
+  description = "URL for the parser container images. e.g: {'github': 'gcr.io/youproject/github-parser', 'gitlab': 'gcr.io/youproject/gitlab-parser'} "
   default     = {}
 }
