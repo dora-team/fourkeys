@@ -16,7 +16,7 @@ apiVersion: 1
 
 datasources:
 - name: Google BigQuery
-  type: doitintl-bigquery-datasource
+  type: grafana-bigquery-datasource
   access: proxy
   isDefault: true
   basicAuth: false

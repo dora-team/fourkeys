@@ -32,4 +32,4 @@ COPY dashboards.yaml /etc/grafana/provisioning/dashboards
 COPY datasource.yaml /etc/grafana/provisioning/datasources
 
 # Installing the BigQuery Plugin
-RUN grafana-cli plugins install doitintl-bigquery-datasource
+RUN grafana-cli plugins install grafana-bigquery-datasource
