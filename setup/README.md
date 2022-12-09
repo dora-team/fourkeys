@@ -23,6 +23,7 @@ To deploy Four Keys with Terraform, you will first need:
 1. Set an environment variable indicating your Google Cloud project ID:
     ```sh
     export PROJECT_ID="YOUR_PROJECT_ID"
+    gcloud config set project $PARENT_PROJECT_ID
     ```
 
 1. Clone the fourkeys git repository and change into the root directory
