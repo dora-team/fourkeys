@@ -167,3 +167,4 @@ backend.tf
 
 .idea
 *.iml
+terraform-docs

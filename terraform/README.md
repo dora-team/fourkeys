@@ -1,7 +1,5 @@
 # Four Keys Terraform
 
-🚧 **This Terraform is still under developement and may be missing some resources that would be deployed with [`setup.sh`](https://github.com/GoogleCloudPlatform/fourkeys/blob/main/setup/setup.sh)**
-
 This directory contains modules and examples for deploying Four Keys with Terraform. The primary module `modules/fourkeys` uses the other sub-modules to deploy resources to a provided Google Cloud Project.  
 
 ## Usage

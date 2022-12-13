@@ -7,7 +7,6 @@ module "circleci_parser" {
   fourkeys_service_account_email = google_service_account.fourkeys.email
   enable_apis                    = var.enable_apis
   depends_on = [
-    module.fourkeys_images,
     time_sleep.wait_for_services
   ]
 }
@@ -21,7 +20,6 @@ module "github_parser" {
   fourkeys_service_account_email = google_service_account.fourkeys.email
   enable_apis                    = var.enable_apis
   depends_on = [
-    module.fourkeys_images,
     time_sleep.wait_for_services
   ]
 }
@@ -35,7 +33,6 @@ module "gitlab_parser" {
   fourkeys_service_account_email = google_service_account.fourkeys.email
   enable_apis                    = var.enable_apis
   depends_on = [
-    module.fourkeys_images,
     time_sleep.wait_for_services
   ]
 }
@@ -49,7 +46,6 @@ module "pagerduty_parser" {
   fourkeys_service_account_email = google_service_account.fourkeys.email
   enable_apis                    = var.enable_apis
   depends_on = [
-    module.fourkeys_images,
     time_sleep.wait_for_services
   ]
 }
@@ -63,7 +59,6 @@ module "tekton_parser" {
   fourkeys_service_account_email = google_service_account.fourkeys.email
   enable_apis                    = var.enable_apis
   depends_on = [
-    module.fourkeys_images,
     time_sleep.wait_for_services
   ]
 }
@@ -77,7 +72,6 @@ module "cloud_build_parser" {
   fourkeys_service_account_email = google_service_account.fourkeys.email
   enable_apis                    = var.enable_apis
   depends_on = [
-    module.fourkeys_images,
     time_sleep.wait_for_services
   ]
 }
