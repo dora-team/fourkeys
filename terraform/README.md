@@ -8,7 +8,7 @@ This is an example of deploying fourkeys as a remote Terraform module from [this
 
 ```hcl
 module "fourkeys" {
-  source    = "github.com/GoogleCloudPlatform/fourkeys/terraform/modules/fourkeys"
+  source    = "github.com/GoogleCloudPlatform/fourkeys//terraform/modules/fourkeys"
   project_id = "your-google-cloud-project-id"
   parsers   = ['github']
 }
