@@ -1,0 +1,14 @@
+FROM python:3.7-slim
+
+RUN apt update && apt install -y \
+    git
+RUN pip install nox
+
+# Copy local code to the container image.
+ENV APP_HOME /app
+WORKDIR $APP_HOME
+COPY . .
+
+RUN pip install -r ./event-handler/requirements.txt
+
+CMD python -m nox
