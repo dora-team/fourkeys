@@ -16,15 +16,15 @@ steps:
 - # Build github-parser image
   name: gcr.io/cloud-builders/docker:latest
   args: ['build', 
-         '--tag=gcr.io/$PROJECT_ID/github-parser:${_TAG}', '.']
+         '--tag=${_GCR_DOMAIN}/$PROJECT_ID/github-parser:${_TAG}', '.']
   id: build
 
 - # Push the container image to Container Registry
   name: gcr.io/cloud-builders/docker
-  args: ['push', 'gcr.io/$PROJECT_ID/github-parser:${_TAG}']
+  args: ['push', '${_GCR_DOMAIN}/$PROJECT_ID/github-parser:${_TAG}']
   waitFor: build
   id: push
 
 images: [
-  'gcr.io/$PROJECT_ID/github-parser:${_TAG}'
+  '${_GCR_DOMAIN}/$PROJECT_ID/github-parser:${_TAG}'
 ]
