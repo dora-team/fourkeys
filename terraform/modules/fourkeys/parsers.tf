@@ -88,3 +88,16 @@ module "argocd_parser" {
     module.fourkeys_images
   ]
 }
+
+module "jira_parser" {
+  source                         = "../fourkeys-jira-parser"
+  count                          = contains(var.parsers, "jira") ? 1 : 0
+  project_id                     = var.project_id
+  parser_container_url           = local.parser_container_urls["jira"]
+  region                         = var.region
+  fourkeys_service_account_email = google_service_account.fourkeys.email
+  enable_apis                    = var.enable_apis
+  depends_on = [
+    module.fourkeys_images
+  ]
+}
