@@ -2,7 +2,6 @@
 SELECT
 source,
 incident_id,
-component,
 MIN(IF(root.time_created < issue.time_created, root.time_created, issue.time_created)) as time_created,
 MAX(time_resolved) as time_resolved,
 ARRAY_AGG(root_cause IGNORE NULLS) changes,
@@ -36,7 +35,7 @@ FROM four_keys.events
 WHERE event_type LIKE "issue%" OR event_type LIKE "incident%" OR (event_type = "note" and JSON_EXTRACT_SCALAR(metadata, '$.object_attributes.noteable_type') = 'Issue')
 ) issue
 LEFT JOIN (SELECT time_created, changes FROM four_keys.deployments d, d.changes) root on root.changes = root_cause
-WHERE issue.time_resolved is not NULL and component is not NULL
-GROUP BY 1,2,3
+WHERE issue.time_resolved is not NULL 
+GROUP BY 1,2
 HAVING max(bug) is True
 ;
