@@ -30,6 +30,7 @@ No providers.
 | <a name="module_gitlab_parser"></a> [gitlab\_parser](#module\_gitlab\_parser) | ../fourkeys-gitlab-parser | n/a |
 | <a name="module_pagerduty_parser"></a> [pagerduty\_parser](#module\_pagerduty\_parser) | ../fourkeys-pagerduty-parser | n/a |
 | <a name="module_tekton_parser"></a> [tekton\_parser](#module\_tekton\_parser) | ../fourkeys-tekton-parser | n/a |
+| <a name="module_jira_parser"></a> [jira\_parser](#module\jira\_parser) | ../fourkeys-jira-parser | n/a |
 
 ## Resources
 

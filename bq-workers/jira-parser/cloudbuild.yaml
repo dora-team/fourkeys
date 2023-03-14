@@ -1,0 +1,28 @@
+# Copyright 2023 Indykite
+
+steps:
+- # Build jira-parser image
+  name: gcr.io/cloud-builders/docker:latest
+  args: ['build', 
+         '--tag=gcr.io/$PROJECT_ID/jira-parser:${_TAG}', '.']
+  id: build
+
+- # Push the container image to Container Registry
+  name: gcr.io/cloud-builders/docker
+  args: ['push', 'gcr.io/$PROJECT_ID/jira-parser:${_TAG}']
+  waitFor: build
+  id: push
+
+- # Deploy to Cloud Run
+  name: google/cloud-sdk
+  args: ['gcloud', 'run', 'deploy', 'jira-parser',
+         '--image', 'gcr.io/$PROJECT_ID/jira-parser:${_TAG}',
+         '--region', '${_REGION}',
+         '--platform', 'managed'
+  ]
+  id: deploy
+  waitFor: push
+
+images: [
+  'gcr.io/$PROJECT_ID/jira-parser:${_TAG}'
+]
