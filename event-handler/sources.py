@@ -106,7 +106,7 @@ def simple_token_verification(token, body):
     """
     if not token:
         raise Exception("Token is empty")
-    secret = get_secret(PROJECT_NAME, "event-handler", "1")
+    secret = get_secret(PROJECT_NAME, "event-handler", "latest")
 
     return secret.decode() == token
 
