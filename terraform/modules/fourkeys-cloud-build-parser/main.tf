@@ -46,7 +46,7 @@ resource "google_cloud_run_service" "cloudbuild_parser" {
 
 resource "google_pubsub_topic" "cloudbuild" {
   project = var.project_id
-  name    = "cloudbuild"
+  name    = "cloud-builds"
 }
 
 resource "google_pubsub_topic_iam_member" "service_account_editor" {
