@@ -1,3 +1,8 @@
+This module creates the pubsub topic and parser for Cloud Build. The name of the pubsub topic is important! 
+
+Cloud Build is designed so that if a topic exists named `cloud-builds`, build events are automatically written to it. But that topic is not created by default, [it has to be deliberately created](https://cloud.google.com/build/docs/subscribe-build-notifications#receiving_build_notifications).
+
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
