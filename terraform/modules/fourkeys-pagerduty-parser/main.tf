@@ -37,6 +37,18 @@ resource "google_cloud_run_service" "pagerduty_parser" {
     percent         = 100
     latest_revision = true
   }
+  
+  metadata {
+    annotations = {
+      "run.googleapis.com/ingress" = "internal"
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      metadata[0].annotations,
+    ]
+  }
 
   autogenerate_revision_name = true
   depends_on = [
