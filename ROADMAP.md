@@ -22,7 +22,7 @@ Non-goals:
 
 * Short Term
   * Enriching the dashboard
-    * [More data points](https://github.com/GoogleCloudPlatform/fourkeys/issues/77)
+    * [More data points](https://github.com/dora-team/fourkeys/issues/77)
     * New data views for drilling down into the metrics
   * More native Terraform installation 
     * Currently, the setup is a mix of `gcloud` commands and Terraform configuration.  We will move away from `gcloud` commands and rely more on the declarative Terraform setup.
@@ -46,6 +46,6 @@ Non-goals:
       * [GitHub Enterprise](https://github.com/enterprise)
       * [Gitea](https://gitea.io/en-us/)
   * Custom deployment events
-    * Support for different [deployment patterns](https://github.com/GoogleCloudPlatform/fourkeys/issues/46), eg multiple change sets in a single deployment
+    * Support for different [deployment patterns](https://github.com/dora-team/fourkeys/issues/46), eg multiple change sets in a single deployment
     * Canary and Blue/Green deployments
 

@@ -27,7 +27,7 @@ To deploy Four Keys with Terraform, you will first need:
 
 1. Clone the fourkeys git repository and change into the root directory
    ```
-   git clone https://github.com/GoogleCloudPlatform/fourkeys.git && cd fourkeys
+   git clone https://github.com/dora-team/fourkeys.git && cd fourkeys
    ```
 
 1. Use Cloud Build to build and push containers to Google Container Registry for the dashboard, event-handler:
