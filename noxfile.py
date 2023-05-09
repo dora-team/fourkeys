@@ -71,7 +71,7 @@ def _session_tests(session, folder):
     )
 
 
-@nox.session(python=["3.7"])
+@nox.session(python=["3.10"])
 @nox.parametrize("folder", FOLDERS)
 def py(session, folder):
     """Runs py.test for a folder using the specified version of Python."""
