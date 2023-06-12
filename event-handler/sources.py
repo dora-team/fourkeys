@@ -120,7 +120,7 @@ def get_secret(project_name, secret_name, version_num):
         name = client.secret_version_path(
             project_name, secret_name, version_num
         )
-        secret = client.access_secret_version(name)
+        secret = client.access_secret_version(name=name)
         return secret.payload.data
     except Exception as e:
         print(e)
