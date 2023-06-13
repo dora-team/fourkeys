@@ -31,6 +31,9 @@ resource "google_cloud_run_service" "dashboard" {
   depends_on = [
     module.fourkeys_images
   ]
+  lifecycle {
+    ignore_changes = [metadata[0].labels["run.googleapis.com/satisfiesPzs"]]
+  }
 }
 
 resource "google_cloud_run_service_iam_binding" "dashboard_noauth" {
