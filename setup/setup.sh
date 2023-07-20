@@ -68,6 +68,7 @@ else
     read -p "
     Which incident management system(s) are you using?
     (1) PagerDuty
+    (2) Jira
     (2) Other
 
     Enter a selection (1 - 2): " incident_system_id
@@ -114,6 +115,7 @@ esac
 
 case $incident_system_id in
     1) INCIDENT_SYSTEM="pagerduty"; read -p "Please enter the PagerDuty Signature Verification Token: " PAGERDUTY_SECRET ;;
+    2) INCIDENT_SYSTEM="jira" ;;
     *) echo "Please see the documentation to learn how to extend to incident sources other than PagerDuty."
 esac
 

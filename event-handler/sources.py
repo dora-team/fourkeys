@@ -145,6 +145,9 @@ def get_source(headers):
 
     if "Argo-CD" in headers.get("User-Agent", ""):
         return "argocd"
+    
+    if "Atlassian Webhook HTTP Client" in headers.get("User-Agent"):
+        return "jira"
 
     return headers.get("User-Agent")
 
@@ -156,4 +159,5 @@ AUTHORIZED_SOURCES = {
     "circleci": EventSource("Circleci-Signature", circleci_verification),
     "pagerduty": EventSource("X-Pagerduty-Signature", pagerduty_verification),
     "argocd": EventSource("Argo-Signature", simple_token_verification),
+    "jira": EventSource("token", simple_token_verification),
 }

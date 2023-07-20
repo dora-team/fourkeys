@@ -35,7 +35,6 @@ def index():
 
     # Check if the source is authorized
     source = sources.get_source(request.headers)
-
     if source not in sources.AUTHORIZED_SOURCES:
         abort(403, f"Source not authorized: {source}")
 
@@ -47,14 +46,14 @@ def index():
         abort(403, "Signature not found in request headers")
 
     body = request.data
-
     # Verify the signature
     verify_signature = auth_source.verification
+
     if not verify_signature(signature, body):
         abort(403, "Signature does not match expected signature")
-
     # Remove the Auth header so we do not publish it to Pub/Sub
     pubsub_headers = dict(request.headers)
+    
     if "Authorization" in pubsub_headers:
         del pubsub_headers["Authorization"]
 
@@ -74,17 +73,14 @@ def publish_to_pubsub(source, msg, headers):
         publisher = pubsub_v1.PublisherClient()
         topic_path = publisher.topic_path(PROJECT_NAME, source)
         print(topic_path)
-
         # Pub/Sub data must be bytestring, attributes must be strings
         future = publisher.publish(
             topic_path, data=msg, headers=json.dumps(headers)
         )
-
+        print(f"Result: {future.result()}")
         exception = future.exception()
         if exception:
             raise Exception(exception)
-
-        print(f"Published message: {future.result()}")
 
     except Exception as e:
         # Log any exceptions to stackdriver
