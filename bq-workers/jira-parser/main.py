@@ -1,9 +1,10 @@
 # Copyright 2023 Indykite
 
 import base64
+from datetime import timezone
 import os
 import json
-from datetime import datetime, timedelta
+from dateutil.parser import parse
 
 import shared
 
@@ -54,29 +55,14 @@ def process_jira_event(headers, msg):
     # Decode the base64 'data' field and load it as a JSON object
     data = json.loads(base64.b64decode(msg['data']).decode('utf-8'))
     event_type = data["webhookEvent"]
+    signature = headers["X-Atlassian-Webhook-Identifier"]
 
     if event_type == "jira:issue_created" or event_type == "jira:issue_updated":
         time_created = data["issue"]["fields"]["updated"]
         e_id = "jira/" + data["issue"]["key"]
 
-        # Convert string to datetime object
-        if 'Z' in time_created:  
-            # If 'Z' is in the string, it represents a UTC timestamp.
-            # replace 'T' with space ' ' and 'Z' with empty
-            time_created_dt = datetime.fromisoformat(time_created.replace("T", " ").replace("Z", "")) 
-        else:
-            # Split the timestamp into date, time, and timezone components
-            date_str, time_str, tz_str = time_created.split("T")[0], time_created.split("T")[1].split("-")[0], time_created.split("-")[-1]
-
-            # Construct a new datetime string with a space instead of 'T' and parse it into a datetime object
-            time_created_no_tz = datetime.fromisoformat(f"{date_str} {time_str}")
-            
-            # Calculate the timezone offset
-            tz_offset = timedelta(hours=int(tz_str[:2]), minutes=int(tz_str[2:]))
-            
-            # Subtract the timezone offset from the datetime object
-            time_created_dt = time_created_no_tz - tz_offset
-
+        time_created_dt = parse(time_created)
+        time_created_dt = time_created_dt.astimezone(timezone.utc)
         # Format the datetime object to a string in the required format
         time_created_formatted = time_created_dt.strftime('%Y-%m-%d %H:%M:%S.%f')
 
@@ -85,7 +71,7 @@ def process_jira_event(headers, msg):
         "id": e_id,
         "metadata": json.dumps(data),
         "time_created": time_created_formatted,
-        "signature": "",
+        "signature": signature,
         "msg_id": msg["message_id"],
         "source": "jira"
     }
