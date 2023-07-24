@@ -103,3 +103,55 @@ resource "google_bigquery_table" "view_incidents" {
     google_bigquery_routine.func_multiFormatParseTimestamp
   ]
 }
+
+resource "google_bigquery_table" "view_lead_time_for_changes" {
+  project    = var.project_id
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  table_id   = "lead_time_for_changes"
+  view {
+    query          = file("${path.module}/queries/lead_time_for_changes.sql")
+    use_legacy_sql = false
+  }
+  deletion_protection = false
+  depends_on = [
+    google_project_service.fourkeys_services,
+    google_bigquery_table.view_changes,
+    google_bigquery_table.view_deployments
+  ]
+}
+
+resource "google_bigquery_table" "view_time_to_restore_services" {
+  project    = var.project_id
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  table_id   = "time_to_restore_services"
+  view {
+    query          = file("${path.module}/queries/time_to_restore_services.sql")
+    use_legacy_sql = false
+  }
+  deletion_protection = false
+  depends_on = [
+    google_project_service.fourkeys_services,
+    google_bigquery_table.view_deployments,
+    google_bigquery_table.view_incidents
+  ]
+}
+
+resource "google_bigquery_table" "view_change_failure_rate" {
+  project    = var.project_id
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  table_id   = "change_failure_rate"
+  view {
+    query          = file("${path.module}/queries/change_failure_rate.sql")
+    use_legacy_sql = false
+  }
+  deletion_protection = false
+  depends_on = [
+    google_project_service.fourkeys_services,
+    google_bigquery_table.view_deployments,
+    google_bigquery_table.view_incidents
+  ]
+}
+
+
+
+

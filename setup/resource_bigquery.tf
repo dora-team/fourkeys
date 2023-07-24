@@ -145,3 +145,45 @@ resource "google_project_iam_member" "parser_run_invoker" {
   member  = "serviceAccount:${google_service_account.fourkeys.email}"
   role    = "roles/run.invoker"
 }
+
+resource "google_bigquery_table" "view_lead_time_for_changes" {
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  table_id   = "lead_time_for_changes"
+  view {
+    query          = file("../queries/lead_time_for_changes.sql")
+    use_legacy_sql = false
+  }
+  deletion_protection = false
+  depends_on = [
+    google_bigquery_table.view_changes,
+    google_bigquery_table.view_deployments
+  ]
+}
+
+resource "google_bigquery_table" "view_time_to_restore_services" {
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  table_id   = "time_to_restore_services"
+  view {
+    query          = file("../queries/time_to_restore_services.sql")
+    use_legacy_sql = false
+  }
+  deletion_protection = false
+  depends_on = [
+    google_bigquery_table.view_deployments,
+    google_bigquery_table.view_incidents
+  ]
+}
+
+resource "google_bigquery_table" "view_change_failure_rate" {
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  table_id   = "change_failure_rate"
+  view {
+    query          = file("../queries/change_failure_rate.sql")
+    use_legacy_sql = false
+  }
+  deletion_protection = false
+  depends_on = [
+    google_bigquery_table.view_deployments,
+    google_bigquery_table.view_incidents
+  ]
+}
