@@ -2,9 +2,10 @@
 SELECT
 source,
 incident_id,
+repo_name,
 MIN(IF(root.time_created < issue.time_created, root.time_created, issue.time_created)) as time_created,
 MAX(time_resolved) as time_resolved,
-ARRAY_AGG(root_cause IGNORE NULLS) changes,
+ARRAY_AGG(root_cause IGNORE NULLS) changes
 FROM
 (
 SELECT DISTINCT
@@ -36,6 +37,6 @@ WHERE event_type LIKE "issue%" OR event_type LIKE "incident%" OR (event_type = "
 ) issue
 LEFT JOIN (SELECT time_created, changes FROM four_keys.deployments d, d.changes) root on root.changes = root_cause
 WHERE issue.time_resolved is not NULL 
-GROUP BY 1,2
+GROUP BY 1,2,3
 HAVING max(bug) is True
 ;
