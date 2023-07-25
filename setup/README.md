@@ -25,20 +25,37 @@ To deploy Four Keys with Terraform, you will first need:
     export PROJECT_ID="YOUR_PROJECT_ID"
     ```
 
+1. Set an environment variable indicating the region where you want to deploy the dashboard, event handler and parsers. You can find a list of available regions [here](https://cloud.google.com/artifact-registry/docs/repositories/repo-locations).
+    ```sh
+    export GAR_REGION="ARTIFACT_REGISTRY_REGION"
+    ```
+
+1. Set an environment variable indicating the service name you want to use:
+    ```sh
+    export SERVICE="SERVICE_NAME"
+    ```
+
+1. Create an artifact registry repository for the dashboard, event-handler and parsers:
+    ```sh
+    gcloud artifacts repositories create dashboard --repository-format=docker --location=$GAR_REGION --project $PROJECT_ID && \
+    gcloud artifacts repositories create event-handler --repository-format=docker --location=$GAR_REGION --project $PROJECT_ID && \
+    gcloud artifacts repositories create ${SERVICE}-parser --repository-format=docker --location=$GAR_REGION --project $PROJECT_ID
+    ```
+
 1. Clone the fourkeys git repository and change into the root directory
    ```
    git clone https://github.com/dora-team/fourkeys.git && cd fourkeys
    ```
 
-1. Use Cloud Build to build and push containers to Google Container Registry for the dashboard, event-handler:
+1. Use Cloud Build to build and push containers to Google Artifact Registry for the dashboard, event-handler:
    ```
-   gcloud builds submit dashboard --config=dashboard/cloudbuild.yaml --project $PROJECT_ID && \
-   gcloud builds submit event-handler --config=event-handler/cloudbuild.yaml --project $PROJECT_ID
+   gcloud builds submit dashboard --config=dashboard/cloudbuild.yaml --project $PROJECT_ID --substitutions=_REGION=$GAR_REGION && \
+   gcloud builds submit event-handler --config=event-handler/cloudbuild.yaml --project $PROJECT_ID --substitutions=_REGION=$GAR_REGION
    ```
 
-1. Use Cloud Build to build and push containers to Google Container Registry for the parsers you plan to use. See the [`bq-workers`](../bq-workers/) for available options. GitHub for example:
+1. Use Cloud Build to build and push containers to Google Artifact Registry for the parsers you plan to use. See the [`bq-workers`](../bq-workers/) for available options. GitHub for example:
    ```
-   gcloud builds submit bq-workers --config=bq-workers/parsers.cloudbuild.yaml --project $PROJECT_ID --substitutions=_SERVICE=github
+   gcloud builds submit bq-workers --config=bq-workers/parsers.cloudbuild.yaml --project $PROJECT_ID --substitutions=_SERVICE=$SERVICE,_REGION=$GAR_REGION
    ```
 
 1. Change your working directory to `terraform/example` and rename `terraform.tfvars.example` to `terraform.tfvars`
