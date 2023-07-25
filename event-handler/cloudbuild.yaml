@@ -15,17 +15,12 @@
 steps:
 - # Build event_handler image
   name: gcr.io/cloud-builders/docker:latest
-  args: ['build', '--tag=gcr.io/$PROJECT_ID/event-handler:${_TAG}', '.']
+  args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/event-handler/handler:${_TAG}', '.']
   id: build
 
-- # Push the container image to Container Registry
-  name: gcr.io/cloud-builders/docker
-  args: ['push', 'gcr.io/$PROJECT_ID/event-handler:${_TAG}']
-  waitFor: build
-  id: push
+# Push the container image to Artifact Registry
+images: 
+- '${_REGION}-docker.pkg.dev/$PROJECT_ID/event-handler/handler:${_TAG}'
 
-images: [
-  'gcr.io/$PROJECT_ID/event-handler:${_TAG}'
-]
 substitutions:
   _TAG: latest

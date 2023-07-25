@@ -38,48 +38,48 @@ variable "enable_dashboard" {
 
 variable "event_handler_container_url" {
   type        = string
-  description = "The URL for the event_handler container image. A default value pointing to the project's container registry is defined in under local values of this module."
+  description = "The URL for the event_handler container image. A default value pointing to the project's artifact registry is defined in under local values of this module."
   default     = ""
 }
 
 variable "dashboard_container_url" {
   type        = string
-  description = "The URL for the dashboard container image. A default value pointing to the project's container registry is defined in under local values of this module."
+  description = "The URL for the dashboard container image. A default value pointing to the project's artifact registry is defined in under local values of this module."
   default     = ""
 }
 
 variable "github_parser_url" {
   type        = string
-  description = "The URL for the Github parser container image. A default value pointing to the project's container registry is defined in under local values of this module."
+  description = "The URL for the Github parser container image. A default value pointing to the project's artifact registry is defined in under local values of this module."
   default     = ""
 }
 
 variable "gitlab_parser_url" {
   type        = string
-  description = "The URL for the Gitlab parser container image. A default value pointing to the project's container registry is defined in under local values of this module."
+  description = "The URL for the Gitlab parser container image. A default value pointing to the project's artifact registry is defined in under local values of this module."
   default     = ""
 }
 
 variable "cloud_build_parser_url" {
   type        = string
-  description = "The URL for the Cloud Build parser container image. A default value pointing to the project's container registry is defined in under local values of this module."
+  description = "The URL for the Cloud Build parser container image. A default value pointing to the project's artifact registry is defined in under local values of this module."
   default     = ""
 }
 
 variable "tekton_parser_url" {
   type        = string
-  description = "The URL for the Tekton parser container image. A default value pointing to the project's container registry is defined in under local values of this module."
+  description = "The URL for the Tekton parser container image. A default value pointing to the project's artifact registry is defined in under local values of this module."
   default     = ""
 }
 
 variable "circleci_parser_url" {
   type        = string
-  description = "The URL for the CircleCI parser container image. A default value pointing to the project's container registry is defined in under local values of this module."
+  description = "The URL for the CircleCI parser container image. A default value pointing to the project's artifact registry is defined in under local values of this module."
   default     = ""
 }
 
 variable "pagerduty_parser_url" {
   type        = string
-  description = "The URL for the Pager Duty parser container image. A default value pointing to the project's container registry is defined in under local values of this module."
+  description = "The URL for the Pager Duty parser container image. A default value pointing to the project's artifact registry is defined in under local values of this module."
   default     = ""
 }

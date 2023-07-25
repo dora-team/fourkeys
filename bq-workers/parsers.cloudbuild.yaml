@@ -14,20 +14,15 @@
 
 steps:
 - # Build parser image
-  name: gcr.io/cloud-builders/docker:latest
+  name: gcr.io/cloud-builders/docker
   dir: ${_SERVICE}-parser
-  args: ['build', 
-         '--tag=gcr.io/$PROJECT_ID/${_SERVICE}-parser:${_TAG}', '.']
+  args: ['build', '-t',
+         '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_SERVICE}-parser/parser:${_TAG}', '.']
   id: build
 
-- # Push the container image to Container Registry
-  name: gcr.io/cloud-builders/docker
-  args: ['push', 'gcr.io/$PROJECT_ID/${_SERVICE}-parser:${_TAG}']
-  waitFor: build
-  id: push
+# Push the container image to Artifact Registry
+images:
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_SERVICE}-parser/parser:${_TAG}'
 
-images: [
-  'gcr.io/$PROJECT_ID/${_SERVICE}-parser:${_TAG}'
-]
 substitutions:
   _TAG: latest
