@@ -9,10 +9,10 @@ locals {
 }
 
 resource "google_project_service" "data_source_services" {
-  project                    = var.project_id
-  for_each                   = toset(local.services)
-  service                    = each.value
-  disable_on_destroy         = false
+  project            = var.project_id
+  for_each           = toset(local.services)
+  service            = each.value
+  disable_on_destroy = false
 }
 
 resource "google_cloud_run_service" "gitlab_parser" {
@@ -72,7 +72,7 @@ resource "google_pubsub_subscription" "gitlab" {
   project = var.project_id
   name    = "gitlab"
   topic   = google_pubsub_topic.gitlab.id
-  
+
   expiration_policy {
     ttl = ""
   }
