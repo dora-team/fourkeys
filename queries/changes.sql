@@ -1,11 +1,14 @@
 # Changes Table
 SELECT 
-source,
-event_type,
-repo_name,
-JSON_EXTRACT_SCALAR(commit, '$.id') change_id,
-TIMESTAMP_TRUNC(TIMESTAMP(JSON_EXTRACT_SCALAR(commit, '$.timestamp')),second) AS time_created,
-FROM four_keys.events e,
-UNNEST(JSON_EXTRACT_ARRAY(e.metadata, '$.commits')) AS commit
-WHERE event_type = "push"
-GROUP BY 1,2,3,4,5
+    e.source AS source,
+    e.event_type AS event_type,
+    e.repo_name AS repo_name,
+    JSON_EXTRACT_SCALAR(e.metadata, '$.issue.key') AS change_id,
+    TIMESTAMP_TRUNC(TIMESTAMP(JSON_EXTRACT_SCALAR(e.metadata, '$.issue.fields.statuscategorychangedate')), second) AS time_created,
+    JSON_EXTRACT_SCALAR(e.metadata, '$.issue.fields.status.name') AS status
+FROM 
+    four_keys.events e
+WHERE 
+    e.event_type = "jira:issue_updated"
+GROUP BY 
+    1,2,3,4,5,6
