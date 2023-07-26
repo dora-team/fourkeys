@@ -1,7 +1,7 @@
 # Changes Table
 SELECT 
     e.source AS source,
-    e.event_type AS event_type,
+    JSON_EXTRACT_SCALAR(e.metadata, '$.issue.fields.issuetype.name') AS event_type,
     e.repo_name AS repo_name,
     JSON_EXTRACT_SCALAR(e.metadata, '$.issue.key') AS change_id,
     TIMESTAMP_TRUNC(TIMESTAMP(JSON_EXTRACT_SCALAR(e.metadata, '$.issue.fields.statuscategorychangedate')), second) AS time_created,
