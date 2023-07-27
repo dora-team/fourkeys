@@ -20,9 +20,9 @@ FROM (
   AND 
     c2.status = 'Done'
   AND 
-    c1.event_type = 'Task'
+    c1.event_type = 'Bug'
   AND 
-    c2.event_type = 'Task'
+    c2.event_type = 'Bug'
   AND 
     c2.time_created > c1.time_created
 )
