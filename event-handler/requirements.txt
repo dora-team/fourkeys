@@ -2,3 +2,4 @@ Flask==2.3.2
 gunicorn==20.1.0
 google-cloud-pubsub==1.1.0
 google-cloud-secret-manager==0.1.0
+six==1.16.0
