@@ -1025,7 +1025,7 @@
     "list": []
   },
   "time": {
-    "from": "now-7d",
+    "from": "now-90d",
     "to": "now"
   },
   "timepicker": {
@@ -1058,6 +1058,6 @@
   "timezone": "utc",
   "title": "Four Keys",
   "uid": "yVtwoQ4nk",
-  "version": 4,
+  "version": 2,
   "weekStart": ""
 }
