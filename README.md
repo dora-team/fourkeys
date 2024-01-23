@@ -1,3 +1,5 @@
+> This repository is not currently maintained. We encourage you to explore it, fork it, or otherwise use it as inspiration for your own metrics instrumentation.
+
 ![Four Keys](images/fourkeys_wide.svg)
 
 [![Four Keys YouTube Video](images/youtube-screenshot.png)](https://www.youtube.com/watch?v=2rzvIL29Nz0 "Measuring Devops: The Four Keys Project")
