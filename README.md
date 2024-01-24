@@ -466,4 +466,4 @@ The following chart is from the [2019 State of DevOps Report](https://www.devops
 
 ![Image of chart from the State of DevOps Report, showing the range of each key metric for elite, high, medium, and low software delivery performers.](images/dora-chart.png)
 
-Disclaimer: This is not an officially supported Google product
+Disclaimer: This is not an officially supported Google product ONE
