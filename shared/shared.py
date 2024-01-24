@@ -17,12 +17,16 @@ import json
 from google.cloud import bigquery
 
 
-def insert_row_into_bigquery(event):
+def insert_row_into_bigquery(event, **kwargs):
+    project_id = kwargs.get('project_id', None)
     if not event:
         raise Exception("No data to insert")
 
     # Set up bigquery instance
-    client = bigquery.Client()
+    if project_id is None :
+        client = bigquery.Client()
+    else:
+        client = bigquery.Client(project=project_id)
     dataset_id = "four_keys"
     table_id = "events_raw"
 
@@ -55,12 +59,16 @@ def insert_row_into_bigquery(event):
             print(json.dumps(entry))
 
 
-def insert_row_into_events_enriched(event):
+def insert_row_into_events_enriched(event, **kwargs):
+    project_id = kwargs.get('project_id', None)
     if not event:
         raise Exception("No data to insert")
 
     # Set up bigquery instance
-    client = bigquery.Client()
+    if project_id is None :
+        client = bigquery.Client()
+    else:
+        client = bigquery.Client(project=project_id)
     dataset_id = "four_keys"
     table_id = "events_enriched"
 
