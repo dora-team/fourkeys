@@ -145,6 +145,9 @@ def get_source(headers):
     if "X-Pagerduty-Signature" in headers:
         return "pagerduty"
 
+    if "Argo-CD" in headers.get("User-Agent", ""):
+        return "argocd"
+
     return headers.get("User-Agent")
 
 
@@ -163,5 +166,8 @@ AUTHORIZED_SOURCES = {
         ),
     "pagerduty": EventSource(
         "X-Pagerduty-Signature", pagerduty_verification
+        ),
+    "argocd": EventSource(
+        "Argo-Signature", simple_token_verification
         ),
 }
