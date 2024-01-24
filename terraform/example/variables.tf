@@ -1,6 +1,6 @@
 variable "project_id" {
-    type    = string
-    description = "project to deploy four keys resources to"
+  type        = string
+  description = "project to deploy four keys resources to"
 }
 
 variable "enable_apis" {
@@ -10,9 +10,9 @@ variable "enable_apis" {
 }
 
 variable "region" {
-    type = string
-    default = "us-central1"
-    description = "Region to deploy four keys resources in."
+  type        = string
+  default     = "us-central1"
+  description = "Region to deploy four keys resources in."
 }
 
 variable "bigquery_region" {

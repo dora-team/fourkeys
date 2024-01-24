@@ -14,15 +14,14 @@
 
 steps:
 - # Build grafana image
-  name: gcr.io/cloud-builders/docker:latest
-  args: ['build', '--tag', 
-         'gcr.io/$PROJECT_ID/fourkeys-grafana-dashboard:${_TAG}', '.']
+  name: gcr.io/cloud-builders/docker
+  args: ['build', '-t', 
+         '${_REGION}-docker.pkg.dev/$PROJECT_ID/dashboard/grafana:${_TAG}', '.']
   id: build
 
-- # Push the container image to Container Registry
-  name: gcr.io/cloud-builders/docker
-  args: ['push', 'gcr.io/$PROJECT_ID/fourkeys-grafana-dashboard:${_TAG}']
-  id: push
+# Push the container image to Artifact Registry
+images:
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/dashboard/grafana:${_TAG}'
 
 # Read more about substitutions 
 # https://cloud.google.com/build/docs/configuring-builds/substitute-variable-values

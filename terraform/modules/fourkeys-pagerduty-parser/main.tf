@@ -9,10 +9,10 @@ locals {
 }
 
 resource "google_project_service" "data_source_services" {
-  project                    = var.project_id
-  for_each                   = toset(local.services)
-  service                    = each.value
-  disable_on_destroy         = false
+  project            = var.project_id
+  for_each           = toset(local.services)
+  service            = each.value
+  disable_on_destroy = false
 }
 
 resource "google_cloud_run_service" "pagerduty_parser" {
@@ -37,7 +37,7 @@ resource "google_cloud_run_service" "pagerduty_parser" {
     percent         = 100
     latest_revision = true
   }
-  
+
   metadata {
     annotations = {
       "run.googleapis.com/ingress" = "internal"
