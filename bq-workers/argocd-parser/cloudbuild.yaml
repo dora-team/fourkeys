@@ -16,20 +16,20 @@ steps:
 - # Build argocd-parser image
   name: gcr.io/cloud-builders/docker:latest
   args: ['build', 
-         '--tag=gcr.io/$PROJECT_ID/argocd-parser:${_TAG}', '.']
+         '--tag=${_GCR_DOMAIN}/$PROJECT_ID/argocd-parser:${_TAG}', '.']
   dir: 'bq-workers/argocd-parser'
   id: build
 
 - # Push the container image to Artifact Registry
   name: gcr.io/cloud-builders/docker
-  args: ['push', 'gcr.io/$PROJECT_ID/argocd-parser:${_TAG}']
+  args: ['push', '${_GCR_DOMAIN}/$PROJECT_ID/argocd-parser:${_TAG}']
   waitFor: build
   id: push
 
 - # Deploy to Cloud Run
   name: google/cloud-sdk
   args: ['gcloud', 'run', 'deploy', 'argocd-parser',
-         '--image', 'gcr.io/$PROJECT_ID/argocd-parser:${_TAG}',
+         '--image', '${_GCR_DOMAIN}/$PROJECT_ID/argocd-parser:${_TAG}',
          '--region', '${_REGION}',
          '--platform', 'managed'
   ]
@@ -37,5 +37,5 @@ steps:
   waitFor: push
 
 images: [
-  'gcr.io/$PROJECT_ID/argocd-parser:${_TAG}'
+  '${_GCR_DOMAIN}/$PROJECT_ID/argocd-parser:${_TAG}'
 ]

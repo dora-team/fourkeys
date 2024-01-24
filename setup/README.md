@@ -36,6 +36,9 @@ To deploy Four Keys with Terraform, you will first need:
    gcloud builds submit event-handler --config=event-handler/cloudbuild.yaml --project $PROJECT_ID
    ```
 
+> If you're restricted to using GCP services in certain regions you can override the use of gcr.io with a local domain like eu.gcr.io by adding `--substitutions=_GCR_DOMAIN=eu.gcr.io` to both gcloud builds commands above and any parsers (next step).
+> You'll also need to add the relevant URLs as variables in your `terraform/example/terraform.tfvars` file.
+
 1. Use Cloud Build to build and push containers to Google Container Registry for the parsers you plan to use. See the [`bq-workers`](../bq-workers/) for available options. GitHub for example:
    ```
    gcloud builds submit bq-workers --config=bq-workers/parsers.cloudbuild.yaml --project $PROJECT_ID --substitutions=_SERVICE=github
