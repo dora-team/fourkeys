@@ -41,7 +41,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Hours",
+            "axisLabel": "Time",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
@@ -81,7 +81,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "s"
         },
         "overrides": []
       },
@@ -104,6 +105,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "9.3.1",
       "targets": [
         {
           "datasource": {
@@ -115,7 +117,7 @@
           "location": "US",
           "project": "gglobo-deployment-frq-hdg-prd",
           "rawQuery": true,
-          "rawSql": "SELECT\n day,\n IFNULL(ANY_VALUE(med_time_to_change)/60, 0) AS median_time_to_change, # Hours\nFROM (\n SELECT\n  d.deploy_id,\n  TIMESTAMP_TRUNC(d.time_created, DAY) AS day,\n  PERCENTILE_CONT(\n  IF(TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE) > 0, TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE), NULL), # Ignore automated pushes\n  0.5) # Median\n  OVER (PARTITION BY TIMESTAMP_TRUNC(d.time_created, DAY)) AS med_time_to_change, # Minutes\n FROM four_keys.deployments d, d.changes\n LEFT JOIN four_keys.changes c ON changes = c.change_id\n)\nGROUP BY day\nORDER BY day",
+          "rawSql": "SELECT\n day,\n IFNULL(ANY_VALUE(med_time_to_change), 0) AS median_time_to_change,\nFROM (\n SELECT\n  d.deploy_id,\n  TIMESTAMP_TRUNC(d.time_created, DAY) AS day,\n  PERCENTILE_CONT(\n  IF(TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE) > 0, TIMESTAMP_DIFF(d.time_created, c.time_created, MINUTE), NULL), # Ignore automated pushes\n  0.5) # Median\n  OVER (PARTITION BY TIMESTAMP_TRUNC(d.time_created, DAY)) AS med_time_to_change, # Minutes\n FROM four_keys.deployments d, d.changes\n LEFT JOIN four_keys.changes c ON changes = c.change_id\n)\nGROUP BY day\nORDER BY day",
           "refId": "A",
           "sql": {
             "columns": [
@@ -259,6 +261,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
+            "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "bars",
@@ -692,6 +695,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
+            "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
@@ -930,6 +934,6 @@
   "timezone": "utc",
   "title": "Four Keys",
   "uid": "yVtwoQ4nk",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }
